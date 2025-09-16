@@ -138,7 +138,7 @@ const LoginPage = ({ onLogin }) => {
                   margin: 0,
                 }}
               >
-                Jewellery Retail APP
+                Jewellery Estimation APP
               </h3>
             </div>
           </div>
