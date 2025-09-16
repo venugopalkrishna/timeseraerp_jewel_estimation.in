@@ -1,0 +1,711 @@
+.dashboardContainer {
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  /* Enables scroll if content overflows horizontally */
+  scroll-behavior: smooth;
+  /* Smooth scroll effect */
+  gap: 20px;
+}
+
+.heading {
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+  text-align: left;
+  margin-right: 15px;
+  white-space: nowrap;
+}
+
+.rateCard {
+  background: linear-gradient(to right, #0a1a53, #000);
+  border-radius: 8px;
+  padding: 10px 20px;
+  min-width: 150px;
+  color: white;
+  height: 30px;
+  /* Adjust as needed */
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.rateItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  /* white-space: nowrap; */
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+.salesCard {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.salesHeader {
+  background-color: #333;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.salesContent {
+  background-color: lightblue;
+  padding: 12px;
+  border-radius: 0 0 8px 8px;
+}
+
+.salesContentGold {
+  background-color: #fbecc8;
+  padding: 12px;
+  border-radius: 0 0 8px 8px;
+}
+
+.salesContentSilver {
+  background-color: #e2dedc;
+  padding: 12px;
+  border-radius: 0 0 8px 8px;
+}
+
+.salesContentSilverDiamond {
+  background-color: #c4b8ca;
+  padding: 12px;
+  border-radius: 0 0 8px 8px;
+}
+
+.salesText {
+  color: #090808;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.collectionsTitle {
+  margin-top: 50px;
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+}
+
+.collectionsRow {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.collectionCard {
+  text-align: center;
+  border: 2px solid #52bd91;
+  border-radius: 10%;
+  height: 110px;
+  width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+  background: radial-gradient(circle at center, #ffffff 40%, #f3f6fb 50%, #e0e7f1 80%);
+}
+
+.collectionCard:hover {
+  transform: scale(1.05);
+}
+
+.collectionText {
+  font-size: 12px;
+  /* font-weight: 500; */
+  /* color: #222; */
+}
+
+.collectionAmount {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+.othersTitle {
+  margin-top: 20px;
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+}
+
+.othersRow {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.otherCard {
+  text-align: center;
+  border: 2px solid #52bd91;
+  border-radius: 50%;
+  height: 110px;
+  width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+  background: radial-gradient(circle at center, #ffffff 40%, #f3f6fb 50%, #e0e7f1 80%);
+}
+
+.otherCard:hover {
+  transform: scale(1.05);
+}
+
+.otherText {
+  font-size: 12px;
+}
+
+.otherAmount {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+.boldText {
+  font-weight: bold;
+}
+
+.inlineAmount {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.totalSalesTitle {
+  margin-top: 20px;
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+}
+
+.barChartContainer {
+  display: flex;
+  justify-content: center;
+  /* margin-top: 20px; */
+  margin-bottom: 5px;
+}
+
+.purchasesCard {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.purchasesHeader {
+  background-color: #333;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.purchasesContent {
+  background-color: #52bd91;
+  padding: 12px;
+  border-radius: 0 0 8px 8px;
+}
+
+.purchasesText {
+  color: #090808;
+  font-size: 14px;
+}
+
+.totalPurchasesTitle {
+  margin-top: 20px;
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+}
+
+.dashboardRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 20px;
+  width: 100%;
+  flex-wrap: nowrap;
+  margin-top: 50px;
+  /* <-- always side by side */
+}
+
+.eventCardGroup {
+  background: radial-gradient(circle at center, #ffffff 40%, #f3f6fb 50%, #e0e7f1 80%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.244);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex: 1 1 48%;
+  min-width: 300px;
+}
+
+.eventCard {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+}
+
+.eventItem {
+  text-align: center;
+  flex: 1;
+}
+
+.icon {
+  font-size: 32px;
+  border-radius: 50%;
+  padding: 8px;
+  background: #f3f3f3;
+}
+
+.annicon {
+  font-size: 28px;
+  border-radius: 50%;
+  padding: 8px;
+  background: #f3f3f3;
+}
+
+.birthdayIcon {
+  color: #b59d1a;
+}
+
+.anniversaryIcon {
+  color: #8a3ab9;
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.count {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 6px 0;
+}
+
+.checkButton {
+  background-color: #52bd91;
+  border: none;
+  color: white;
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.checkDueButton {
+  background-color: #52bd91;
+  width: 70px;
+  border: none;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  color: white;
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.verticalLine {
+  width: 3px;
+  height: 70px;
+  background-color: #110303;
+}
+
+.dueCardGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1 1 48%;
+  min-width: 300px;
+}
+
+.dueCard {
+  background: radial-gradient(circle at center, #ffffff 1%, #464c68 40%, #464c68 60%);
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dueTitle {
+  font-size: 14px;
+  color: #FFFFFF;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dueAmount {
+  font-size: 18px;
+  color: #FFFFFF;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+@media (max-width: 480px) and (max-width: 768px) {
+  .eventCardGroup {
+    min-width: auto;
+    height: auto;
+  }
+
+  .eventCard {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: auto;
+  }
+
+  .icon {
+    font-size: 20px;
+    border-radius: 50%;
+    padding: 8px;
+    background: #f3f3f3;
+  }
+
+  .dueCardGroup {
+    min-width: auto;
+    height: auto;
+  }
+
+  .dueCard {
+    height: auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .eventCardGroup {
+    min-width: auto;
+    height: auto;
+  }
+
+  .eventCard {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: auto;
+  }
+
+  .icon {
+    font-size: 20px;
+    border-radius: 50%;
+    padding: 8px;
+    background: #f3f3f3;
+  }
+
+  .dueCardGroup {
+    min-width: auto;
+    height: auto;
+  }
+
+  .dueCard {
+    height: auto;
+  }
+}
+
+/* No need for media query now because layout will stay side by side always! */
+
+
+
+
+.invoicesTitle {
+  margin-top: 50px;
+  color: #222;
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 5px solid #52bd91;
+  padding-left: 8px;
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+  max-height: 600px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.infoBox {
+  width: 100%;
+  height: auto;
+  background: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid black;
+  text-align: left;
+  font-size: 12px;
+  font-weight: bold;
+  background: lightblue;
+  line-height: 1.2;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 0px 8px 0px 8px;
+}
+
+.rowTag {
+  display: flex;
+  flex-direction: column;
+  /* Stacks rows properly */
+  font-size: 12px;
+  /* padding: 0px 8px 0px 8px; */
+}
+
+.estimationRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 0px 8px 0px 8px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.fullWidthStone {
+  width: 100%;
+  background-color: #52bd91;
+  padding: 1px;
+  border-radius: 0 0 5px 5px;
+}
+
+.weightDetails {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.fullWidthLine {
+  width: 100%;
+  border: 1px solid gray;
+  margin: 2px 0;
+}
+
+@media (max-width: 768px) {
+  .occasionCol {
+    flex: 1;
+  }
+
+  .verticalLine {
+    height: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .collectionsRow {
+    justify-content: center;
+  }
+
+  .collectionCol {
+    flex: 1 1 33%;
+    max-width: 33%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .collectionCard {
+    height: 100px;
+    width: 120px;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .collectionCol {
+    flex: 0 0 30%;
+    max-width: 33%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .collectionCard {
+    height: 100px;
+    width: 150px;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+  .othersRow {
+    justify-content: center;
+  }
+
+  .otherCol {
+    flex: 1 1 33%;
+    max-width: 33%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .otherCard {
+    height: 100px;
+    width: 130px;
+  }
+
+  .inlineAmount {
+    flex-direction: column;
+    gap: 2px;
+    margin-top: -20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .otherCol {
+    flex: 0 0 30%;
+    max-width: 33%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .otherCard {
+    height: 100px;
+    width: 150px;
+  }
+
+  .inlineAmount {
+    flex-direction: column;
+    gap: 2px;
+    margin-top: -20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .infoBox {
+    padding: 4px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .infoBox {
+    padding: 2px;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .row,
+  .weightDetails {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) and (max-width: 768px) {
+  .carouselContainer {
+    width: 100%;
+    overflow: hidden;
+    height: 100vh;
+    background: #f0f0f0;
+  }
+
+  .carouselSlider {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .carouselImage {
+    height: 100vh;
+    width: 100vw;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .carouselContainer {
+    width: 100%;
+    overflow: hidden;
+    height: 100vh;
+    background: #f0f0f0;
+    gap: 10px;
+  }
+
+  .carouselSlider {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .carouselImage {
+    height: 100vh;
+    width: 100vw;
+    flex-shrink: 0;
+    gap: 10px;
+  }
+}
+
+@media screen and (orientation: landscape) {
+  body {
+    display: none;
+  }
+
+  .rotateWarning {
+    display: block;
+    text-align: center;
+    padding: 2rem;
+  }
+}
+
+@media screen and (orientation: portrait) {
+  .rotateWarning {
+    display: none;
+  }
+}

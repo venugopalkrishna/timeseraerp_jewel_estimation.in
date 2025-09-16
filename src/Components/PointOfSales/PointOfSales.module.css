@@ -1,0 +1,199 @@
+.container {
+    padding: 20px;
+    max-width: 70%;
+    margin: auto;
+}
+
+.headerContainer {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    width: 100%;
+    /* margin-bottom: 10px; */
+}
+
+.heading {
+    color: #222;
+    font-size: 16px;
+    font-weight: bold;
+    border-left: 5px solid #52bd91;
+    padding-left: 8px;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.buttonRow {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 300px;
+}
+
+.expandButton,
+.collapseButton {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border: 1px solid #52bd91;
+    color: #52bd91;
+    background: white;
+    min-width: 90px;
+}
+
+.expandButton:hover {
+    background: #52bd91;
+    color: white;
+}
+
+.collapseButton {
+    color: #1a1a1a;
+    border-color: #1a1a1a;
+}
+
+.collapseButton:hover {
+    background: #1a1a1a;
+    color: white;
+}
+
+.dateFilters {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.datePicker {
+    width: 180px;
+    height: 36px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.datePicker1 {
+    width: 180px;
+    height: 36px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+.SelectFilter {
+    width: 100%;
+    height: 36px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.accordion {
+    border: 1px solid #52bd91;
+    margin-bottom: 10px;
+    background: #d6d6d6;
+}
+
+.expanded {
+    background: #52bd91;
+    color: #f8f9f8;
+}
+
+.details {
+    background: #d9d9d9;
+    color: black;
+}
+
+@media (max-width: 1024px) {
+    .container {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .buttonRow {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .expandButton,
+    .collapseButton {
+        font-size: 14px;
+        min-width: 80px;
+    }
+
+    .dateFilters {
+        flex-direction: row;
+        margin-bottom: 10px;
+    }
+
+    .datePicker {
+        width: 100%;
+    }
+
+    .SelectFilter {
+        width: 100%;
+    }
+
+    .datePicker1 {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 480px) and (max-width: 768px) {
+    .carouselContainer {
+        width: 100%;
+        overflow: hidden;
+        height: 130px;
+        background: #f0f0f0;
+        gap: 10px
+    }
+
+    .carouselSlider {
+        display: flex;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .carouselImage {
+        height: 130px;
+        width: 33.33%;
+        gap: 10px
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .carouselContainer {
+        width: 100%;
+        overflow: hidden;
+        height: 180px;
+        background: #f0f0f0;
+        gap: 10px;
+    }
+
+    .carouselSlider {
+        display: flex;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .carouselImage {
+        height: 180px;
+        width: 33.33%;
+        /* Show 2 images side by side */
+        flex-shrink: 0;
+        gap: 10px;
+    }
+}
