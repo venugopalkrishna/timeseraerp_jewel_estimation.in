@@ -16,7 +16,19 @@ export const printReceiptModule2 = (
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
 
-  ePosDev.connect(printerIP, 8008, cbConnect);
+  let url;
+  try {
+    url = new URL(
+      printerIP.includes("://") ? printerIP : `http://${printerIP}`
+    );
+  } catch (err) {
+    console.error("Invalid printerIP:", printerIP);
+    return;
+  }
+
+  const secure = url.protocol === "https:";
+
+  ePosDev.connect(url.hostname, url.port || 8008, cbConnect, { secure });
 
   function cbConnect(data) {
     if (data === "OK") {
@@ -133,7 +145,7 @@ export const printReceiptModule2 = (
       const tag = (item?.TAGNO ?? "").toString().padEnd(10, " "); // SNO column
       const purity = (item?.PREFIX ?? "").padEnd(4, " ");
       const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
-        20,
+        27,
         " "
       ); // right-align AMOUNT
 
@@ -178,7 +190,7 @@ export const printReceiptModule2 = (
 
       // Second row: Product Name + HSN + SMCODE + GST
       printer.addTextSize(1, 1);
-      const name = (item.PRODUCTNAME || "").substring(0, 30).padEnd(30, " ");
+      const name = (item.PRODUCTNAME || "").substring(0, 10).padEnd(10, " ");
       const piecesText = item.PIECES
         ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
         : "";
@@ -233,7 +245,7 @@ export const printReceiptModule2 = (
     const leftText1 = leftLabel1 + leftValue1;
 
     const rightLabel1 = "Amount : ";
-    const rightValue1 = (totalAmt).toFixed(2);
+    const rightValue1 = totalAmt.toFixed(2);
     const rightText1 = rightLabel1 + rightValue1;
 
     let spaceCount1 = lineWidth - (leftText1.length + rightText1.length);
@@ -242,15 +254,15 @@ export const printReceiptModule2 = (
     printer.addText(leftText1 + spaces1 + rightText1 + "\n");
 
     // Gross Wt alone on left side
-    printer.addText("Gross Wt : " + (totalGwt).toFixed(3) + "\n");
+    printer.addText("Gross Wt : " + totalGwt.toFixed(3) + "\n");
 
     // Net Wt and GST in the same line
     const leftLabel2 = "Net Wt   : ";
-    const leftValue2 = (totalNwt).toFixed(3);
+    const leftValue2 = totalNwt.toFixed(3);
     const leftText2 = leftLabel2 + leftValue2;
 
     const rightLabel2 = `GST@6% : `;
-    const rightValue2 = (totalGstAmt).toFixed(2);
+    const rightValue2 = totalGstAmt.toFixed(2);
     const rightText2 = rightLabel2 + rightValue2;
 
     let spaceCount2 = lineWidth - (leftText2.length + rightText2.length);
@@ -261,7 +273,9 @@ export const printReceiptModule2 = (
     printer.addTextFont(printer.FONT_B);
     printer.addTextAlign(printer.ALIGN_RIGHT);
     printer.addTextSize(2, 1);
-    printer.addText("TOTAL :" + " " + (grandTotalAmount).toFixed(2) + "/-" + "\n");
+    printer.addText(
+      "TOTAL :" + " " + grandTotalAmount.toFixed(2) + "/-" + "\n"
+    );
     printer.addFeedLine(1);
     printer.addTextFont(printer.FONT_A);
     printer.addTextSize(1, 1);
