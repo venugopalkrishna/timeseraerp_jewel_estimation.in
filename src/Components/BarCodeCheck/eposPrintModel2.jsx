@@ -16,19 +16,7 @@ export const printReceiptModule2 = (
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
 
-  let url;
-  try {
-    url = new URL(
-      printerIP.includes("://") ? printerIP : `http://${printerIP}`
-    );
-  } catch (err) {
-    console.error("Invalid printerIP:", printerIP);
-    return;
-  }
-
-  const secure = url.protocol === "https:";
-
-  ePosDev.connect(url.hostname, url.port || 8008, cbConnect, { secure });
+  ePosDev.connect(printerIP, 8008, cbConnect);
 
   function cbConnect(data) {
     if (data === "OK") {
