@@ -133,7 +133,7 @@ export const printReceipt = (
       const tag = (item?.TAGNO ?? "").toString().padEnd(10, " "); // SNO column
       const purity = (item?.PREFIX ?? "").padEnd(4, " ");
       const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
-        20,
+        27,
         " "
       ); // right-align AMOUNT
 
@@ -178,7 +178,7 @@ export const printReceipt = (
 
       // Second row: Product Name + HSN + SMCODE + GST
       printer.addTextSize(1, 1);
-      const name = (item.PRODUCTNAME || "").substring(0, 30).padEnd(30, " ");
+      const name = (item.PRODUCTNAME || "").substring(0, 10).padEnd(10, " ");
       const piecesText = item.PIECES
         ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
         : "";

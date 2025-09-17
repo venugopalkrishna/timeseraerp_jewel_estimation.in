@@ -7,6 +7,9 @@ const PrintTemplateDialog = ({
   handleEposPrintModule2,
   createEstimationData,
   createEstimationMast,
+  estimationDeleteData,
+  estimationDeleteMast,
+  tagNo,
 }) => {
   const handlePrintWithAPIs = (printFn) => {
     try {
@@ -54,10 +57,19 @@ const PrintTemplateDialog = ({
       }}
     >
       <button
-        onClick={() => {
+        onClick={async () => {
           handleEposPrint();
-          createEstimationData();
-          createEstimationMast();
+
+          if (tagNo) {
+            // Wait for deletion to finish first
+            await estimationDeleteData();
+            await estimationDeleteMast();
+          }
+
+          // Then create new records
+          await createEstimationData();
+          await createEstimationMast();
+
           onCancel();
         }}
         style={{
@@ -76,10 +88,14 @@ const PrintTemplateDialog = ({
       </button>
 
       <button
-        onClick={() => {
+        onClick={async () => {
           handleEposPrintModule2();
-          createEstimationData();
-          createEstimationMast();
+          if (tagNo) {
+            await estimationDeleteData();
+            await estimationDeleteMast();
+          }
+          await createEstimationData();
+          await createEstimationMast();
           onCancel();
         }}
         style={{

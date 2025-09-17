@@ -54,7 +54,7 @@ const LoginPage = ({ onLogin }) => {
     const { username, password } = values;
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=LOGINUSER&where=USERNAME='${username}' AND PASSWORD='${password}'`,
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=LOGINUSER_PROFILE&where=USERNAME='${username}'`,
         {
           headers: {
             tenantName: name,
@@ -65,7 +65,9 @@ const LoginPage = ({ onLogin }) => {
       const data = response.data;
 
       if (Array.isArray(data) && data.length > 0) {
-        localStorage.setItem("userType", data[0].AUTHORITY_TYPE);
+        localStorage.setItem("userType", data[0].USER_TYPE);
+        localStorage.setItem("ipAddress", data[0].PRINTERIP);
+        localStorage.setItem("printModel", data[0].PRINT_MODEL);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);

@@ -46,6 +46,7 @@ const BarCodeCheck = () => {
   // const [userName, setUserName] = useState();
   // const [singleImage, setSingleImage] = useState();
   const [estNo, setEstNo] = useState();
+  const [tagNo, setTagNo] = useState();
   const [modifyCode, setModifyCode] = useState();
   const [modifyOpen, setModifyOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -60,8 +61,6 @@ const BarCodeCheck = () => {
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
 
-  console.log(scannedRef, "scan");
-
   const imageUrls = localStorage.getItem("images").split(",");
   const imagesData = imageUrls;
   const userArea = localStorage.getItem("city");
@@ -69,6 +68,9 @@ const BarCodeCheck = () => {
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
   const userType = localStorage.getItem("userType");
+  const localIp = localStorage.getItem("ipAddress");
+  const printModel = localStorage.getItem("printModel");
+  console.log(localIp, "localIp");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -306,7 +308,7 @@ const BarCodeCheck = () => {
   const createEstimationData = async () => {
     const requestBody = barCodeData.map((item, index) => {
       return {
-        estimationNo: String(modifyCode ? modifyCode : estNo ?? "-"), // always a string
+        estimationNo: String(tagNo ? tagNo : estNo ?? "-"), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
         mname: String(item?.MNAME ?? "-"),
         productName: String(item?.PRODUCTNAME ?? "-"),
@@ -373,7 +375,7 @@ const BarCodeCheck = () => {
 
   const createEstimationMast = async () => {
     const requestBody = {
-      estimationNo: String(modifyCode ? modifyCode : estNo),
+      estimationNo: String(tagNo ? tagNo : estNo),
       gold: 0,
       platinum: 0,
       silver: 0,
@@ -433,6 +435,7 @@ const BarCodeCheck = () => {
       estimationNo();
       setModifyCode();
       handleReset();
+      setTagNo();
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -480,6 +483,38 @@ const BarCodeCheck = () => {
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
+    }
+  };
+
+  const estimationDeleteData = async () => {
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${tagNo}`,
+        {},
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+  };
+
+  const estimationDeleteMast = async () => {
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO=${tagNo}`,
+        {},
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error posting data:", error);
     }
   };
 
@@ -656,8 +691,8 @@ const BarCodeCheck = () => {
     estimationNo();
   }, []);
 
-  const [localIp, setLocalIp] = useState("192.168.0.121");
-  const EstNo = modifyCode ? modifyCode : estNo
+  // const [localIp, setLocalIp] = useState("192.168.0.121");
+  const EstNo = tagNo ? tagNo : estNo;
 
   const handleEposPrint = () => {
     printReceipt(
@@ -691,6 +726,8 @@ const BarCodeCheck = () => {
     );
   };
 
+  console.log(tagNo, "modify");
+
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
       {contextHolder}
@@ -710,7 +747,7 @@ const BarCodeCheck = () => {
             <span
               style={{ fontSize: "20px", fontWeight: "bold", color: "red" }}
             >
-              {modifyCode ? modifyCode : estNo}
+              {tagNo ? tagNo : estNo}
             </span>
           </span>
         </div>
@@ -752,7 +789,10 @@ const BarCodeCheck = () => {
               type="primary"
               danger
               className={styles.resetButton}
-              onClick={handleReset}
+              onClick={() => {
+                handleReset();
+                setTagNo();
+              }}
             >
               Reset
             </Button>
@@ -1606,17 +1646,23 @@ const BarCodeCheck = () => {
         </div>
 
         <div className={styles.buttonBox}>
-          <button className={styles.btn} onClick={handleReset}>
+          <button
+            className={styles.btn}
+            onClick={() => {
+              handleReset();
+              setTagNo();
+            }}
+          >
             NEW
           </button>
           <button
             className={styles.btn}
             onClick={() => {
               if (barCodeData.length > 0) {
-                // if (selectEstimationNo?.ESTIMATIONNO) {
-                //   estimationDeleteData();
-                //   estimationDeleteMast();
-                // }
+                if (tagNo) {
+                  estimationDeleteData();
+                  estimationDeleteMast();
+                }
                 if (barCodeData.length > 0) {
                   createEstimationData();
                   createEstimationMast();
@@ -1669,7 +1715,9 @@ const BarCodeCheck = () => {
         handleEposPrintModule2={handleEposPrintModule2}
         createEstimationData={createEstimationData}
         createEstimationMast={createEstimationMast}
-        s
+        estimationDeleteData={estimationDeleteData}
+        estimationDeleteMast={estimationDeleteMast}
+        tagNo={tagNo}
       />
       <ModifyEstNo
         modifyOpen={modifyOpen}
@@ -1678,6 +1726,7 @@ const BarCodeCheck = () => {
         setModifyCode={setModifyCode}
         estimationNoDataAPI={estimationNoDataAPI}
         handleReset={handleReset}
+        setTagNo={setTagNo}
       />
     </div>
   );

@@ -9,6 +9,7 @@ const ModifyEstNo = ({
   setModifyCode,
   estimationNoDataAPI,
   handleReset,
+  setTagNo,
 }) => {
   const inputRef = useRef(null);
 
@@ -69,6 +70,7 @@ const ModifyEstNo = ({
                   const value = e.target.value.replace(/\D/g, "");
                   if (value.length <= 10) {
                     setModifyCode(value);
+                    setTagNo(value);
                   }
                 }}
               />
