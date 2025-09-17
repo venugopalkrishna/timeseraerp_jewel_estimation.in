@@ -186,7 +186,7 @@ const BarCodeCheck = () => {
           0
         );
         const totalNwtAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.SALE_NETAMOUNT) || 0),
+          (sum, item) => sum + (parseFloat(item.SALE_NETAMT) || 0),
           0
         );
         const totalWastAmount = updatedData.reduce(
@@ -1230,8 +1230,8 @@ const BarCodeCheck = () => {
                       <br />
                       <span className={styles.amount1}>
                         ₹{" "}
-                        {barCode?.SALE_NETAMOUNT
-                          ? barCode?.SALE_NETAMOUNT.toFixed(2)
+                        {barCode?.SALE_NETAMT
+                          ? barCode?.SALE_NETAMT.toFixed(2)
                           : 0.0}
                       </span>
                     </div>
