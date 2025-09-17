@@ -16,19 +16,8 @@ export const printReceipt = (
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
 
-  // ePosDev.connect(printerIP, 8008, cbConnect);
-  // ePosDev.connect(printerIP, 8008, cbConnect, { secure: true });
-  const isHttps = window.location.protocol === "https:";
-
-  console.log(
-    "Browser protocol:",
-    window.location.protocol,
-    " -> secure:",
-    isHttps
-  );
-
-  // ✅ Pass correct secure flag
-  ePosDev.connect(printerIP, 8008, cbConnect, { secure: isHttps });
+  ePosDev.connect(printerIP, 8008, cbConnect);
+  // ePosDev.connect(printerIP, 8043, cbConnect, { secure: true });
 
   function cbConnect(data) {
     if (data === "OK") {
