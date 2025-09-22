@@ -51,6 +51,7 @@ const SidebarDrawer = ({
     localStorage.removeItem("userType");
     localStorage.removeItem("ipAddress");
     localStorage.removeItem("printModel");
+    localStorage.removeItem("loginName");
     localStorage.clear();
     window.location.reload();
   };

@@ -8,6 +8,7 @@ const ModifyEstNo = ({
   modifyCode,
   setModifyCode,
   estimationNoDataAPI,
+  estimationNoMastAPI,
   handleReset,
   setTagNo,
 }) => {
@@ -39,6 +40,7 @@ const ModifyEstNo = ({
       open={modifyOpen}
       onOk={() => {
         estimationNoDataAPI();
+        estimationNoMastAPI();
         handleReset();
       }}
       onCancel={handleCancel}

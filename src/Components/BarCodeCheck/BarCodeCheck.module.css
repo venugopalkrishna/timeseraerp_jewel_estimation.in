@@ -26,62 +26,62 @@
 }
 
 .estimationTagContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 10px 0px 10px 0px;
-    background: lightblue;
-    border-radius: 8px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    /* top: 20px; */
-    z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0px 10px 0px;
+  background: lightblue;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  /* top: 20px; */
+  z-index: 10;
 }
 
 .tagNoSection {
-    display: flex;
-    flex-direction: column;
-    /* Stack elements vertically */
-    align-items: center;
-    gap: 5px;
-    flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Stack elements vertically */
+  align-items: center;
+  gap: 5px;
+  flex: 1;
 }
 
 .tagLabel {
-    font-size: 16px;
-    font-weight: bold;
-    white-space: nowrap;
+  font-size: 16px;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .tagInput {
-    width: 70%;
-    height: 40px;
-    font-size: 20px;
-    text-align: center;
-    font-weight: bold;
+  width: 70%;
+  height: 40px;
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .buttonSection {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .submitButton {
-    background-color: #0C1154 !important;
-    border-color: #0C1154 !important;
-    color: white;
-    padding: 6px 12px;
-    height: 70%;
+  background-color: #0c1154 !important;
+  border-color: #0c1154 !important;
+  color: white;
+  padding: 6px 12px;
+  height: 70%;
 }
 
 .resetButton {
-    background-color: red !important;
-    border-color: red !important;
-    color: white;
-    padding: 6px 12px;
-    height: 70%;
+  background-color: red !important;
+  border-color: red !important;
+  color: white;
+  padding: 6px 12px;
+  height: 70%;
 }
 
 .buttonRow {
@@ -827,6 +827,16 @@
   align-items: center;
 }
 
+.highlightBox2 {
+  background: #ffd93d;
+  border: 1px solid #ffd93d;
+  padding: 3px 4px 3px 4px;
+  border-radius: 6px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
 .value {
   float: right;
 }
@@ -904,7 +914,7 @@
 
 .totalRow {
   display: grid;
-  grid-template-columns: auto 12px 1fr; 
+  grid-template-columns: auto 12px 1fr;
   font-size: 13px;
   color: #333;
   /* margin: 2px 0; */

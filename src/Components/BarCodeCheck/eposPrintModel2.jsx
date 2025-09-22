@@ -11,7 +11,16 @@ export const printReceiptModule2 = (
   totalNwt,
   totalAmt,
   totalGstAmt,
-  grandTotalAmount
+  grandTotalAmount,
+  gstNo,
+  loginName,
+  printModel,
+  customerName,
+  customerMobile,
+  customerArea,
+  wastageData,
+  mcData,
+  totalAmounts
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -137,31 +146,51 @@ export const printReceiptModule2 = (
         " "
       ); // right-align AMOUNT
 
-      const mcg = `${item?.MAKINGCHARGES ?? 0}/g`.padEnd(6, " ");
-      const mcAmt = `${Number(item?.CATTOTMC ?? 0).toFixed(2)}`.padStart(
-        20,
-        " "
+      const matchedTotal = totalAmounts.find(
+        (tot) => tot.TAGNO === item?.TAGNO
       );
+
+      const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+      const mcg = `${
+        matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0
+      }/g`.padEnd(6, " ");
+      const mcAmt = `${Number(
+        matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0
+      ).toFixed(2)}`.padStart(20, " ");
+
+      const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");
       const swt = `${Number(item?.stonewt ?? 0).toFixed(3)}`.padStart(27, " ");
       const nwt = `${Number(item?.NWT ?? 0).toFixed(3)}`.padStart(27, " ");
-      const WGrams = `${item?.WASTAGE ?? 0}%`.padEnd(6, " ");
-      const WAmt = `${Number(item?.CATTOTWAST ?? 0).toFixed(2)}`.padStart(
-        20,
+      const WGrams = `${matched?.WASTAGE ?? item?.WASTAGE ?? 0}%`.padEnd(
+        6,
         " "
       );
+      const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
+        3
+      )}`.padStart(20, " ");
       const SAmt = `${Number(item?.ITEM_TOTAMT ?? 0).toFixed(2)}`.padStart(
         27,
         " "
       );
-      const amt = `${Number(item?.SALE_AMOUNT ?? 0).toFixed(2)}`.padStart(
+      const calculateAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+      const nwtAmt = Number(item?.NWT ?? 0);
+      const rateAmt = Number(item?.RATE ?? 0);
+
+      const amtValue = (nwtAmt + calculateAmt) * rateAmt || 0;
+
+      const amt = amtValue.toFixed(2).padStart(27, " ");
+
+      const totalAmtValue = matchedTotal?.TOTALAMT;
+      const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(2)}`.padStart(
         27,
         " "
       );
-      const amtNumber = Number(item?.SALE_AMOUNT ?? 0);
-      const sAmtNumber = Number(item?.ITEM_TOTAMT ?? 0);
-      const totalAmtValue = amtNumber + sAmtNumber;
-      const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(2)}`.padStart(
+
+      const rate = Number(item?.RATE ?? 0);
+      const nwtValue = Number(item?.NWT ?? 0);
+      const totalValue = rate * nwtValue;
+      const metalValue = `${Number(totalValue ?? 0).toFixed(2)}`.padStart(
         27,
         " "
       );
@@ -186,9 +215,14 @@ export const printReceiptModule2 = (
       printer.addText(`    GROSS WEIGHT   : ${gwt}\n`);
       printer.addText(`    STONE LESS     : ${swt}\n`);
       printer.addText(`    NWT WEIGHT     : ${nwt}\n`);
-      printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
-      printer.addText(`    TOTAL WEIGHT   : ${nwt}\n`);
-      printer.addText(`    AMOUNT         : ${amt}\n`);
+      if (Number(printModel) === 3) {
+        printer.addText(`    METAL VALUE    : ${metalValue}\n`);
+        printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+      } else {
+        printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+        printer.addText(`    TOTAL WEIGHT   : ${nwt}\n`);
+        printer.addText(`    AMOUNT         : ${amt}\n`);
+      }
       printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
       const matchedStones = stonesData.filter(
@@ -196,24 +230,36 @@ export const printReceiptModule2 = (
       );
       matchedStones.forEach((stone, index) => {
         const itemName = (stone.ITEMNAME || "")
-          .substring(0, 12)
-          .padEnd(12, " ");
-        const CTS = (
-          stone?.CTS && stone.CTS !== 0 ? stone.CTS : stone?.GRMS ?? 0
-        )
-          .toFixed(3)
-          .padEnd(5, " ");
-        const rate = `${(stone?.RATE ?? 0).toFixed(2)}`.padEnd(7, " ");
-        const amount = `${(stone?.AMOUNT ?? 0).toFixed(2)}`.padEnd(10, " ");
+          .substring(0, 10)
+          .padEnd(10, " ");
+
+        // Use CTS if available else GRMS
+        const qty =
+          stone?.CTS && stone.CTS !== 0 ? stone.CTS : stone?.GRMS ?? 0;
+
+        const qtyStr = qty.toFixed(3).padStart(7, " "); // right-align like in image
+        const rateStr = stone?.RATE?.toFixed(0).padStart(7, " "); // right-aligned
+        const amtStr = stone?.AMOUNT?.toFixed(0).padStart(8, " "); // right-aligned
+
         printer.addTextFont(printer.FONT_C);
         printer.addTextSize(1, 1);
-        printer.addText(
-          `         ${itemName} :  ${CTS} CTS X   ${rate} = ${amount}\n`
-        );
+
+        // Format similar to your image: ITEMNAME :  QTY UNIT X RATE = AMOUNT
+        if (Number(printModel) === 2) {
+          printer.addText(
+            `       ${itemName} : ${qtyStr} ${stone?.CTS ? "CTS" : "GMS"}\n`
+          );
+        } else {
+          printer.addText(
+            `         ${itemName} : ${qtyStr} ${
+              stone?.CTS ? "CTS" : "GMS"
+            } X ${rateStr} = ${amtStr}\n`
+          );
+        }
         printer.addTextFont(printer.FONT_A);
         printer.addTextSize(1, 1);
-        printer.addFeedLine(1);
       });
+      printer.addFeedLine(1);
       printer.addText(`    TOTAL VALUE    : ${totalAmt}\n`);
       // Third row: MRP + OFFER
       // printer.addText(
@@ -249,7 +295,7 @@ export const printReceiptModule2 = (
     const leftValue2 = totalNwt.toFixed(3);
     const leftText2 = leftLabel2 + leftValue2;
 
-    const rightLabel2 = `GST@6% : `;
+    const rightLabel2 = `GST@${gstNo}% : `;
     const rightValue2 = totalGstAmt.toFixed(2);
     const rightText2 = rightLabel2 + rightValue2;
 
@@ -261,9 +307,8 @@ export const printReceiptModule2 = (
     printer.addTextFont(printer.FONT_B);
     printer.addTextAlign(printer.ALIGN_RIGHT);
     printer.addTextSize(2, 1);
-    printer.addText(
-      "TOTAL :" + " " + grandTotalAmount.toFixed(2) + "/-" + "\n"
-    );
+    const totalValue = grandTotalAmount;
+    printer.addText("TOTAL :" + " " + totalValue.toFixed(2) + "/-" + "\n");
     printer.addFeedLine(1);
     printer.addTextFont(printer.FONT_A);
     printer.addTextSize(1, 1);
@@ -288,9 +333,9 @@ export const printReceiptModule2 = (
     printer.addText("*** VALID FOR ONE HOUR ONLY ***\n");
     printer.addTextAlign(printer.ALIGN_LEFT);
     printer.addText("New Customer    {   }  Existing Customer {   }\n");
-    printer.addText("Mobile No  : \n");
-    printer.addText("Name       : \n");
-    printer.addText("City       : \n");
+    printer.addText(`Mobile No  : ${customerMobile}\n`);
+    printer.addText(`Name       : ${customerName}\n`);
+    printer.addText(`City       : ${customerArea}\n`);
     printer.addText("Address    : \n");
     printer.addText("Address2   : \n");
     printer.addText("Address3   : \n");
@@ -298,8 +343,8 @@ export const printReceiptModule2 = (
     printer.addFeedLine(1);
 
     printer.addTextAlign(printer.ALIGN_LEFT);
-    printer.addText(`Date : ${dayjs().format("DD-MM-YYY hh:mm A")}\n`);
-    printer.addText(`User Name : ${userName}\n`);
+    printer.addText(`Date : ${dayjs().format("DD-MM-YYYY hh:mm A")}\n`);
+    printer.addText(`User Name : ${loginName}\n`);
     printer.addFeedLine(2);
     printer.addCut(printer.CUT_FEED);
 

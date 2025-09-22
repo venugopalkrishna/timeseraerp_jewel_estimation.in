@@ -1,7 +1,13 @@
 import CloseIcon from "@mui/icons-material/Close";
 import { Modal } from "antd";
 
-const StonesDetailsDialog = ({ stonesOpen, handleCancel, stonesData }) => {
+const StonesDetailsDialog = ({
+  stonesOpen,
+  handleCancel,
+  stonesData,
+  stoneNo,
+}) => {
+  const matchedStones = stonesData.filter((stone) => stone.TAGNO === stoneNo);
   return (
     <Modal
       open={stonesOpen}
@@ -42,7 +48,7 @@ const StonesDetailsDialog = ({ stonesOpen, handleCancel, stonesData }) => {
         </div>
       }
     >
-      {stonesData.map((stone, index) => (
+      {matchedStones.map((stone, index) => (
         <div
           key={stone.id}
           style={{

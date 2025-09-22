@@ -174,7 +174,7 @@ const TagCheck = () => {
       </div> */}
       <div className={styles.container}>
         <div className={styles.headerContainer}>
-          <h3 className={styles.heading}>Tag No Check</h3>
+          <h3 className={styles.heading}>Tag Check</h3>
         </div>
         <div className={styles.estimationTagContainer}>
           <div className={styles.tagNoSection}>
@@ -619,7 +619,7 @@ const TagCheck = () => {
                   Total Amount
                   <br />
                   <span className={styles.amount1}>
-                    ₹{" "}
+                    ₹
                     {barCodeData[0]?.SALE_AMOUNT
                       ? barCodeData[0]?.SALE_AMOUNT.toFixed(2)
                       : 0.0}
@@ -629,7 +629,7 @@ const TagCheck = () => {
                   Gst @ {barCodeData[0]?.GSTRATE || 0.0}%
                   <br />
                   <span className={styles.amount1}>
-                    ₹{" "}
+                    ₹
                     {barCodeData[0]?.SALE_GSTAMOUNT
                       ? barCodeData[0]?.SALE_GSTAMOUNT.toFixed(2)
                       : 0.0}
@@ -639,9 +639,9 @@ const TagCheck = () => {
                   Net.Amt
                   <br />
                   <span className={styles.amount1}>
-                    ₹{" "}
-                    {barCodeData[0]?.SALE_NETAMOUNT
-                      ? barCodeData[0]?.SALE_NETAMOUNT.toFixed(2)
+                    ₹
+                    {barCodeData[0]?.SALE_NETAMT
+                      ? barCodeData[0]?.SALE_NETAMT.toFixed(2)
                       : 0.0}
                   </span>
                 </div>

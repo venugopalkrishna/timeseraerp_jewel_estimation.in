@@ -1,22 +1,26 @@
+import { DeleteOutlined, ScanOutlined } from "@ant-design/icons";
+import AutoFixHighSharpIcon from "@mui/icons-material/AutoFixHighSharp";
+import CloseIcon from "@mui/icons-material/Close";
+import ContactPhoneSharpIcon from "@mui/icons-material/ContactPhoneSharp";
+import { Box } from "@mui/material";
 import { Button, Input, message } from "antd";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import dayjs from "dayjs";
 import { Html5Qrcode } from "html5-qrcode";
-import CloseIcon from "@mui/icons-material/Close";
-import AutoFixHighSharpIcon from "@mui/icons-material/AutoFixHighSharp";
+import { useEffect, useRef, useState } from "react";
 import { CREATE_jwel } from "../Config/Config";
 import Header from "../Header";
 import SidebarDrawer from "../SidebarDrawer";
 import styles from "./BarCodeCheck.module.css";
-import StonesDetailsDialog from "./StonesDetailsDialog";
-import dayjs from "dayjs";
-import { Box } from "@mui/material";
-import ImageDialog from "./ImageDialog";
-import { ScanOutlined } from "@ant-design/icons";
+import CustomerInformation from "./CustomerInformation";
 import { printReceipt } from "./eposPrint";
 import { printReceiptModule2 } from "./eposPrintModel2";
-import PrintTemplateDialog from "./PrintDialog";
+import ImageDialog from "./ImageDialog";
 import ModifyEstNo from "./ModifyEstNo";
+import PrintTemplateDialog from "./PrintDialog";
+import StonesDetailsDialog from "./StonesDetailsDialog";
+import WastageDialog from "./WastageDialog";
+import MakingChargesDialog from "./MakingChargesDialog";
 
 const BarCodeCheck = () => {
   const tagNoRef = useRef(null);
@@ -37,10 +41,18 @@ const BarCodeCheck = () => {
   const [totalItemDiaAmt, setTotalItemDiaAmt] = useState(0);
   const [totalItemUncAmt, setTotalItemUncAmt] = useState(0);
   const [totalDiamondAmt, setTotalDiamondAmt] = useState(0);
+  const [gstNo, setGstNo] = useState(0);
   const [totalPurAmt, setTotalPurAmt] = useState(0);
   const [totalPurGstAmt, setTotalPurGstAmt] = useState(0);
   const [totalPurNwtAmt, setTotalPurNwtAmt] = useState(0);
   const [totalStoneAmt, setTotalStoneAmt] = useState(0);
+  const [wastageData, setWastageData] = useState([]);
+  const [wastageOpen, setWastageOpen] = useState(false);
+  const [wastageTagNo, setWastageTagNo] = useState();
+  const [mcData, setMcData] = useState([]);
+  const [mcOpen, setMcOpen] = useState(false);
+  const [mcTagNo, setMcTagNo] = useState();
+  const [totalAmounts, setTotalAmounts] = useState([]);
   // const [imagesData, setImagesData] = useState([]);
   // const [userArea, setUserArea] = useState();
   // const [userName, setUserName] = useState();
@@ -50,6 +62,11 @@ const BarCodeCheck = () => {
   const [modifyCode, setModifyCode] = useState();
   const [modifyOpen, setModifyOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [stoneNo, setStoneNo] = useState();
+  const [customerArea, setCustomerArea] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerMobile, setCustomerMobile] = useState("");
+  const [customerOpen, setCustomerOpen] = useState(false);
   const [changeCard, setChangeCard] = useState(true);
   const [stonesOpen, setStonesOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
@@ -70,7 +87,7 @@ const BarCodeCheck = () => {
   const userType = localStorage.getItem("userType");
   const localIp = localStorage.getItem("ipAddress");
   const printModel = localStorage.getItem("printModel");
-  console.log(localIp, "localIp");
+  const loginName = localStorage.getItem("loginName");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -177,18 +194,18 @@ const BarCodeCheck = () => {
           (sum, item) => sum + (parseFloat(item.NWT) || 0),
           0
         );
-        const totalAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.SALE_AMOUNT) || 0),
-          0
-        );
-        const totalGstAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.SALE_GSTAMOUNT) || 0),
-          0
-        );
-        const totalNwtAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.SALE_NETAMT) || 0),
-          0
-        );
+        // const totalAmount = updatedData.reduce(
+        //   (sum, item) => sum + (parseFloat(item.SALE_AMOUNT) || 0),
+        //   0
+        // );
+        // const totalGstAmount = updatedData.reduce(
+        //   (sum, item) => sum + (parseFloat(item.SALE_GSTAMOUNT) || 0),
+        //   0
+        // );
+        // const totalNwtAmount = updatedData.reduce(
+        //   (sum, item) => sum + (parseFloat(item.SALE_NETAMT) || 0),
+        //   0
+        // );
         const totalWastAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
           0
@@ -230,15 +247,16 @@ const BarCodeCheck = () => {
         setTotalPcs(pcs);
         setTotalGwt(gwt);
         setTotalNwt(nwt);
-        setTotalAmt(totalAmount);
-        setTotalGstAmt(totalGstAmount);
-        setTotalNwtAmt(totalNwtAmount);
+        // setTotalAmt(totalAmount);
+        // setTotalGstAmt(totalGstAmount);
+        // setTotalNwtAmt(totalNwtAmount);
         setTotalWastAmt(totalWastAmount);
         setTotalMcAmt(totalMcAmount);
         setTotalItemCtsAmt(totalCtsAmount);
         setTotalItemUncAmt(totalUnCutsAmount);
         setTotalItemDiaAmt(totalItemDiaAmount);
         setTotalDiamondAmt(totalDiamondAmount);
+        setGstNo(data[0]?.GSTRATE);
         setTotalPurAmt(totalPurAmount);
         setTotalPurGstAmt(totalPurGstAmount);
         setTotalPurNwtAmt(totalPurNwtAmount);
@@ -303,10 +321,14 @@ const BarCodeCheck = () => {
     }
   };
 
-  const grandTotalAmount = totalAmt + totalStoneAmt;
-
+  const grandTotalAmount = totalAmt + totalGstAmt;
   const createEstimationData = async () => {
     const requestBody = barCodeData.map((item, index) => {
+      const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+      const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+      const matchedTotals = totalAmounts.find(
+        (tot) => tot.TAGNO === item.TAGNO
+      );
       return {
         estimationNo: String(tagNo ? tagNo : estNo ?? "-"), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
@@ -316,17 +338,19 @@ const BarCodeCheck = () => {
         gwt: Number(item?.GWT ?? 0),
         nwt: Number(item?.NWT ?? 0),
         categoryName: String(item?.CATEGORYNAME ?? "-"),
-        wastage: String(item?.WASTAGE ?? "-"),
-        directWastage: String(item?.DIRECTWASTAGE ?? "-"),
-        cattotwast: String(item?.CATTOTWAST ?? "-"),
-        makingCharges: String(item?.MAKINGCHARGES ?? "-"),
-        directMc: String(item?.DIRECTMC ?? "-"),
-        cattotMc: String(item?.CATTOTMC ?? "-"),
+        wastage: String(matched?.WASTAGE ?? item?.WASTAGE ?? "-"),
+        directWastage: String(matched?.DIRECTWT ?? "-"),
+        cattotwast: String(matched?.TOTALWT ?? item?.CATTOTWAST ?? "-"),
+        makingCharges: String(
+          matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? "-"
+        ),
+        directMc: String(matchedMc?.DIRECTAMT ?? "-"),
+        cattotMc: String(matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? "-"),
         brandName: String(item?.BRANDNAME ?? "-"),
         brandAmt: Number(item?.BRANDAMT ?? 0),
-        amount: Number(item?.SALE_AMOUNT ?? 0),
+        amount: Number(matchedTotals?.TOTALAMT ?? 0),
         itemamt: Number(item?.ITEM_TOTAMT ?? 0),
-        totamt: Number(item?.SALE_NETAMOUNT ?? 0),
+        totamt: Number(matchedTotals?.NETAMT ?? 0),
         estDate: new Date().toISOString(),
         estTime: new Date().toISOString(),
         rate: Number(item?.RATE ?? 0),
@@ -384,10 +408,10 @@ const BarCodeCheck = () => {
       cT_18: 0,
       grandTotal: Number(grandTotalAmount),
       vatAmt: Number(totalGstAmt),
-      grossAmt: Number(grandTotalAmount + totalGstAmt),
+      grossAmt: Number(grandTotalAmount),
       discountPer: 0,
       discountAmt: 0,
-      netAmt: Number(grandTotalAmount + totalGstAmt),
+      netAmt: Number(grandTotalAmount),
       estDate: new Date().toISOString(),
       estTime: new Date().toISOString(),
       totPces: Number(totalPcs),
@@ -397,7 +421,7 @@ const BarCodeCheck = () => {
       totMc: Number(totalMcAmt),
       totAmount: Number(totalAmt),
       itemAmount: Number(totalStoneAmt),
-      custName: "-",
+      custName: customerName,
       jewelType: barCodeData[0]?.MNAME,
       billNo: 0,
       saleCode: 0,
@@ -414,8 +438,8 @@ const BarCodeCheck = () => {
       totpaid: 0,
       totbalance: 0,
       purchamt: 0,
-      city: "-",
-      mobileno: "-",
+      city: customerArea,
+      mobileno: customerMobile,
       purchno: 0,
       pamt: 0,
     };
@@ -462,11 +486,117 @@ const BarCodeCheck = () => {
       );
 
       const data = response.data;
-      console.log("data", data);
+      const modifiedData = data.map((item, index) => {
+        const nwt = Number(item?.Nwt) || 0;
+        const wastage = Number(item?.Wastage) || 0;
+        return {
+          TAGNO: item?.TagNo ?? 0,
+          NWT: nwt,
+          WASTAGE: wastage ? wastage.toString() : "",
+          DIRECTWT: item?.DirectWastage,
+          TOTALWT: Number((nwt * wastage) / 100),
+        };
+      });
+
+      const modifiedMcData = data.map((item, index) => {
+        const nwt = Number(item?.Nwt) || 0;
+        const making = Number(item?.MakingCharges) || 0;
+        return {
+          TAGNO: item?.TagNo ?? 0,
+          NWT: nwt,
+          MAKINGCHARGES: making ? making.toString() : "",
+          DIRECTAMT: item?.DirectMc,
+          TOTALAMT: Number(nwt * making),
+        };
+      });
+
+      const modifiedTotalData = data.map((item) => {
+        const safeNumber = (val) => {
+          const num = Number(val);
+          return isNaN(num) ? 0 : num;
+        };
+        // ✅ Normalize all numeric fields
+        const nwt = safeNumber(item?.Nwt ?? 0);
+        const rate = safeNumber(item?.Rate ?? 0);
+        const cattotwast = safeNumber(item?.Cattotwast ?? 0);
+        const cattotMc = safeNumber(item?.CattotMc ?? 0);
+        const directWastage = safeNumber(item?.DirectWastage ?? 0);
+        const directMc = safeNumber(item?.DirectMc ?? 0);
+        const stoneAmount = safeNumber(item?.Itemamt ?? 0);
+
+        const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
+        const mcAmount = directMc > 0 ? directMc : cattotMc;
+
+        const rateAmount = Number(nwt + wastageAmt).toFixed(3);
+        const amount = Number(rateAmount * rate).toFixed(0);
+        const mcStone = mcAmount + stoneAmount;
+
+        const totalAmount = safeNumber(amount) + safeNumber(mcStone);
+        const gstAmount = (totalAmount * 3) / 100;
+        const netAmount = totalAmount + gstAmount;
+
+        return {
+          TAGNO: item?.TagNo ?? "",
+          TOTALAMT: totalAmount,
+          GSTTOTALAMT: gstAmount,
+          NETAMT: netAmount,
+        };
+      });
 
       if (Array.isArray(data) && data.length > 0) {
         handleModifyCancel();
         setModifyCode();
+
+        setTotalAmounts((prevData) => {
+          const existingTags = prevData.map((item) => item.TAGNO);
+
+          const filteredData = modifiedTotalData.filter(
+            (item) => !existingTags.includes(item.TAGNO)
+          );
+
+          if (filteredData.length === 0) {
+            // message.error("All these tag numbers already existed");
+            return prevData;
+          }
+
+          const updatedData = [...prevData, ...modifiedTotalData];
+
+          return updatedData;
+        });
+
+        setWastageData((prevData) => {
+          const existingTags = prevData.map((item) => item.TAGNO);
+
+          const filteredData = modifiedData.filter(
+            (item) => !existingTags.includes(item.TAGNO)
+          );
+
+          if (filteredData.length === 0) {
+            // message.error("All these tag numbers already existed");
+            return prevData;
+          }
+
+          const updatedData = [...prevData, ...modifiedData];
+
+          return updatedData;
+        });
+
+        setMcData((prevData) => {
+          const existingTags = prevData.map((item) => item.TAGNO);
+
+          const filteredData = modifiedMcData.filter(
+            (item) => !existingTags.includes(item.TAGNO)
+          );
+
+          if (filteredData.length === 0) {
+            // message.error("All these tag numbers already existed");
+            return prevData;
+          }
+
+          const updatedData = [...prevData, ...modifiedMcData];
+
+          return updatedData;
+        });
 
         // ✅ Loop through each row and call both APIs sequentially
         for (const item of data) {
@@ -480,6 +610,38 @@ const BarCodeCheck = () => {
             }
           }
         }
+      }
+    } catch (error) {
+      console.error("Error fetching estimation data:", error);
+    }
+  };
+
+  const estimationNoMastAPI = async () => {
+    try {
+      let whereCondition = "";
+      if (modifyCode) {
+        whereCondition = `ESTIMATIONNO='${modifyCode}'`;
+      }
+
+      const params = {
+        tableName: "ESTIMATION_MAST",
+        where: whereCondition,
+      };
+
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere`,
+        {
+          params,
+          headers: { tenantName },
+        }
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        setCustomerName(data[0]?.CustName);
+        setCustomerMobile(data[0]?.MOBILENO);
+        setCustomerArea(data[0]?.CITY);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -602,13 +764,130 @@ const BarCodeCheck = () => {
     }
   };
 
+  useEffect(() => {
+    const pcs = barCodeData.reduce((sum, item) => sum + (item.PIECES || 0), 0);
+    const gwt = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.GWT) || 0),
+      0
+    );
+    const nwt = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.NWT) || 0),
+      0
+    );
+    const totalAmount = totalAmounts.reduce(
+      (sum, item) => sum + (parseFloat(item.TOTALAMT) || 0),
+      0
+    );
+    const totalGstAmount = totalAmounts.reduce(
+      (sum, item) => sum + (parseFloat(item.GSTTOTALAMT) || 0),
+      0
+    );
+    const totalNwtAmount = totalAmounts.reduce(
+      (sum, item) => sum + (parseFloat(item.NETAMT) || 0),
+      0
+    );
+    const totalWastAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
+      0
+    );
+    const totalMcAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.CATTOTMC) || 0),
+      0
+    );
+    const totalCtsAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.Item_Cts) || 0),
+      0
+    );
+    const totalUnCutsAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.Item_Uncuts) || 0),
+      0
+    );
+    const totalItemDiaAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.Item_diamonds) || 0),
+      0
+    );
+    const totalDiamondAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.Diamond_Amount) || 0),
+      0
+    );
+
+    const totalPurAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.COST_AMOUNT) || 0),
+      0
+    );
+    const totalPurGstAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.COST_GSTAMOUNT) || 0),
+      0
+    );
+    const totalPurNwtAmount = barCodeData.reduce(
+      (sum, item) => sum + (parseFloat(item.COST_NETAMOUNT) || 0),
+      0
+    );
+    const totalStoneAmount = stonesData.reduce(
+      (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+      0
+    );
+
+    setTotalStoneAmt(totalStoneAmount);
+
+    setTotalPcs(pcs);
+    setTotalGwt(gwt);
+    setTotalNwt(nwt);
+    setTotalAmt(totalAmount);
+    setTotalGstAmt(totalGstAmount);
+    setTotalNwtAmt(totalNwtAmount);
+    setTotalWastAmt(totalWastAmount);
+    setTotalMcAmt(totalMcAmount);
+    setTotalItemCtsAmt(totalCtsAmount);
+    setTotalItemUncAmt(totalUnCutsAmount);
+    setTotalItemDiaAmt(totalItemDiaAmount);
+    setTotalDiamondAmt(totalDiamondAmount);
+    setGstNo(barCodeData[0]?.GSTRATE);
+    setTotalPurAmt(totalPurAmount);
+    setTotalPurGstAmt(totalPurGstAmount);
+    setTotalPurNwtAmt(totalPurNwtAmount);
+  }, [barCodeData, stonesData, totalAmounts]);
+
+  const handleDelete = (indexToDelete) => {
+    setBarCodeData((prevData) => {
+      const updatedData = [...prevData];
+      updatedData.splice(indexToDelete, 1);
+      return updatedData;
+    });
+  };
+
+  const handleStonesDelete = (tagNo) => {
+    setStonesData((prevData) => {
+      return prevData.filter((stone) => stone.TAGNO !== tagNo);
+    });
+  };
+
+  const handleWastageDelete = (tagNo) => {
+    setWastageData((prevData) => {
+      return prevData.filter((wast) => wast.TAGNO !== tagNo);
+    });
+  };
+
+  const handleMcDelete = (tagNo) => {
+    setMcData((prevData) => {
+      return prevData.filter((wast) => wast.TAGNO !== tagNo);
+    });
+  };
+
+  const handleTotalsDelete = (tagNo) => {
+    setTotalAmounts((prevData) => {
+      return prevData.filter((wast) => wast.TAGNO !== tagNo);
+    });
+  };
+
   const handleOpenScanner = () => {
     setQrOpen(true);
     setTimeout(() => startScanner(), 300); // give DOM time to mount
   };
 
-  const handleOk = () => {
+  const handleOk = (tagNo) => {
     setStonesOpen(true);
+    setStoneNo(tagNo);
   };
 
   const handleCancel = () => {
@@ -621,6 +900,14 @@ const BarCodeCheck = () => {
 
   const handlePrintCancel = () => {
     setPrintOpen(false);
+  };
+
+  const handleUserOk = () => {
+    setCustomerOpen(true);
+  };
+
+  const handleUserCancel = () => {
+    setCustomerOpen(false);
   };
 
   const handleReset = () => {
@@ -646,6 +933,16 @@ const BarCodeCheck = () => {
     setModifyCode();
     setModifyOpen(false);
     setPhoto();
+    setCustomerName("");
+    setCustomerMobile("");
+    setCustomerArea("");
+    setWastageData([]);
+    setWastageOpen(false);
+    setWastageTagNo();
+    setMcData([]);
+    setMcOpen(false);
+    setMcTagNo();
+    setTotalAmounts([]);
     estimationNo();
   };
 
@@ -665,6 +962,62 @@ const BarCodeCheck = () => {
 
   const handleModifyCancel = () => {
     setModifyOpen(false);
+  };
+
+  const handleWastageOpen = (item) => {
+    const nwt = Number(item?.NWT) || 0;
+    const wastage = Number(item?.WASTAGE) || 0;
+
+    const newEntry = {
+      TAGNO: item?.TAGNO ?? 0,
+      NWT: nwt,
+      WASTAGE: wastage ? wastage.toString() : "",
+      DIRECTWT: 0,
+      TOTALWT: Number((nwt * wastage) / 100),
+    };
+
+    setWastageOpen(true);
+    setWastageData((prevData) => {
+      const existingTags = prevData.map((wast) => wast.TAGNO);
+
+      if (existingTags.includes(newEntry.TAGNO)) {
+        return prevData;
+      }
+
+      return [...prevData, newEntry];
+    });
+  };
+
+  const handleWastageCancel = () => {
+    setWastageOpen(false);
+  };
+
+  const handleMcOpen = (item) => {
+    const nwt = Number(item?.NWT) || 0;
+    const mc = Number(item?.MAKINGCHARGES) || 0;
+
+    const newEntry = {
+      TAGNO: item?.TAGNO ?? 0,
+      NWT: nwt,
+      MAKINGCHARGES: mc ? mc.toString() : "",
+      DIRECTAMT: 0,
+      TOTALAMT: Number(nwt * mc),
+    };
+
+    setMcOpen(true);
+    setMcData((prevData) => {
+      const existingTags = prevData.map((mc) => mc.TAGNO);
+
+      if (existingTags.includes(newEntry.TAGNO)) {
+        return prevData;
+      }
+
+      return [...prevData, newEntry];
+    });
+  };
+
+  const handleMcCancel = () => {
+    setMcOpen(false);
   };
 
   // useEffect(() => {
@@ -691,7 +1044,37 @@ const BarCodeCheck = () => {
     estimationNo();
   }, []);
 
-  // const [localIp, setLocalIp] = useState("192.168.0.121");
+  useEffect(() => {
+    if (!barCodeData.length) return;
+
+    const perData = barCodeData.map((barCode) => {
+      const matched = wastageData.find((item) => item.TAGNO === barCode.TAGNO);
+      const matchedMc = mcData.find((item) => item.TAGNO === barCode.TAGNO);
+
+      const wastageAmt = matched?.TOTALWT
+        ? Number(matched.TOTALWT)
+        : Number(barCode.CATTOTWAST ?? 0);
+      const mcAmount = matchedMc?.TOTALAMT
+        ? Number(matchedMc.TOTALAMT)
+        : Number(barCode.CATTOTMC ?? 0);
+      const stoneAmount = Number(barCode.ITEM_TOTAMT ?? 0);
+      const rateAmount =
+        (Number(barCode.NWT ?? 0) + wastageAmt) * Number(barCode.RATE ?? 0);
+      const totalAmount = rateAmount + mcAmount + stoneAmount;
+      const gstAmount = (totalAmount * gstNo) / 100;
+      const netAmount = totalAmount + gstAmount;
+
+      return {
+        TAGNO: barCode.TAGNO ?? "",
+        TOTALAMT: Number(totalAmount.toFixed(2)),
+        GSTTOTALAMT: Number(gstAmount.toFixed(2)),
+        NETAMT: Number(netAmount.toFixed(2)),
+      };
+    });
+
+    setTotalAmounts(perData);
+  }, [wastageData, mcData, wastageOpen, mcOpen]);
+
   const EstNo = tagNo ? tagNo : estNo;
 
   const handleEposPrint = () => {
@@ -706,7 +1089,16 @@ const BarCodeCheck = () => {
       totalNwt,
       totalAmt,
       totalGstAmt,
-      grandTotalAmount
+      grandTotalAmount,
+      gstNo,
+      loginName,
+      printModel,
+      customerName,
+      customerMobile,
+      customerArea,
+      wastageData,
+      mcData,
+      totalAmounts
     );
   };
 
@@ -722,11 +1114,18 @@ const BarCodeCheck = () => {
       totalNwt,
       totalAmt,
       totalGstAmt,
-      grandTotalAmount
+      grandTotalAmount,
+      gstNo,
+      loginName,
+      printModel,
+      customerName,
+      customerMobile,
+      customerArea,
+      wastageData,
+      mcData,
+      totalAmounts
     );
   };
-
-  console.log(tagNo, "modify");
 
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
@@ -812,6 +1211,14 @@ const BarCodeCheck = () => {
                 // color: !qrOpen ? "#162566" : "#eb14bcff",
               }}
             />
+            <ContactPhoneSharpIcon
+              style={{
+                fontSize: "30px",
+                padding: "6px 10px",
+                color: "#BF9264",
+              }}
+              onClick={handleUserOk}
+            />
           </div>
         </div>
         {Number(userType) != 1 ? (
@@ -841,84 +1248,111 @@ const BarCodeCheck = () => {
         <div className={styles.scrollArea}>
           {changeCard === true ? (
             <>
-              {barCodeData.map((barCode, index) => (
-                <div className={styles.card}>
-                  <div className={styles.header}>
-                    <div>
-                      <span style={{ fontWeight: "bold", fontSize: "18px" }}>
-                        #{barCode?.TAGNO ? barCode?.TAGNO : "0"}
-                      </span>
-                      <br />
-                      <small>Tag no</small>
-                    </div>
-                    {barCode?.VV != "-" && (
+              {barCodeData.map((barCode, index) => {
+                const matchedTotals = totalAmounts.find(
+                  (item) => item.TAGNO === barCode.TAGNO
+                );
+
+                return (
+                  <div className={styles.card}>
+                    <div className={styles.header}>
                       <div>
-                        <Box
-                          sx={{
-                            width: 50,
-                            height: 50,
-                            borderRadius: "50%",
-                            backgroundColor: "black",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            border: "2px solid #52bd91",
-                          }}
-                          onClick={() => {
-                            handleImageOk(barCode?.VV);
-                          }}
-                        >
-                          <img
-                            src={barCode?.VV}
-                            alt="img"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              borderRadius: "50%",
-                            }}
-                          />
-                        </Box>
+                        <span style={{ fontWeight: "bold", fontSize: "18px" }}>
+                          #{barCode?.TAGNO ? barCode?.TAGNO : "0"}
+                        </span>
+                        <br />
+                        <small>Tag no</small>
                       </div>
-                    )}
-                    <div>
-                      Today Rate
-                      <br />
-                      <span className={styles.amount}>
-                        ₹ {barCode?.RATE ? barCode?.RATE.toFixed(2) : 0.0}
-                      </span>
-                    </div>
-                  </div>
-                  <div className={styles.content}>
-                    <div className={styles.productHeader}>
-                      <span className={styles.productName}>
-                        {barCode?.PRODUCTNAME ? barCode?.PRODUCTNAME : "-"}
-                      </span>
-                      <span className={styles.qtyBox}>
-                        {barCode?.PIECES
-                          ? `${barCode?.PIECES} ${
-                              barCode?.PIECES === 1 ? "piece" : "pieces"
-                            }`
-                          : "0 pieces"}
-                      </span>
-                    </div>
-                    <div className={styles.divider} />
-                    <div className={styles.details}>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Main Product</span>
-                        <span className={styles.separator2}>:</span>
-                        <span
-                          style={{
-                            flex: 1,
-                            fontSize: "16px",
-                            textAlign: "right",
-                            color: " #162566",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {barCode?.MNAME ? barCode?.MNAME : "-"}
+                      {barCode?.VV != "-" && (
+                        <div>
+                          <Box
+                            sx={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: "50%",
+                              backgroundColor: "black",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              border: "2px solid #52bd91",
+                            }}
+                            onClick={() => {
+                              handleImageOk(barCode?.VV);
+                            }}
+                          >
+                            <img
+                              src={barCode?.VV}
+                              alt="img"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "50%",
+                              }}
+                            />
+                          </Box>
+                        </div>
+                      )}
+                      <div>
+                        Today Rate
+                        <br />
+                        <span className={styles.amount}>
+                          ₹ {barCode?.RATE ? barCode?.RATE.toFixed(2) : 0.0}
                         </span>
                       </div>
-                      {/* <div className={styles.rowTag2}>
+                    </div>
+                    <div className={styles.content}>
+                      <div className={styles.productHeader}>
+                        <span className={styles.productName}>
+                          {barCode?.PRODUCTNAME ? barCode?.PRODUCTNAME : "-"}
+                        </span>
+                        <span
+                          style={{
+                            color: "red",
+                            fontWeight: "bold",
+                            fontSize: "18px",
+                          }}
+                        >
+                          <DeleteOutlined
+                            style={{
+                              color: "red",
+                              cursor: "pointer",
+                              fontSize: "20px",
+                            }}
+                            onClick={() => {
+                              handleDelete(index);
+                              handleStonesDelete(barCode?.TAGNO);
+                              handleWastageDelete(barCode?.TAGNO);
+                              handleMcDelete(barCode?.TAGNO);
+                              handleTotalsDelete(barCode?.TAGNO);
+                            }}
+                          />
+                        </span>
+                        <span className={styles.qtyBox}>
+                          {barCode?.PIECES
+                            ? `${barCode?.PIECES} ${
+                                barCode?.PIECES === 1 ? "piece" : "pieces"
+                              }`
+                            : "0 pieces"}
+                        </span>
+                      </div>
+                      <div className={styles.divider} />
+                      <div className={styles.details}>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Main Product</span>
+                          <span className={styles.separator2}>:</span>
+                          <span
+                            style={{
+                              flex: 1,
+                              fontSize: "16px",
+                              textAlign: "right",
+                              color: " #162566",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {barCode?.MNAME ? barCode?.MNAME : "-"}
+                          </span>
+                        </div>
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>Product Category</span>
                     <span className={styles.separator2}>:</span>
                     <span
@@ -935,7 +1369,7 @@ const BarCodeCheck = () => {
                         : "-"}
                     </span>
                   </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>HSN Code</span>
                     <span className={styles.separator2}>:</span>
                     <span
@@ -950,42 +1384,48 @@ const BarCodeCheck = () => {
                       {barCode?.HSNCODE ? barCode?.HSNCODE : "-"}
                     </span>
                   </div> */}
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Purity</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.PREFIX ? barCode?.PREFIX : "-"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Gwt</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.GWT
-                            ? barCode?.GWT?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Stone Wt</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.stonewt
-                            ? barCode?.stonewt?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Nwt</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.NWT
-                            ? barCode?.NWT?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Purity</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.PREFIX ? barCode?.PREFIX : "-"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Gwt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.GWT
+                              ? barCode?.GWT?.toFixed(3) + "g"
+                              : "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Stone Wt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.stonewt
+                              ? barCode?.stonewt?.toFixed(3) + "g"
+                              : "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Nwt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.NWT
+                              ? barCode?.NWT?.toFixed(3) + "g"
+                              : "0.000g"}
+                          </span>
+                        </div>
+                        {/* <div className={styles.rowTag2}>
+                        <span
+                          className={styles.label2}
+                          onClick={() => {
+                            handleWastageOpen(barCode);
+                            setWastageTagNo(barCode?.TAGNO);
+                          }}
+                        >
                           Wastage (
                           {barCode?.WASTAGE
                             ? Number(barCode?.WASTAGE) + "%"
@@ -998,165 +1438,313 @@ const BarCodeCheck = () => {
                             ? Number(barCode?.CATTOTWAST)?.toFixed(3) + "g"
                             : "0.000g"}
                         </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>
-                          MC/Amt (
-                          {barCode?.MAKINGCHARGES
-                            ? Number(barCode?.MAKINGCHARGES) + "/g"
-                            : "0/g"}
-                          )
-                        </span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          ₹{" "}
-                          {barCode?.CATTOTMC
+                      </div> */}
+                        <div className={styles.rowTag2}>
+                          <span
+                            className={styles.label2}
+                            onClick={() => {
+                              handleWastageOpen(barCode);
+                              setWastageTagNo(barCode?.TAGNO);
+                            }}
+                          >
+                            {(() => {
+                              // ✅ Check if wastageData has a matching TAGNO
+                              const matched = wastageData.find(
+                                (item) => item.TAGNO === barCode?.TAGNO
+                              );
+
+                              // ✅ Return display text dynamically
+                              if (matched) {
+                                return (
+                                  <>
+                                    Wastage (
+                                    {matched.WASTAGE
+                                      ? `${matched.WASTAGE}%`
+                                      : "0%"}
+                                    )
+                                    <span
+                                      style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                        fontSize: "8px",
+                                      }}
+                                    >
+                                      (Click Me)
+                                    </span>
+                                  </>
+                                );
+                              } else {
+                                return (
+                                  <>
+                                    Wastage (
+                                    {barCode?.WASTAGE
+                                      ? `${Number(barCode?.WASTAGE)}%`
+                                      : "0%"}
+                                    )
+                                    <span
+                                      style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                        fontSize: "8px",
+                                      }}
+                                    >
+                                      (Click Me)
+                                    </span>
+                                  </>
+                                );
+                              }
+                            })()}
+                          </span>
+
+                          <span className={styles.separator2}>:</span>
+
+                          <span className={styles.value2}>
+                            {(() => {
+                              const matched = wastageData.find(
+                                (item) => item.TAGNO === barCode?.TAGNO
+                              );
+
+                              if (matched) {
+                                return `${Number(matched.TOTALWT).toFixed(3)}g`;
+                              } else {
+                                return barCode?.CATTOTWAST
+                                  ? `${Number(barCode?.CATTOTWAST).toFixed(3)}g`
+                                  : "0.000g";
+                              }
+                            })()}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span
+                            className={styles.label2}
+                            onClick={() => {
+                              handleMcOpen(barCode);
+                              setMcTagNo(barCode?.TAGNO);
+                            }}
+                          >
+                            {(() => {
+                              // ✅ Check if wastageData has a matching TAGNO
+                              const matched = mcData.find(
+                                (item) => item.TAGNO === barCode?.TAGNO
+                              );
+
+                              // ✅ Return display text dynamically
+                              if (matched) {
+                                return (
+                                  <>
+                                    MC/Amt (
+                                    {matched?.MAKINGCHARGES
+                                      ? Number(matched?.MAKINGCHARGES) + "/g"
+                                      : "0/g"}
+                                    )
+                                    <span
+                                      style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                        fontSize: "8px",
+                                      }}
+                                    >
+                                      (Click Me)
+                                    </span>
+                                  </>
+                                );
+                              } else {
+                                return (
+                                  <>
+                                    MC/Amt (
+                                    {barCode?.MAKINGCHARGES
+                                      ? Number(barCode?.MAKINGCHARGES) + "/g"
+                                      : "0/g"}
+                                    )
+                                    <span
+                                      style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                        fontSize: "8px",
+                                      }}
+                                    >
+                                      (Click Me)
+                                    </span>
+                                  </>
+                                );
+                              }
+                            })()}
+                          </span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            ₹{" "}
+                            {(() => {
+                              const matched = mcData.find(
+                                (item) => item.TAGNO === barCode?.TAGNO
+                              );
+
+                              if (matched) {
+                                return `${Number(matched.TOTALAMT).toFixed(2)}`;
+                              } else {
+                                return barCode?.CATTOTMC
+                                  ? `${Number(barCode?.CATTOTMC).toFixed(2)}`
+                                  : 0.0;
+                              }
+                            })()}
+                            {/* {barCode?.CATTOTMC
                             ? Number(barCode?.CATTOTMC).toFixed(2)
-                            : 0.0}
-                        </span>
-                      </div>
-                      <div
-                        className={styles.highlightBox1}
-                        onClick={() => {
-                          if (barCode?.ITEM_TOTAMT > 0) {
-                            handleOk();
-                          }
-                        }}
-                      >
-                        <span className={styles.label2}>
-                          Stone Cost{" "}
-                          {barCode?.ITEM_TOTAMT > 0 && (
-                            <span style={{ color: "blue", cursor: "pointer" }}>
-                              (Click Me)
-                            </span>
-                          )}
-                        </span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          ₹{" "}
-                          {barCode?.ITEM_TOTAMT
-                            ? barCode?.ITEM_TOTAMT.toFixed(2)
-                            : 0.0}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          fontSize: "14px",
-                          color: "black",
-                          marginTop: "5px",
-                          marginBottom: "5px",
-                          padding: "8px",
-                          border: "1px solid lightgreen",
-                          borderRadius: "8px",
-                          background: "lightgreen",
-                        }}
-                      >
-                        <span>
-                          Dia.Cts:{" "}
-                          <span
-                            style={{
-                              color: "black",
-                              fontWeight: "bold",
-                              fontSize: "14px",
-                            }}
-                          >
-                            {barCode?.Item_diamonds
-                              ? barCode?.Item_diamonds?.toFixed(3)
-                              : 0}
+                            : 0.0} */}
                           </span>
-                        </span>
-                        <span>
-                          Dia.Amt:{" "}
-                          <span
-                            style={{
-                              color: "black",
-                              fontWeight: "bold",
-                              fontSize: "14px",
-                            }}
-                          >
+                        </div>
+                        <div className={styles.highlightBox2}>
+                          <span className={styles.label2}>Mteal Value </span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
                             ₹{" "}
-                            {barCode?.Diamond_Amount
-                              ? barCode?.Diamond_Amount?.toFixed(2)
-                              : 0}
+                            {(
+                              (barCode?.RATE ?? 0) * (barCode?.NWT ?? 0)
+                            ).toFixed(2)}
                           </span>
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          fontSize: "14px",
-                          color: "black",
-                          marginTop: "5px",
-                          marginBottom: "5px",
-                          padding: "8px",
-                          border: "1px solid lightgray",
-                          borderRadius: "8px",
-                          background: "lightgray",
-                        }}
-                      >
-                        <span>
-                          Brand.Name:{" "}
-                          <span
-                            style={{
-                              color: "black",
-                              fontWeight: "bold",
-                              fontSize: "14px",
-                            }}
-                          >
-                            {barCode?.BRANDNAME ? barCode?.BRANDNAME : "-"}
+                        </div>
+                        <div
+                          className={styles.highlightBox1}
+                          onClick={() => {
+                            if (barCode?.ITEM_TOTAMT > 0) {
+                              handleOk(barCode?.TAGNO);
+                            }
+                          }}
+                        >
+                          <span className={styles.label2}>
+                            Stone Cost{" "}
+                            {barCode?.ITEM_TOTAMT > 0 && (
+                              <span
+                                style={{ color: "blue", cursor: "pointer" }}
+                              >
+                                (Click Me)
+                              </span>
+                            )}
                           </span>
-                        </span>
-                        <span>
-                          Brand.Amt:{" "}
-                          <span
-                            style={{
-                              color: "black",
-                              fontWeight: "bold",
-                              fontSize: "14px",
-                            }}
-                          >
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
                             ₹{" "}
-                            {barCode?.BRANDCALCAMT
-                              ? barCode?.BRANDCALCAMT?.toFixed(2)
-                              : 0}
+                            {barCode?.ITEM_TOTAMT
+                              ? barCode?.ITEM_TOTAMT.toFixed(2)
+                              : 0.0}
                           </span>
-                        </span>
-                      </div>
-                      {barCode?.TRAY === true && (
+                        </div>
                         <div
                           style={{
                             display: "flex",
-                            justifyContent: "center",
+                            justifyContent: "space-between",
                             alignItems: "center",
                             fontSize: "14px",
                             color: "black",
                             marginTop: "5px",
                             marginBottom: "5px",
                             padding: "8px",
-                            border: "1px solid f3f6fb",
+                            border: "1px solid lightgreen",
                             borderRadius: "8px",
-                            background: "#e0e7f1",
-                            // "radial-gradient(circle at center, #ffffff 40%, #f3f6fb 60%, #e0e7f1 80%)",
+                            background: "lightgreen",
                           }}
                         >
-                          <span
-                            style={{
-                              color: " #52db91",
-                              cursor: "pointer",
-                              fontWeight: "bold",
-                              fontSize: "20px",
-                            }}
-                          >
-                            TRAY
+                          <span>
+                            Dia.Cts:{" "}
+                            <span
+                              style={{
+                                color: "black",
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {barCode?.Item_diamonds
+                                ? barCode?.Item_diamonds?.toFixed(3)
+                                : 0}
+                            </span>
+                          </span>
+                          <span>
+                            Dia.Amt:{" "}
+                            <span
+                              style={{
+                                color: "black",
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                              }}
+                            >
+                              ₹{" "}
+                              {barCode?.Diamond_Amount
+                                ? barCode?.Diamond_Amount?.toFixed(2)
+                                : 0}
+                            </span>
                           </span>
                         </div>
-                      )}
-                      {/* <div className={styles.rowTag2}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            fontSize: "14px",
+                            color: "black",
+                            marginTop: "5px",
+                            marginBottom: "5px",
+                            padding: "8px",
+                            border: "1px solid lightgray",
+                            borderRadius: "8px",
+                            background: "lightgray",
+                          }}
+                        >
+                          <span>
+                            Brand.Name:{" "}
+                            <span
+                              style={{
+                                color: "black",
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {barCode?.BRANDNAME ? barCode?.BRANDNAME : "-"}
+                            </span>
+                          </span>
+                          <span>
+                            Brand.Amt:{" "}
+                            <span
+                              style={{
+                                color: "black",
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                              }}
+                            >
+                              ₹{" "}
+                              {barCode?.BRANDCALCAMT
+                                ? barCode?.BRANDCALCAMT?.toFixed(2)
+                                : 0}
+                            </span>
+                          </span>
+                        </div>
+                        {barCode?.TRAY === true && (
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              fontSize: "14px",
+                              color: "black",
+                              marginTop: "5px",
+                              marginBottom: "5px",
+                              padding: "8px",
+                              border: "1px solid f3f6fb",
+                              borderRadius: "8px",
+                              background: "#e0e7f1",
+                              // "radial-gradient(circle at center, #ffffff 40%, #f3f6fb 60%, #e0e7f1 80%)",
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: " #52db91",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                fontSize: "20px",
+                              }}
+                            >
+                              TRAY
+                            </span>
+                          </div>
+                        )}
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>Dealer</span>
                     <span className={styles.separator2}>:</span>
                     <span className={styles.value2}>
@@ -1165,28 +1753,28 @@ const BarCodeCheck = () => {
                         : "-"}
                     </span>
                   </div> */}
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Counter </span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.COUNTERNAME ? barCode?.COUNTERNAME : "-"}
-                        </span>
-                      </div>
-                      {/* <div className={styles.rowTag2}>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Counter </span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.COUNTERNAME ? barCode?.COUNTERNAME : "-"}
+                          </span>
+                        </div>
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>HUID</span>
                     <span className={styles.separator2}>:</span>
                     <span className={styles.value2}>
                       {barCode?.HUID ? barCode?.HUID : "-"}
                     </span>
                   </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>Tag Size</span>
                     <span className={styles.separator2}>:</span>
                     <span className={styles.value2}>
                       {barCode?.TAGSIZE ? barCode?.TAGSIZE : "-"}
                     </span>
                   </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>Tag Date</span>
                     <span className={styles.separator2}>:</span>
                     <span className={styles.value2}>
@@ -1195,49 +1783,50 @@ const BarCodeCheck = () => {
                         : "-"}
                     </span>
                   </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                     <span className={styles.label2}>Description</span>
                     <span className={styles.separator2}>:</span>
                     <span className={styles.value2}>
                       {barCode?.DESC1 ? barCode?.DESC1 : "-"}
                     </span>
                   </div> */}
+                      </div>
+                    </div>
+                    <div className={styles.header1}>
+                      <div>
+                        Total Amount
+                        <br />
+                        <span className={styles.amount1}>
+                          ₹
+                          {matchedTotals
+                            ? matchedTotals?.TOTALAMT.toFixed(2)
+                            : 0.0}
+                        </span>
+                      </div>
+                      <div>
+                        Gst @ {gstNo || 0.0}%
+                        <br />
+                        <span className={styles.amount1}>
+                          ₹
+                          {matchedTotals
+                            ? matchedTotals?.GSTTOTALAMT.toFixed(2)
+                            : 0.0}
+                        </span>
+                      </div>
+                      <div>
+                        Net.Amt
+                        <br />
+                        <span className={styles.amount1}>
+                          ₹
+                          {matchedTotals
+                            ? matchedTotals?.NETAMT.toFixed(2)
+                            : 0.0}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className={styles.header1}>
-                    <div>
-                      Total Amount
-                      <br />
-                      <span className={styles.amount1}>
-                        ₹{" "}
-                        {barCode?.SALE_AMOUNT
-                          ? barCode?.SALE_AMOUNT.toFixed(2)
-                          : 0.0}
-                      </span>
-                    </div>
-                    <div>
-                      Gst @ {barCode?.GSTRATE || 0.0}%
-                      <br />
-                      <span className={styles.amount1}>
-                        ₹{" "}
-                        {barCode?.SALE_GSTAMOUNT
-                          ? barCode?.SALE_GSTAMOUNT.toFixed(2)
-                          : 0.0}
-                      </span>
-                    </div>
-                    <div>
-                      Net.Amt
-                      <br />
-                      <span className={styles.amount1}>
-                        ₹{" "}
-                        {barCode?.SALE_NETAMT
-                          ? barCode?.SALE_NETAMT.toFixed(2)
-                          : 0.0}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {/* {barCodeData?.length > 0 && barCode.STATUS != "-" && (
               <div className={styles.card}>
                 <div className={styles.header2}>
@@ -1550,7 +2139,7 @@ const BarCodeCheck = () => {
                       Total Amount
                       <br />
                       <span className={styles.amount}>
-                        ₹{" "}
+                        ₹
                         {barCode?.COST_AMOUNT
                           ? barCode?.COST_AMOUNT.toFixed(2)
                           : 0.0}
@@ -1560,7 +2149,7 @@ const BarCodeCheck = () => {
                       Gst @ {barCode?.GSTRATE || 0.0}%
                       <br />
                       <span className={styles.amount}>
-                        ₹{" "}
+                        ₹
                         {barCode?.COST_GSTAMOUNT
                           ? barCode?.COST_GSTAMOUNT.toFixed(2)
                           : 0.0}
@@ -1570,7 +2159,7 @@ const BarCodeCheck = () => {
                       Net.Amt
                       <br />
                       <span className={styles.amount}>
-                        ₹{" "}
+                        ₹
                         {barCode?.COST_NETAMOUNT
                           ? barCode?.COST_NETAMOUNT.toFixed(2)
                           : 0.0}
@@ -1702,6 +2291,7 @@ const BarCodeCheck = () => {
         stonesOpen={stonesOpen}
         handleCancel={handleCancel}
         stonesData={stonesData}
+        stoneNo={stoneNo}
       />
       <ImageDialog
         handleImageCancel={handleImageCancel}
@@ -1725,8 +2315,35 @@ const BarCodeCheck = () => {
         modifyCode={modifyCode}
         setModifyCode={setModifyCode}
         estimationNoDataAPI={estimationNoDataAPI}
+        estimationNoMastAPI={estimationNoMastAPI}
         handleReset={handleReset}
         setTagNo={setTagNo}
+      />
+      <CustomerInformation
+        customerOpen={customerOpen}
+        setCustomerOpen={setCustomerOpen}
+        handleOk={handleUserOk}
+        handleCancel={handleUserCancel}
+        customerArea={customerArea}
+        setCustomerArea={setCustomerArea}
+        customerName={customerName}
+        setCustomerName={setCustomerName}
+        customerMobile={customerMobile}
+        setCustomerMobile={setCustomerMobile}
+      />
+      <WastageDialog
+        wastageOpen={wastageOpen}
+        handleCancel={handleWastageCancel}
+        setWastageData={setWastageData}
+        wastageData={wastageData}
+        wastageTagNo={wastageTagNo}
+      />
+      <MakingChargesDialog
+        mcOpen={mcOpen}
+        handleCancel={handleMcCancel}
+        setMcData={setMcData}
+        mcData={mcData}
+        mcTagNo={mcTagNo}
       />
     </div>
   );

@@ -68,6 +68,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("userType", data[0].USER_TYPE);
         localStorage.setItem("ipAddress", data[0].PRINTERIP);
         localStorage.setItem("printModel", data[0].PRINT_MODEL);
+        localStorage.setItem("loginName", data[0].USERNAME);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
