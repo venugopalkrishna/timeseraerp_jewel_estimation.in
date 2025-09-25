@@ -88,8 +88,6 @@ const BarCodeCheck = () => {
   const localIp = localStorage.getItem("ipAddress");
   const printModel = localStorage.getItem("printModel");
   const loginName = localStorage.getItem("loginName");
-  console.log(totalAmounts, "totalAmounts");
-  console.log(totalAmt, "totalAmt");
 
   const toggleDrawer = () => {
     setOpen(false);
