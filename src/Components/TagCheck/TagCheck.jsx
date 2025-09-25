@@ -354,7 +354,7 @@ const TagCheck = () => {
                         flex: 1,
                         fontSize: "16px",
                         textAlign: "right",
-                        color: " #162566",
+                        color: "black",
                         fontWeight: "bold",
                       }}
                     >
@@ -369,7 +369,7 @@ const TagCheck = () => {
                         flex: 1,
                         fontSize: "16px",
                         textAlign: "right",
-                        color: " #162566",
+                        color: "black",
                         fontWeight: "bold",
                       }}
                     >
@@ -386,7 +386,7 @@ const TagCheck = () => {
                         flex: 1,
                         fontSize: "16px",
                         textAlign: "right",
-                        color: " #162566",
+                        color: "black",
                         fontWeight: "bold",
                       }}
                     >
@@ -675,7 +675,7 @@ const TagCheck = () => {
                 <div>
                   Gst @ {barCodeData[0]?.GSTRATE || 0.0}%
                   <br />
-                  <span className={styles.amount1}>
+                  <span className={styles.amount2}>
                     ₹
                     {totalAmounts[0]?.GSTTOTALAMT
                       ? totalAmounts[0]?.GSTTOTALAMT.toFixed(2)
@@ -714,7 +714,7 @@ const TagCheck = () => {
                           flex: 1,
                           fontSize: "16px",
                           textAlign: "right",
-                          color: " #162566",
+                          color: "black",
                           fontWeight: "bold",
                         }}
                       >
@@ -731,7 +731,7 @@ const TagCheck = () => {
                           flex: 1,
                           fontSize: "16px",
                           textAlign: "right",
-                          color: " #162566",
+                          color: "black",
                           fontWeight: "bold",
                         }}
                       >
@@ -748,7 +748,7 @@ const TagCheck = () => {
                           flex: 1,
                           fontSize: "16px",
                           textAlign: "right",
-                          color: " #162566",
+                          color: "black",
                           fontWeight: "bold",
                         }}
                       >
@@ -765,7 +765,7 @@ const TagCheck = () => {
                           flex: 1,
                           fontSize: "16px",
                           textAlign: "right",
-                          color: " #162566",
+                          color: "black",
                           fontWeight: "bold",
                         }}
                       >
@@ -827,7 +827,7 @@ const TagCheck = () => {
                       flex: 1,
                       fontSize: "16px",
                       textAlign: "right",
-                      color: " #162566",
+                      color: "black",
                       fontWeight: "bold",
                     }}
                   >
@@ -842,7 +842,7 @@ const TagCheck = () => {
                       flex: 1,
                       fontSize: "16px",
                       textAlign: "right",
-                      color: " #162566",
+                      color: "black",
                       fontWeight: "bold",
                     }}
                   >
@@ -859,7 +859,7 @@ const TagCheck = () => {
                       flex: 1,
                       fontSize: "16px",
                       textAlign: "right",
-                      color: " #162566",
+                      color: "black",
                       fontWeight: "bold",
                     }}
                   >
@@ -1022,7 +1022,7 @@ const TagCheck = () => {
               <div>
                 Gst @ {barCodeData[0]?.GSTRATE || 0.0}%
                 <br />
-                <span className={styles.amount}>
+                <span className={styles.amount3}>
                   ₹{" "}
                   {(
                     ((barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +

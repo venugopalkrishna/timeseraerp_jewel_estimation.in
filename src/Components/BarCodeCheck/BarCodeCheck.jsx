@@ -1408,7 +1408,7 @@ const BarCodeCheck = () => {
                               flex: 1,
                               fontSize: "16px",
                               textAlign: "right",
-                              color: " #162566",
+                              color: "black",
                               fontWeight: "bold",
                             }}
                           >
@@ -1869,7 +1869,7 @@ const BarCodeCheck = () => {
                       <div>
                         Gst @ {gstNo || 0.0}%
                         <br />
-                        <span className={styles.amount1}>
+                        <span className={styles.amount2}>
                           ₹
                           {matchedTotals
                             ? matchedTotals?.GSTTOTALAMT.toFixed(2)
@@ -2042,7 +2042,7 @@ const BarCodeCheck = () => {
                             flex: 1,
                             fontSize: "16px",
                             textAlign: "right",
-                            color: " #162566",
+                            color: "black",
                             fontWeight: "bold",
                           }}
                         >
@@ -2233,7 +2233,7 @@ const BarCodeCheck = () => {
                     <div>
                       Gst @ {gstNo || 0.0}%
                       <br />
-                      <span className={styles.amount}>
+                      <span className={styles.amount3}>
                         ₹
                         {(
                           ((barCode?.COST_FTOUCH * barCode?.FINERATE +
