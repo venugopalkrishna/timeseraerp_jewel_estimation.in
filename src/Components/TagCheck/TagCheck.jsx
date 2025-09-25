@@ -17,6 +17,7 @@ const TagCheck = () => {
   const [barCode, setBarCode] = useState();
   const [barCodeData, setBarCodeData] = useState([]);
   const [stonesData, setStonesData] = useState([]);
+  const [totalAmounts, setTotalAmounts] = useState([]);
   // const [imagesData, setImagesData] = useState([]);
   // const [userArea, setUserArea] = useState();
   // const [userName, setUserName] = useState();
@@ -50,6 +51,41 @@ const TagCheck = () => {
       );
 
       const data = response.data;
+
+      const modifiedTotalData = data.map((item) => {
+        const safeNumber = (val) => {
+          const num = Number(val);
+          return isNaN(num) ? 0 : num;
+        };
+
+        const nwt = safeNumber(item?.NWT ?? 0);
+        const rate = safeNumber(item?.RATE ?? 0);
+        const cattotwast = safeNumber(item?.CATTOTWAST ?? 0);
+        const cattotMc = safeNumber(item?.CATTOTMC ?? 0);
+        const directWastage = safeNumber(item?.DIRECTWASTAGE ?? 0);
+        const directMc = safeNumber(item?.DIRECTMC ?? 0);
+        const stoneAmount = safeNumber(item?.ITEM_TOTAMT ?? 0);
+        const gstNo = data[0]?.GSTRATE;
+
+        const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
+        const mcAmount = directMc > 0 ? directMc : cattotMc;
+
+        const rateAmount = Number(nwt + wastageAmt).toFixed(3);
+        const amount = Number(rateAmount * rate).toFixed(0);
+        const mcStone = mcAmount + stoneAmount;
+
+        const totalAmount = safeNumber(amount) + safeNumber(mcStone);
+        const gstAmount = (totalAmount * gstNo) / 100;
+        const netAmount = totalAmount + gstAmount;
+
+        return {
+          TAGNO: item?.TAGNO ?? "",
+          TOTALAMT: totalAmount,
+          GSTTOTALAMT: gstAmount,
+          NETAMT: netAmount,
+        };
+      });
+      setTotalAmounts(modifiedTotalData);
 
       setBarCodeData(data);
       setBarCode();
@@ -114,6 +150,7 @@ const TagCheck = () => {
   const handleReset = () => {
     setBarCode("");
     setBarCodeData([]);
+    setTotalAmounts([]);
   };
 
   const handleImageOk = () => {
@@ -421,6 +458,16 @@ const TagCheck = () => {
                         : 0.0}
                     </span>
                   </div>
+                  <div className={styles.highlightBox2}>
+                    <span className={styles.label2}>Mteal Value </span>
+                    <span className={styles.separator2}>:</span>
+                    <span className={styles.value2}>
+                      ₹{" "}
+                      {(
+                        (barCodeData[0]?.RATE ?? 0) * (barCodeData[0]?.NWT ?? 0)
+                      ).toFixed(2)}
+                    </span>
+                  </div>
                   <div
                     className={styles.highlightBox1}
                     onClick={() => {
@@ -620,8 +667,8 @@ const TagCheck = () => {
                   <br />
                   <span className={styles.amount1}>
                     ₹
-                    {barCodeData[0]?.SALE_AMOUNT
-                      ? barCodeData[0]?.SALE_AMOUNT.toFixed(2)
+                    {totalAmounts[0]?.TOTALAMT
+                      ? totalAmounts[0]?.TOTALAMT.toFixed(2)
                       : 0.0}
                   </span>
                 </div>
@@ -630,8 +677,8 @@ const TagCheck = () => {
                   <br />
                   <span className={styles.amount1}>
                     ₹
-                    {barCodeData[0]?.SALE_GSTAMOUNT
-                      ? barCodeData[0]?.SALE_GSTAMOUNT.toFixed(2)
+                    {totalAmounts[0]?.GSTTOTALAMT
+                      ? totalAmounts[0]?.GSTTOTALAMT.toFixed(2)
                       : 0.0}
                   </span>
                 </div>
@@ -640,8 +687,8 @@ const TagCheck = () => {
                   <br />
                   <span className={styles.amount1}>
                     ₹
-                    {barCodeData[0]?.SALE_NETAMT
-                      ? barCodeData[0]?.SALE_NETAMT.toFixed(2)
+                    {totalAmounts[0]?.NETAMT
+                      ? totalAmounts[0]?.NETAMT.toFixed(2)
                       : 0.0}
                   </span>
                 </div>
@@ -747,8 +794,8 @@ const TagCheck = () => {
                 <br />
                 <span className={styles.amount1}>
                   ₹{" "}
-                  {barCodeData[0]?.PURE_RATE
-                    ? barCodeData[0]?.PURE_RATE.toFixed(2)
+                  {barCodeData[0]?.FINERATE
+                    ? barCodeData[0]?.FINERATE.toFixed(2)
                     : 0.0}
                 </span>
               </div>
@@ -866,7 +913,7 @@ const TagCheck = () => {
                       : "0.000g"}
                   </span>
                 </div>
-                <div className={styles.rowTag2}>
+                <div className={styles.highlightBox2}>
                   <span className={styles.label2}>Fine Gold</span>
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
@@ -876,20 +923,19 @@ const TagCheck = () => {
                       : 0.0}
                   </span>
                 </div>
-                <div className={styles.rowTag2}>
+                <div className={styles.highlightBox1}>
                   <span className={styles.label2}>Amount</span>
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
                     ₹{" "}
-                    {barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.PURE_RATE
+                    {barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE
                       ? (
-                          barCodeData[0]?.COST_FTOUCH *
-                          barCodeData[0]?.PURE_RATE
+                          barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE
                         ).toFixed(2)
                       : 0.0}
                   </span>
                 </div>
-                <div className={styles.rowTag2}>
+                <div className={styles.highlightBox3}>
                   <span className={styles.label2}>MC</span>
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
@@ -966,9 +1012,11 @@ const TagCheck = () => {
                 <br />
                 <span className={styles.amount}>
                   ₹{" "}
-                  {barCodeData[0]?.COST_AMOUNT
-                    ? barCodeData[0]?.COST_AMOUNT.toFixed(2)
-                    : 0.0}
+                  {(
+                    barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                    barCodeData[0]?.COST_MC +
+                    barCodeData[0]?.COST_STAMT
+                  )?.toFixed(2) || 0.0}
                 </span>
               </div>
               <div>
@@ -976,9 +1024,13 @@ const TagCheck = () => {
                 <br />
                 <span className={styles.amount}>
                   ₹{" "}
-                  {barCodeData[0]?.COST_GSTAMOUNT
-                    ? barCodeData[0]?.COST_GSTAMOUNT.toFixed(2)
-                    : 0.0}
+                  {(
+                    ((barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                      barCodeData[0]?.COST_MC +
+                      barCodeData[0]?.COST_STAMT) *
+                      barCodeData[0]?.GSTRATE) /
+                    100
+                  )?.toFixed(2) || 0.0}
                 </span>
               </div>
               <div>
@@ -986,9 +1038,16 @@ const TagCheck = () => {
                 <br />
                 <span className={styles.amount}>
                   ₹{" "}
-                  {barCodeData[0]?.COST_NETAMOUNT
-                    ? barCodeData[0]?.COST_NETAMOUNT.toFixed(2)
-                    : 0.0}
+                  {(
+                    barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                    barCodeData[0]?.COST_MC +
+                    barCodeData[0]?.COST_STAMT +
+                    ((barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                      barCodeData[0]?.COST_MC +
+                      barCodeData[0]?.COST_STAMT) *
+                      barCodeData[0]?.GSTRATE) /
+                      100
+                  )?.toFixed(2) || 0.0}
                 </span>
               </div>
             </div>
