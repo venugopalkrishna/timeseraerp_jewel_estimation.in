@@ -43,11 +43,20 @@ const PrintTemplateDialog = ({
         backgroundColor: "rgba(0, 0, 0, 0.2)",
       }}
       title={
-        <div
-          style={{ textAlign: "center", fontWeight: "bold", fontSize: "18px" }}
+        <strong
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "16px",
+            fontWeight: "bold",
+            background: "#FFC107",
+            borderRadius: "8px",
+            padding: "4px 8px",
+          }}
         >
-          PRINT
-        </div>
+          PRINT MODELS
+        </strong>
       }
       bodyStyle={{
         display: "flex",
@@ -74,12 +83,12 @@ const PrintTemplateDialog = ({
         }}
         style={{
           width: "90%",
-          padding: "10px 0",
+          padding: "20px 0",
           border: "2px solid orange",
           borderRadius: "50px",
           background: "white",
           fontWeight: "bold",
-          fontSize: "14px",
+          fontSize: "18px",
           letterSpacing: "1px",
           cursor: "pointer",
         }}
@@ -100,12 +109,12 @@ const PrintTemplateDialog = ({
         }}
         style={{
           width: "90%",
-          padding: "10px 0",
+          padding: "20px 0",
           border: "2px solid orange",
           borderRadius: "50px",
           background: "white",
           fontWeight: "bold",
-          fontSize: "14px",
+          fontSize: "18px",
           letterSpacing: "1px",
           cursor: "pointer",
         }}
@@ -116,9 +125,12 @@ const PrintTemplateDialog = ({
       <Button
         type="text"
         style={{
-          color: "blue",
+          width: "100%",
           marginTop: "10px",
           fontWeight: "bold",
+          background: "#f3550cff",
+          borderRadius: "8px",
+          padding: "4px 8px",
         }}
         onClick={onCancel}
       >

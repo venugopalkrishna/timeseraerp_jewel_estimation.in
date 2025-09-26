@@ -20,7 +20,8 @@ export const printReceiptModule2 = (
   customerArea,
   wastageData,
   mcData,
-  totalAmounts
+  totalAmounts,
+  wastMc
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -151,9 +152,9 @@ export const printReceiptModule2 = (
       );
 
       const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
-      const mcg = `${
-        matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0
-      }/g`.padEnd(6, " ");
+      const mcgValue = matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0;
+      const mcg =
+        mcgValue > 0 ? `${mcgValue}/g`.padEnd(6, " ") : "".padEnd(6, " ");
       const mcAmt = `${Number(
         matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0
       ).toFixed(2)}`.padStart(20, " ");
@@ -162,10 +163,11 @@ export const printReceiptModule2 = (
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");
       const swt = `${Number(item?.stonewt ?? 0).toFixed(3)}`.padStart(27, " ");
       const nwt = `${Number(item?.NWT ?? 0).toFixed(3)}`.padStart(27, " ");
-      const WGrams = `${matched?.WASTAGE ?? item?.WASTAGE ?? 0}%`.padEnd(
-        6,
-        " "
-      );
+      const wastageValue = matched?.WASTAGE ?? item?.WASTAGE ?? 0;
+      const WGrams =
+        wastageValue > 0
+          ? `${wastageValue}%`.padEnd(6, " ")
+          : "".padEnd(6, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3
       )}`.padStart(20, " ");
@@ -217,13 +219,25 @@ export const printReceiptModule2 = (
       printer.addText(`    NWT WEIGHT     : ${nwt}\n`);
       if (Number(printModel) === 3) {
         printer.addText(`    METAL VALUE    : ${metalValue}\n`);
-        printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+        if (wastMc === "W" || wastMc === "ALL") {
+          printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+        } else {
+          printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+        }
       } else {
-        printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+        if (wastMc === "W" || wastMc === "ALL") {
+          printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+        } else {
+          printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+        }
         printer.addText(`    TOTAL WEIGHT   : ${nwt}\n`);
         printer.addText(`    AMOUNT         : ${amt}\n`);
       }
-      printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
+      if (wastMc === "M" || wastMc === "ALL") {
+        printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
+      } else {
+        printer.addText(`    MAKING CHARGES :        ${mcAmt}\n`);
+      }
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
       const matchedStones = stonesData.filter(
         (stone) => stone.TAGNO === item.TAGNO
@@ -241,19 +255,24 @@ export const printReceiptModule2 = (
         const rateStr = stone?.RATE?.toFixed(0).padStart(7, " "); // right-aligned
         const amtStr = stone?.AMOUNT?.toFixed(0).padStart(8, " "); // right-aligned
 
+        const pcsStr =
+          stone?.NOPCS && stone.NOPCS > 0 ? ` (${stone.NOPCS}P)` : "";
+
         printer.addTextFont(printer.FONT_C);
         printer.addTextSize(1, 1);
 
         // Format similar to your image: ITEMNAME :  QTY UNIT X RATE = AMOUNT
         if (Number(printModel) === 2) {
           printer.addText(
-            `       ${itemName} : ${qtyStr} ${stone?.CTS ? "CTS" : "GMS"}\n`
+            `       ${itemName} : ${qtyStr} ${
+              stone?.CTS ? "CTS" : "GMS"
+            }${pcsStr}\n`
           );
         } else {
           printer.addText(
             `         ${itemName} : ${qtyStr} ${
               stone?.CTS ? "CTS" : "GMS"
-            } X ${rateStr} = ${amtStr}\n`
+            } X ${rateStr} = ${amtStr}${pcsStr}\n`
           );
         }
         printer.addTextFont(printer.FONT_A);
@@ -308,7 +327,7 @@ export const printReceiptModule2 = (
     printer.addTextAlign(printer.ALIGN_RIGHT);
     printer.addTextSize(2, 1);
     const totalValue = grandTotalAmount;
-    printer.addText("TOTAL :" + " " + totalValue.toFixed(2) + "/-" + "\n");
+    printer.addText("TOTAL :" + " " + totalValue.toFixed(0) + "/-" + "\n");
     printer.addFeedLine(1);
     printer.addTextFont(printer.FONT_A);
     printer.addTextSize(1, 1);

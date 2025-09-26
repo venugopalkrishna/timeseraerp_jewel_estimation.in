@@ -88,6 +88,7 @@ const BarCodeCheck = () => {
   const localIp = localStorage.getItem("ipAddress");
   const printModel = localStorage.getItem("printModel");
   const loginName = localStorage.getItem("loginName");
+  const wastMc = localStorage.getItem("wastMc");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -198,18 +199,6 @@ const BarCodeCheck = () => {
         );
 
         if (filteredData.length === 0) {
-          messageApi.open({
-            type: "error",
-            content: (
-              <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                Tag{" "}
-                <span style={{ color: "red" }}>
-                  {modifiedTotalData[0]?.TAGNO}
-                </span>{" "}
-                already existed
-              </span>
-            ),
-          });
           return prevData; // no update, keep old state
         }
 
@@ -1161,7 +1150,8 @@ const BarCodeCheck = () => {
       customerArea,
       wastageData,
       mcData,
-      totalAmounts
+      totalAmounts,
+      wastMc
     );
   };
 
@@ -1186,7 +1176,8 @@ const BarCodeCheck = () => {
       customerArea,
       wastageData,
       mcData,
-      totalAmounts
+      totalAmounts,
+      wastMc
     );
   };
 
@@ -2132,9 +2123,8 @@ const BarCodeCheck = () => {
                         <span className={styles.label2}>Fine Gold</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
-                          ₹{" "}
                           {barCode?.COST_FTOUCH
-                            ? Number(barCode?.COST_FTOUCH).toFixed(2)
+                            ? Number(barCode?.COST_FTOUCH).toFixed(3)
                             : 0.0}
                         </span>
                       </div>

@@ -917,9 +917,8 @@ const TagCheck = () => {
                   <span className={styles.label2}>Fine Gold</span>
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
-                    ₹{" "}
                     {barCodeData[0]?.COST_FTOUCH
-                      ? Number(barCodeData[0]?.COST_FTOUCH).toFixed(2)
+                      ? Number(barCodeData[0]?.COST_FTOUCH).toFixed(3)
                       : 0.0}
                   </span>
                 </div>
