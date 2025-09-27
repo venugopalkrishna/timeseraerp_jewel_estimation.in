@@ -1257,14 +1257,14 @@ const BarCodeCheck = () => {
               }}
               onClick={handleModifyOpen}
             />
-            <ScanOutlined
+            {/* <ScanOutlined
               onClick={handleOpenScanner}
               style={{
                 fontSize: "30px",
                 padding: "6px 5px",
                 // color: !qrOpen ? "#162566" : "#eb14bcff",
               }}
-            />
+            /> */}
             <ContactPhoneSharpIcon
               style={{
                 fontSize: "30px",
