@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -91,7 +91,7 @@ const LoginPage = ({ onLogin }) => {
         userConditionAPI(values, response?.data);
         navigate("/home");
       } else {
-        console.log("Invalid username or password");
+        message.error("Invalid username or password");
       }
     } catch (error) {
       console.error("Error:", error);
