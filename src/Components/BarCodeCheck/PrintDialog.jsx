@@ -5,11 +5,14 @@ const PrintTemplateDialog = ({
   onCancel,
   handleEposPrint,
   handleEposPrintModule2,
+  handlePrintModule1,
+  handlePrintModule2,
   createEstimationData,
   createEstimationMast,
   estimationDeleteData,
   estimationDeleteMast,
   tagNo,
+  pdfModule,
 }) => {
   const handlePrintWithAPIs = (printFn) => {
     try {
@@ -67,7 +70,11 @@ const PrintTemplateDialog = ({
     >
       <button
         onClick={async () => {
-          handleEposPrint();
+          if (pdfModule === "WIFI") {
+            handleEposPrint();
+          } else {
+            handlePrintModule1();
+          }
 
           if (tagNo) {
             // Wait for deletion to finish first
@@ -98,7 +105,11 @@ const PrintTemplateDialog = ({
 
       <button
         onClick={async () => {
-          handleEposPrintModule2();
+          if (pdfModule === "WIFI") {
+            handleEposPrintModule2();
+          } else {
+            handlePrintModule2();
+          }
           if (tagNo) {
             await estimationDeleteData();
             await estimationDeleteMast();

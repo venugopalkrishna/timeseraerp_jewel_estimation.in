@@ -169,11 +169,15 @@ const MakingChargesDialog = ({
                 placeholder="Enter MC"
                 style={{ width: "200px", height: 32, fontSize: "16px" }}
                 ref={inputRef}
+                onFocus={(e) => {
+                  e.target.select();
+                }}
                 value={formValues.MAKINGCHARGES}
                 onChange={(e) =>
                   setFormValues((prev) => ({
                     ...prev,
                     MAKINGCHARGES: e.target.value,
+                    DIRECTAMT: 0,
                   }))
                 }
               />
@@ -187,6 +191,9 @@ const MakingChargesDialog = ({
               <Input
                 placeholder="Enter Direct Amt"
                 style={{ width: "200px", height: 32, fontSize: "16px" }}
+                onFocus={(e) => {
+                  e.target.select();
+                }}
                 value={formValues.DIRECTAMT}
                 onChange={(e) => handleFloatChange("DIRECTAMT", e.target.value)}
               />

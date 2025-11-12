@@ -21,6 +21,8 @@ import PrintTemplateDialog from "./PrintDialog";
 import StonesDetailsDialog from "./StonesDetailsDialog";
 import WastageDialog from "./WastageDialog";
 import MakingChargesDialog from "./MakingChargesDialog";
+import { PrintModule1 } from "./PrintModule1";
+import { PrintModule2 } from "./PrintModule2";
 
 const BarCodeCheck = () => {
   const tagNoRef = useRef(null);
@@ -89,6 +91,7 @@ const BarCodeCheck = () => {
   const printModel = localStorage.getItem("printModel");
   const loginName = localStorage.getItem("loginName");
   const wastMc = localStorage.getItem("wastMc");
+  const pdfModule = localStorage.getItem("pdfModule");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -374,6 +377,7 @@ const BarCodeCheck = () => {
   };
 
   const grandTotalAmount = totalAmt + totalGstAmt;
+
   const createEstimationData = async () => {
     const requestBody = barCodeData.map((item, index) => {
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
@@ -1181,6 +1185,58 @@ const BarCodeCheck = () => {
     );
   };
 
+  const handlePrintModule1 = () => {
+    PrintModule1(
+      localIp,
+      EstNo,
+      userName,
+      barCodeData,
+      stonesData,
+      totalPcs,
+      totalGwt,
+      totalNwt,
+      totalAmt,
+      totalGstAmt,
+      grandTotalAmount,
+      gstNo,
+      loginName,
+      printModel,
+      customerName,
+      customerMobile,
+      customerArea,
+      wastageData,
+      mcData,
+      totalAmounts,
+      wastMc
+    );
+  };
+
+  const handlePrintModule2 = () => {
+    PrintModule2(
+      localIp,
+      EstNo,
+      userName,
+      barCodeData,
+      stonesData,
+      totalPcs,
+      totalGwt,
+      totalNwt,
+      totalAmt,
+      totalGstAmt,
+      grandTotalAmount,
+      gstNo,
+      loginName,
+      printModel,
+      customerName,
+      customerMobile,
+      customerArea,
+      wastageData,
+      mcData,
+      totalAmounts,
+      wastMc
+    );
+  };
+
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
       {contextHolder}
@@ -1317,35 +1373,38 @@ const BarCodeCheck = () => {
                         <br />
                         <small>Tag no</small>
                       </div>
-                      {barCode?.VV != "-" && (
-                        <div>
-                          <Box
-                            sx={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: "50%",
-                              backgroundColor: "black",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              border: "2px solid #52bd91",
-                            }}
-                            onClick={() => {
-                              handleImageOk(barCode?.VV);
-                            }}
-                          >
-                            <img
-                              src={barCode?.VV}
-                              alt="img"
-                              style={{
-                                width: "100%",
-                                height: "100%",
+                      {barCode?.VV &&
+                        barCode?.VV !== "-" &&
+                        barCode?.VV !== "null" &&
+                        barCode?.VV !== "NO" && (
+                          <div>
+                            <Box
+                              sx={{
+                                width: 50,
+                                height: 50,
                                 borderRadius: "50%",
+                                backgroundColor: "black",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                border: "2px solid #52bd91",
                               }}
-                            />
-                          </Box>
-                        </div>
-                      )}
+                              onClick={() => {
+                                handleImageOk(barCode?.VV);
+                              }}
+                            >
+                              <img
+                                src={barCode?.VV}
+                                alt="img"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            </Box>
+                          </div>
+                        )}
                       <div>
                         Today Rate
                         <br />
@@ -1646,7 +1705,7 @@ const BarCodeCheck = () => {
                           </span>
                         </div>
                         <div className={styles.highlightBox2}>
-                          <span className={styles.label2}>Mteal Value </span>
+                          <span className={styles.label2}>Metal Value </span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
                             ₹{" "}
@@ -1686,7 +1745,7 @@ const BarCodeCheck = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            fontSize: "14px",
+                            fontSize: "12px",
                             color: "black",
                             marginTop: "5px",
                             marginBottom: "5px",
@@ -1731,7 +1790,7 @@ const BarCodeCheck = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            fontSize: "14px",
+                            fontSize: "12px",
                             color: "black",
                             marginTop: "5px",
                             marginBottom: "5px",
@@ -1847,7 +1906,7 @@ const BarCodeCheck = () => {
                       </div>
                     </div>
                     <div className={styles.header1}>
-                      <div>
+                      <div style={{ fontSize: "14px" }}>
                         Total Amount
                         <br />
                         <span className={styles.amount1}>
@@ -1857,7 +1916,7 @@ const BarCodeCheck = () => {
                             : 0.0}
                         </span>
                       </div>
-                      <div>
+                      <div style={{ fontSize: "14px" }}>
                         Gst @ {gstNo || 0.0}%
                         <br />
                         <span className={styles.amount2}>
@@ -1867,7 +1926,7 @@ const BarCodeCheck = () => {
                             : 0.0}
                         </span>
                       </div>
-                      <div>
+                      <div style={{ fontSize: "14px" }}>
                         Net Amount
                         <br />
                         <span className={styles.amount1}>
@@ -2389,11 +2448,14 @@ const BarCodeCheck = () => {
         onCancel={handlePrintCancel}
         handleEposPrint={handleEposPrint}
         handleEposPrintModule2={handleEposPrintModule2}
+        handlePrintModule1={handlePrintModule1}
+        handlePrintModule2={handlePrintModule2}
         createEstimationData={createEstimationData}
         createEstimationMast={createEstimationMast}
         estimationDeleteData={estimationDeleteData}
         estimationDeleteMast={estimationDeleteMast}
         tagNo={tagNo}
+        pdfModule={pdfModule}
       />
       <ModifyEstNo
         modifyOpen={modifyOpen}

@@ -81,8 +81,8 @@ const StonesDetailsDialog = ({
                 {stone.PIECES > 0
                   ? `(${stone.PIECES} piece${stone.PIECES > 1 ? "s" : ""})`
                   : stone.GRMS > 0
-                  ? `(${stone.GRMS.toFixed(3)}/g)`
-                  : `(${stone.CTS.toFixed(3)}cts)`}
+                  ? `(${stone.GRMS?.toFixed(3)}/g)`
+                  : `(${stone.CTS?.toFixed(3)}cts)`}
               </span>{" "}
               Rate:
               <span style={{ fontWeight: "bold", color: "#162566" }}>
@@ -125,7 +125,7 @@ const StonesDetailsDialog = ({
                   fontSize: "14px",
                 }}
               >
-                ₹{stone.AMOUNT.toFixed(2)}
+                ₹{stone?.AMOUNT?.toFixed(2)}
               </span>
             </div>
             <div>

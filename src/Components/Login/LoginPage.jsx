@@ -70,6 +70,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("printModel", data[0].PRINT_MODEL);
         localStorage.setItem("loginName", data[0].USERNAME);
         localStorage.setItem("wastMc", data[0].WAST_MC);
+        localStorage.setItem("pdfModule", data[0].PRINTQUALITY);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);

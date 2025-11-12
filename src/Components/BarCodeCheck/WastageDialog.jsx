@@ -171,10 +171,14 @@ const WastageDialog = ({
                 style={{ width: "200px", height: 32, fontSize: "16px" }}
                 ref={inputRef}
                 value={formValues.WASTAGE}
+                onFocus={(e) => {
+                  e.target.select();
+                }}
                 onChange={(e) =>
                   setFormValues((prev) => ({
                     ...prev,
                     WASTAGE: e.target.value,
+                    DIRECTWT: 0,
                   }))
                 }
               />
@@ -188,6 +192,9 @@ const WastageDialog = ({
               <Input
                 placeholder="Enter Direct Wt"
                 style={{ width: "200px", height: 32, fontSize: "16px" }}
+                onFocus={(e) => {
+                  e.target.select();
+                }}
                 value={formValues.DIRECTWT}
                 onChange={(e) => handleFloatChange("DIRECTWT", e.target.value)}
               />
