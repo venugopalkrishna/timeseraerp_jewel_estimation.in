@@ -161,9 +161,32 @@ export const printReceipt = (
       ).toFixed(2)}`.padStart(20, " ");
 
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+      const matchedStone = stonesData.filter(
+        (item) => item.TAGNO === item.TAGNO
+      );
+      const totalCts = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.CTS) || 0),
+        0
+      );
+      const totalGrams = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
+        0
+      );
+      const totalItemAmt = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+        0
+      );
+      const ctsData = totalCts / 5 + totalGrams;
+      const netWt = item?.GWT - ctsData;
+
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");
-      const swt = `${Number(item?.stonewt ?? 0).toFixed(3)}`.padStart(27, " ");
-      const nwt = `${Number(item?.NWT ?? 0).toFixed(3)}`.padStart(27, " ");
+      const swt = `${Number(ctsData ?? item?.stonewt ?? 0).toFixed(
+        3
+      )}`.padStart(27, " ");
+      const nwt = `${Number(netWt ?? item?.NWT ?? 0).toFixed(3)}`.padStart(
+        27,
+        " "
+      );
       const wastageValue = matched?.WASTAGE ?? item?.WASTAGE ?? 0;
       const WGrams =
         wastageValue > 0
@@ -172,12 +195,11 @@ export const printReceipt = (
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3
       )}`.padStart(20, " ");
-      const SAmt = `${Number(item?.ITEM_TOTAMT ?? 0).toFixed(2)}`.padStart(
-        27,
-        " "
-      );
+      const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
+        2
+      )}`.padStart(27, " ");
       const calculateAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
-      const nwtAmt = Number(item?.NWT ?? 0);
+      const nwtAmt = Number(netWt ?? item?.NWT ?? 0);
       const rateAmt = Number(item?.RATE ?? 0);
 
       const amtValue = (nwtAmt + calculateAmt) * rateAmt || 0;
@@ -190,7 +212,7 @@ export const printReceipt = (
         " "
       );
       const rate = Number(item?.RATE ?? 0);
-      const nwtValue = Number(item?.NWT ?? 0);
+      const nwtValue = Number(netWt ?? item?.NWT ?? 0);
       const totalValue = rate * nwtValue;
       const metalValue = `${Number(totalValue ?? 0).toFixed(2)}`.padStart(
         27,

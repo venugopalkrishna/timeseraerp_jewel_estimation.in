@@ -185,9 +185,24 @@ export const PrintModule2 = (
     const matchedW = wastageData.find((w) => w.TAGNO === tag);
     const matchedStones = stonesData.filter((s) => s.TAGNO === tag);
 
-    const nwt = Number(item?.NWT ?? 0);
+    const totalCts = matchedStones.reduce(
+      (sum, item) => sum + (parseFloat(item.CTS) || 0),
+      0
+    );
+    const totalGrams = matchedStones.reduce(
+      (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
+      0
+    );
+    const totalItemAmt = matchedStones.reduce(
+      (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+      0
+    );
+    const ctsData = totalCts / 5 + totalGrams;
+    const netWt = item?.GWT - ctsData;
+
+    const nwt = Number(netWt ?? item?.NWT ?? 0);
     const gwt = Number(item?.GWT ?? 0);
-    const swt = Number(item?.stonewt ?? 0);
+    const swt = Number(ctsData ?? item?.stonewt ?? 0);
     const wastageValue = matchedW?.WASTAGE ?? item?.WASTAGE ?? 0;
     const wastAmt = Number(matchedW?.TOTALWT ?? item?.CATTOTWAST ?? 0);
     const mcAmt = Number(matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0);
@@ -277,7 +292,7 @@ export const PrintModule2 = (
             )}</span></div>`
       }
       <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-        item?.ITEM_TOTAMT
+        totalItemAmt ?? item?.ITEM_TOTAMT
       )}</span></div>
     `;
     matchedStones.forEach((s) => {

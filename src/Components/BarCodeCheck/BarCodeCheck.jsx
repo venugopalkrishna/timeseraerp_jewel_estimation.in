@@ -55,6 +55,7 @@ const BarCodeCheck = () => {
   const [mcOpen, setMcOpen] = useState(false);
   const [mcTagNo, setMcTagNo] = useState();
   const [totalAmounts, setTotalAmounts] = useState([]);
+  const [itemsData, setItemsData] = useState([]);
   // const [imagesData, setImagesData] = useState([]);
   // const [userArea, setUserArea] = useState();
   // const [userName, setUserName] = useState();
@@ -118,6 +119,25 @@ const BarCodeCheck = () => {
       setEstNo(newEstimationNo);
     } catch (error) {
       console.error("Error fetching estimation number:", error);
+    }
+  };
+  const itemsAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithOrder?tableName=ITEM_MASTER&order=ITEMNAME`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setItemsData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
     }
   };
 
@@ -311,7 +331,7 @@ const BarCodeCheck = () => {
         setTotalItemUncAmt(totalUnCutsAmount);
         setTotalItemDiaAmt(totalItemDiaAmount);
         setTotalDiamondAmt(totalDiamondAmount);
-        setGstNo(data[0]?.GSTRATE);
+        setGstNo(updatedData[0]?.GSTRATE);
         setTotalPurAmt(totalPurAmount);
         setTotalPurGstAmt(totalPurGstAmount);
         setTotalPurNwtAmt(totalPurNwtAmount);
@@ -385,6 +405,13 @@ const BarCodeCheck = () => {
       const matchedTotals = totalAmounts.find(
         (tot) => tot.TAGNO === item.TAGNO
       );
+      const matchedStone = stonesData.filter(
+        (stone) => stone.TAGNO === item.TAGNO
+      );
+      const totalStoneAmount = matchedStone.reduce(
+        (sum, item) => sum + (Number(item?.AMOUNT) || 0),
+        0
+      );
       return {
         estimationNo: String(tagNo ? tagNo : estNo ?? "-"), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
@@ -405,7 +432,7 @@ const BarCodeCheck = () => {
         brandName: String(item?.BRANDNAME ?? "-"),
         brandAmt: Number(item?.BRANDAMT ?? 0),
         amount: Number(matchedTotals?.TOTALAMT ?? 0),
-        itemamt: Number(item?.ITEM_TOTAMT ?? 0),
+        itemamt: Number(totalStoneAmount?.toFixed(0) ?? item?.ITEM_TOTAMT ?? 0),
         totamt: Number(matchedTotals?.NETAMT ?? 0),
         estDate: new Date().toISOString(),
         estTime: new Date().toISOString(),
@@ -516,6 +543,45 @@ const BarCodeCheck = () => {
       setModifyCode();
       handleReset();
       setTagNo();
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+  };
+
+  const createEstimationItems = async () => {
+    const requestBody = stonesData.map((item, index) => {
+      return {
+        estimationNo: String(tagNo ? tagNo : estNo),
+        tagNo: Number(item?.TAGNO) || 0,
+        sno: item?.SNO,
+        itemName: item?.ITEMNAME,
+        pieces: Number(item?.PIECES) || 0,
+        cts: Number(item?.CTS) || 0,
+        grms: Number(item?.GRMS) || 0,
+        rate: Number(item?.RATE) || 0,
+        amount: Number(item?.AMOUNT) || 0,
+        noPcs: Number(item?.NOPCS) || 0,
+        colour: item?.COLOUR,
+        cut: item?.CUT,
+        clarity: item?.CLARITY,
+        homeKey: 0,
+      };
+    });
+
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Master/EstimationItemsMultiInsert`,
+        requestBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            tenantName: tenantName,
+          },
+        }
+      );
+      let data = response?.data;
+      // window.location.reload();
+      // handleReset();
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -660,7 +726,7 @@ const BarCodeCheck = () => {
           if (tagNo) {
             try {
               await tagNoAPI(tagNo);
-              await stonesDetailsAPI(tagNo);
+              // await stonesDetailsAPI(tagNo);
             } catch (err) {
               console.error(`Error processing TagNo ${tagNo}:`, err);
             }
@@ -704,10 +770,74 @@ const BarCodeCheck = () => {
     }
   };
 
+  const estimationNoItemsAPI = async () => {
+    try {
+      let whereCondition = "";
+      if (modifyCode) {
+        whereCondition = `ESTIMATIONNO='${modifyCode}'`;
+      }
+
+      const params = {
+        tableName: "ESTIMATION_ITEMS",
+        where: whereCondition,
+      };
+
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere`,
+        {
+          params,
+          headers: { tenantName },
+        }
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        const updatedData = data.map((item, index) => ({
+          AMOUNT: item?.Amount,
+          BRANCHNAME: null,
+          CLARITY: "-",
+          CLOUD_UPLOAD: false,
+          COLOUR: item?.Colour,
+          CTS: item?.Cts ?? 0,
+          CUT: item?.Cut ?? "-",
+          DAMT: 0,
+          DNAME: "-",
+          DPRICE: 0,
+          GRMS: item?.Grms ?? 0,
+          ISDIAMOND: false,
+          ISSBRANCHNAME: null,
+          ISSDATE: null,
+          ISSNO: null,
+          ITEMCODE: "-",
+          ITEMNAME: "-",
+          MNAME: "-",
+          NOPCS: item?.NoPcs ?? 0,
+          PIECES: item?.pieces ?? 0,
+          PRODUCTCATEGORY: "-",
+          PRODUCTCODE: "-",
+          PRODUCTNAME: "-",
+          RATE: item?.Rate ?? 0,
+          RECBRANCHNAME: null,
+          RECDATE: null,
+          RECNO: null,
+          SNO: item?.Sno,
+          SNO1: null,
+          TAGNO: item?.TagNo,
+          VV: null,
+          countername: "-",
+        }));
+        setStonesData(updatedData);
+      }
+    } catch (error) {
+      console.error("Error fetching estimation data:", error);
+    }
+  };
+
   const estimationDeleteData = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO=${tagNo}`,
+        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_DATA&where=ESTIMATIONNO='${tagNo}'`,
         {},
         {
           headers: {
@@ -723,7 +853,22 @@ const BarCodeCheck = () => {
   const estimationDeleteMast = async () => {
     try {
       const response = await axios.post(
-        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO=${tagNo}`,
+        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=ESTIMATIONNO='${tagNo}'`,
+        {},
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+  };
+  const estimationDeleteItems = async () => {
+    try {
+      const response = await axios.post(
+        `${CREATE_jwel}/api/Master/DeleteDataFromGivenTableNameWithWhere?tableName=ESTIMATION_ITEMS&where=ESTIMATIONNO='${tagNo}'`,
         {},
         {
           headers: {
@@ -842,6 +987,22 @@ const BarCodeCheck = () => {
       (sum, item) => sum + (parseFloat(item.NETAMT) || 0),
       0
     );
+    const totWastAmount = wastageData.reduce(
+      (sum, item) => sum + (parseFloat(item.TOTALWT) || 0),
+      0
+    );
+    const totDirectWast = wastageData.reduce(
+      (sum, item) => sum + (parseFloat(item.DIRECTWT) || 0),
+      0
+    );
+    const totMcAmount = mcData.reduce(
+      (sum, item) => sum + (parseFloat(item.TOTALAMT) || 0),
+      0
+    );
+    const totDirectMc = mcData.reduce(
+      (sum, item) => sum + (parseFloat(item.DIRECTAMT) || 0),
+      0
+    );
     const totalWastAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
       0
@@ -892,8 +1053,8 @@ const BarCodeCheck = () => {
     setTotalAmt(totalAmount);
     setTotalGstAmt(totalGstAmount);
     setTotalNwtAmt(totalNwtAmount);
-    setTotalWastAmt(totalWastAmount);
-    setTotalMcAmt(totalMcAmount);
+    setTotalWastAmt(totWastAmount ? totWastAmount : totalWastAmount);
+    setTotalMcAmt(totMcAmount ? totMcAmount : totalMcAmount);
     setTotalItemCtsAmt(totalCtsAmount);
     setTotalItemUncAmt(totalUnCutsAmount);
     setTotalItemDiaAmt(totalItemDiaAmount);
@@ -902,7 +1063,7 @@ const BarCodeCheck = () => {
     setTotalPurAmt(totalPurAmount);
     setTotalPurGstAmt(totalPurGstAmount);
     setTotalPurNwtAmt(totalPurNwtAmount);
-  }, [barCodeData, stonesData, totalAmounts]);
+  }, [barCodeData, stonesData, totalAmounts, wastageData, mcData]);
 
   const handleDelete = (indexToDelete) => {
     setBarCodeData((prevData) => {
@@ -1000,6 +1161,7 @@ const BarCodeCheck = () => {
     setMcTagNo();
     setTotalAmounts([]);
     estimationNo();
+    setItemsData([]);
   };
 
   const handleImageOk = (image) => {
@@ -1098,6 +1260,7 @@ const BarCodeCheck = () => {
 
   useEffect(() => {
     estimationNo();
+    itemsAPI();
   }, []);
 
   useEffect(() => {
@@ -1106,6 +1269,13 @@ const BarCodeCheck = () => {
     const perData = barCodeData.map((barCode) => {
       const matched = wastageData.find((item) => item.TAGNO === barCode.TAGNO);
       const matchedMc = mcData.find((item) => item.TAGNO === barCode.TAGNO);
+      const matchedStone = stonesData.filter(
+        (item) => item.TAGNO === barCode.TAGNO
+      );
+      const totalStoneAmount = matchedStone.reduce(
+        (sum, item) => sum + (Number(item?.AMOUNT) || 0),
+        0
+      );
 
       const wastageAmt = matched?.TOTALWT
         ? Number(matched.TOTALWT)
@@ -1113,7 +1283,7 @@ const BarCodeCheck = () => {
       const mcAmount = matchedMc?.TOTALAMT
         ? Number(matchedMc.TOTALAMT)
         : Number(barCode.CATTOTMC ?? 0);
-      const stoneAmount = Number(barCode.ITEM_TOTAMT ?? 0);
+      const stoneAmount = Number(totalStoneAmount ?? 0);
       const rateAmount =
         (Number(barCode.NWT ?? 0) + wastageAmt) * Number(barCode.RATE ?? 0);
       const totalAmount = rateAmount + mcAmount + stoneAmount;
@@ -1129,7 +1299,7 @@ const BarCodeCheck = () => {
     });
 
     setTotalAmounts(perData);
-  }, [wastageData, mcData, wastageOpen, mcOpen]);
+  }, [wastageData, mcData, wastageOpen, mcOpen, stonesData]);
 
   const EstNo = tagNo ? tagNo : estNo;
 
@@ -1363,6 +1533,41 @@ const BarCodeCheck = () => {
                   (item) => item.TAGNO === barCode.TAGNO
                 );
 
+                const matchedStones = stonesData.filter(
+                  (item) => item.TAGNO === barCode.TAGNO
+                );
+                const totalCts = matchedStones.reduce(
+                  (sum, item) => sum + (parseFloat(item.CTS) || 0),
+                  0
+                );
+                const totalGrams = matchedStones.reduce(
+                  (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
+                  0
+                );
+                const totalItemAmt = matchedStones.reduce(
+                  (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+                  0
+                );
+                const diamondItems = matchedStones.filter((item) => {
+                  const matched = itemsData.find(
+                    (i) => i.ITEMNAME === item.ITEMNAME && i.DIAMONDS === true
+                  );
+                  return !!matched;
+                });
+
+                const diaCts = diamondItems.reduce(
+                  (sum, item) => sum + (parseFloat(item.CTS) || 0),
+                  0
+                );
+
+                const diaAmount = diamondItems.reduce(
+                  (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+                  0
+                );
+
+                const ctsData = totalCts / 5 + totalGrams;
+                const netWt = barCode?.GWT - ctsData;
+
                 return (
                   <div className={styles.card}>
                     <div className={styles.header}>
@@ -1517,18 +1722,17 @@ const BarCodeCheck = () => {
                           <span className={styles.label2}>Stone Wt</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            {barCode?.stonewt
-                              ? barCode?.stonewt?.toFixed(3) + "g"
-                              : "0.000g"}
+                            {Number(ctsData ?? barCode?.ITEM_TOTAMT)?.toFixed(
+                              3
+                            ) + "g" ?? "0.000g"}
                           </span>
                         </div>
                         <div className={styles.rowTag2}>
                           <span className={styles.label2}>Nwt</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            {barCode?.NWT
-                              ? barCode?.NWT?.toFixed(3) + "g"
-                              : "0.000g"}
+                            {Number(netWt ?? barCode?.NWT)?.toFixed(3) + "g" ??
+                              "0.000g"}
                           </span>
                         </div>
                         {/* <div className={styles.rowTag2}>
@@ -1710,7 +1914,8 @@ const BarCodeCheck = () => {
                           <span className={styles.value2}>
                             ₹{" "}
                             {(
-                              (barCode?.RATE ?? 0) * (barCode?.NWT ?? 0)
+                              (barCode?.RATE ?? 0) *
+                              (netWt ?? barCode?.NWT ?? 0)
                             ).toFixed(2)}
                           </span>
                         </div>
@@ -1734,10 +1939,7 @@ const BarCodeCheck = () => {
                           </span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            ₹{" "}
-                            {barCode?.ITEM_TOTAMT
-                              ? barCode?.ITEM_TOTAMT.toFixed(2)
-                              : 0.0}
+                            ₹ {totalItemAmt ? totalItemAmt.toFixed(2) : 0.0}
                           </span>
                         </div>
                         <div
@@ -1764,9 +1966,7 @@ const BarCodeCheck = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              {barCode?.Item_diamonds
-                                ? barCode?.Item_diamonds?.toFixed(3)
-                                : 0}
+                              {diaCts ? diaCts?.toFixed(3) : 0}
                             </span>
                           </span>
                           <span>
@@ -1778,10 +1978,7 @@ const BarCodeCheck = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              ₹{" "}
-                              {barCode?.Diamond_Amount
-                                ? barCode?.Diamond_Amount?.toFixed(2)
-                                : 0}
+                              ₹ {diaAmount ? diaAmount?.toFixed(2) : 0}
                             </span>
                           </span>
                         </div>
@@ -2396,10 +2593,12 @@ const BarCodeCheck = () => {
                 if (tagNo) {
                   estimationDeleteData();
                   estimationDeleteMast();
+                  estimationDeleteItems();
                 }
                 if (barCodeData.length > 0) {
                   createEstimationData();
                   createEstimationMast();
+                  createEstimationItems();
                   // setSelectEstimationNo(null);
                 }
               }
@@ -2436,6 +2635,7 @@ const BarCodeCheck = () => {
         stonesOpen={stonesOpen}
         handleCancel={handleCancel}
         stonesData={stonesData}
+        setStonesData={setStonesData}
         stoneNo={stoneNo}
       />
       <ImageDialog
@@ -2452,8 +2652,10 @@ const BarCodeCheck = () => {
         handlePrintModule2={handlePrintModule2}
         createEstimationData={createEstimationData}
         createEstimationMast={createEstimationMast}
+        createEstimationItems={createEstimationItems}
         estimationDeleteData={estimationDeleteData}
         estimationDeleteMast={estimationDeleteMast}
+        estimationDeleteItems={estimationDeleteItems}
         tagNo={tagNo}
         pdfModule={pdfModule}
       />
@@ -2464,6 +2666,7 @@ const BarCodeCheck = () => {
         setModifyCode={setModifyCode}
         estimationNoDataAPI={estimationNoDataAPI}
         estimationNoMastAPI={estimationNoMastAPI}
+        estimationNoItemsAPI={estimationNoItemsAPI}
         handleReset={handleReset}
         setTagNo={setTagNo}
       />

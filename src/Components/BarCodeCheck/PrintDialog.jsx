@@ -9,8 +9,10 @@ const PrintTemplateDialog = ({
   handlePrintModule2,
   createEstimationData,
   createEstimationMast,
+  createEstimationItems,
   estimationDeleteData,
   estimationDeleteMast,
+  estimationDeleteItems,
   tagNo,
   pdfModule,
 }) => {
@@ -24,6 +26,7 @@ const PrintTemplateDialog = ({
         try {
           await createEstimationData();
           await createEstimationMast();
+          await createEstimationItems();
         } catch (error) {
           console.error("Error creating estimation:", error);
         } finally {
@@ -80,11 +83,13 @@ const PrintTemplateDialog = ({
             // Wait for deletion to finish first
             await estimationDeleteData();
             await estimationDeleteMast();
+            await estimationDeleteItems();
           }
 
           // Then create new records
           await createEstimationData();
           await createEstimationMast();
+          await createEstimationItems();
 
           onCancel();
         }}
@@ -113,9 +118,11 @@ const PrintTemplateDialog = ({
           if (tagNo) {
             await estimationDeleteData();
             await estimationDeleteMast();
+            await estimationDeleteItems();
           }
           await createEstimationData();
           await createEstimationMast();
+          await createEstimationItems();
           onCancel();
         }}
         style={{

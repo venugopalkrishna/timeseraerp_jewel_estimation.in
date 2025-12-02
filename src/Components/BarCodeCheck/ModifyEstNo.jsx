@@ -9,6 +9,7 @@ const ModifyEstNo = ({
   setModifyCode,
   estimationNoDataAPI,
   estimationNoMastAPI,
+  estimationNoItemsAPI,
   handleReset,
   setTagNo,
 }) => {
@@ -41,6 +42,7 @@ const ModifyEstNo = ({
       onOk={() => {
         estimationNoDataAPI();
         estimationNoMastAPI();
+        estimationNoItemsAPI();
         handleReset();
       }}
       onCancel={handleCancel}
