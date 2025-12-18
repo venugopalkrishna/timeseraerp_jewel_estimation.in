@@ -111,12 +111,15 @@ const BarCodeCheck = () => {
 
       // Axios already returns parsed JSON under response.data
       const data = response.data;
-      const rawValue = data[0]?.Column1;
-      const maxEstimationNo = Number.isFinite(Number(rawValue))
-        ? Number(rawValue)
-        : 0;
-      const newEstimationNo = maxEstimationNo + 1;
-      setEstNo(newEstimationNo);
+      if (Array.isArray(data) && data.length > 0) {
+        const rawValue = data[0]?.Column1;
+        const maxEstimationNo = Number.isFinite(Number(rawValue))
+          ? Number(rawValue)
+          : 0;
+        const newEstimationNo = maxEstimationNo + 1;
+        setEstNo(newEstimationNo);
+        return newEstimationNo;
+      }
     } catch (error) {
       console.error("Error fetching estimation number:", error);
     }
@@ -398,7 +401,7 @@ const BarCodeCheck = () => {
 
   const grandTotalAmount = totalAmt + totalGstAmt;
 
-  const createEstimationData = async () => {
+  const createEstimationData = async (est) => {
     const requestBody = barCodeData.map((item, index) => {
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
       const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
@@ -413,7 +416,7 @@ const BarCodeCheck = () => {
         0
       );
       return {
-        estimationNo: String(tagNo ? tagNo : estNo ?? "-"), // always a string
+        estimationNo: String(tagNo ? tagNo : est ?? "-"), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
         mname: String(item?.MNAME ?? "-"),
         productName: String(item?.PRODUCTNAME ?? "-"),
@@ -480,9 +483,9 @@ const BarCodeCheck = () => {
     }
   };
 
-  const createEstimationMast = async () => {
+  const createEstimationMast = async (est) => {
     const requestBody = {
-      estimationNo: String(tagNo ? tagNo : estNo),
+      estimationNo: String(tagNo ? tagNo : est),
       gold: 0,
       platinum: 0,
       silver: 0,
@@ -548,10 +551,10 @@ const BarCodeCheck = () => {
     }
   };
 
-  const createEstimationItems = async () => {
+  const createEstimationItems = async (est) => {
     const requestBody = stonesData.map((item, index) => {
       return {
-        estimationNo: String(tagNo ? tagNo : estNo),
+        estimationNo: String(tagNo ? tagNo : est),
         tagNo: Number(item?.TAGNO) || 0,
         sno: item?.SNO,
         itemName: item?.ITEMNAME,
@@ -2588,17 +2591,21 @@ const BarCodeCheck = () => {
           </button>
           <button
             className={styles.btn}
-            onClick={() => {
+            onClick={async () => {
               if (barCodeData.length > 0) {
                 if (tagNo) {
-                  estimationDeleteData();
-                  estimationDeleteMast();
-                  estimationDeleteItems();
-                }
-                if (barCodeData.length > 0) {
-                  createEstimationData();
-                  createEstimationMast();
-                  createEstimationItems();
+                  await estimationDeleteData();
+                  await estimationDeleteMast();
+                  await estimationDeleteItems();
+
+                  await createEstimationData();
+                  await createEstimationMast();
+                  await createEstimationItems();
+                } else {
+                  const nextInvNo = await estimationNo();
+                  await createEstimationData(nextInvNo);
+                  await createEstimationMast(nextInvNo);
+                  await createEstimationItems(nextInvNo);
                   // setSelectEstimationNo(null);
                 }
               }
@@ -2658,6 +2665,7 @@ const BarCodeCheck = () => {
         estimationDeleteItems={estimationDeleteItems}
         tagNo={tagNo}
         pdfModule={pdfModule}
+        estimationNo={estimationNo}
       />
       <ModifyEstNo
         modifyOpen={modifyOpen}

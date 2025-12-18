@@ -15,6 +15,7 @@ const PrintTemplateDialog = ({
   estimationDeleteItems,
   tagNo,
   pdfModule,
+  estimationNo,
 }) => {
   const handlePrintWithAPIs = (printFn) => {
     try {
@@ -80,16 +81,18 @@ const PrintTemplateDialog = ({
           }
 
           if (tagNo) {
-            // Wait for deletion to finish first
             await estimationDeleteData();
             await estimationDeleteMast();
             await estimationDeleteItems();
+            await createEstimationData();
+            await createEstimationMast();
+            await createEstimationItems();
+          } else {
+            const nextInvNo = await estimationNo();
+            await createEstimationData(nextInvNo);
+            await createEstimationMast(nextInvNo);
+            await createEstimationItems(nextInvNo);
           }
-
-          // Then create new records
-          await createEstimationData();
-          await createEstimationMast();
-          await createEstimationItems();
 
           onCancel();
         }}
@@ -119,10 +122,15 @@ const PrintTemplateDialog = ({
             await estimationDeleteData();
             await estimationDeleteMast();
             await estimationDeleteItems();
+            await createEstimationData();
+            await createEstimationMast();
+            await createEstimationItems();
+          } else {
+            const nextInvNo = await estimationNo();
+            await createEstimationData(nextInvNo);
+            await createEstimationMast(nextInvNo);
+            await createEstimationItems(nextInvNo);
           }
-          await createEstimationData();
-          await createEstimationMast();
-          await createEstimationItems();
           onCancel();
         }}
         style={{
