@@ -190,7 +190,7 @@ export const PrintModule2 = (
       0
     );
     const totalGrams = matchedStones.reduce(
-      (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
+      (sum, item) => sum + (parseFloat(item.GRMS) || 0),
       0
     );
     const totalItemAmt = matchedStones.reduce(

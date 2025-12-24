@@ -169,7 +169,7 @@ export const printReceipt = (
         0
       );
       const totalGrams = matchedStone.reduce(
-        (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
+        (sum, item) => sum + (parseFloat(item.GRMS) || 0),
         0
       );
       const totalItemAmt = matchedStone.reduce(
