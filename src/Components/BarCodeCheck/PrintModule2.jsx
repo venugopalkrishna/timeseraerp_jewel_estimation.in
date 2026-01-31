@@ -22,7 +22,8 @@ export const PrintModule2 = (
   wastageData,
   mcData,
   totalAmounts,
-  wastMc
+  wastMc,
+  wastValue,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -187,15 +188,15 @@ export const PrintModule2 = (
 
     const totalCts = matchedStones.reduce(
       (sum, item) => sum + (parseFloat(item.CTS) || 0),
-      0
+      0,
     );
     const totalGrams = matchedStones.reduce(
       (sum, item) => sum + (parseFloat(item.GRMS) || 0),
-      0
+      0,
     );
     const totalItemAmt = matchedStones.reduce(
       (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-      0
+      0,
     );
     const ctsData = totalCts / 5 + totalGrams;
     const netWt = item?.GWT - ctsData;
@@ -219,7 +220,7 @@ export const PrintModule2 = (
         <div style="display:flex; justify-content:space-between; margin-top:5px;">
           <span style="font-size: 16px; font-weight: bold;"><b>${tag}</b> ${purity}</span>
           <span style="font-size: 16px; font-weight: bold;">Rate : ${formatNum(
-            rate
+            rate,
           )}</span>
         </div>
        <div style="display:flex; justify-content:space-between; margin-top:5px; margin-bottom:10px"><span><b>${
@@ -229,72 +230,88 @@ export const PrintModule2 = (
     </span></div>
         <div class="data-row"><span class="data-label">GROSS WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
           gwt,
-          3
+          3,
         )}</span></div>
          <div class="data-row"><span class="data-label">STONE LESS</span><span class="data-colon">:</span><span class="data-value">${formatNum(
            swt,
-           3
+           3,
          )}</span></div>
          <div class="data-row"><span class="data-label">NWT WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
            nwt,
-           3
+           3,
          )}</span></div>
     `;
 
     if (Number(printModel) === 3) {
       htmlContent += `
        <div class="data-row"><span class="data-label">METAL VALUE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-         totalValue
+         totalValue,
        )}</span></div>
         ${
           ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">WASTAGE</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
                 wastAmt,
-                3
+                3,
               )}</span></div>`
-            : `<div class="data-row"><span class="data-label">WASTAGE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
                 wastAmt,
-                3
+                3,
               )}</span></div>`
         }
+      `;
+    } else if (Number(printModel) === 4) {
+      htmlContent += `
+      <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
+        Number(gwt) > 8 ? wastageValue + "%" : formatNum(wastAmt, 3)
+      }</span></div>
       `;
     } else {
       htmlContent += `
         ${
           ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">WASTAGE</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
                 wastAmt,
-                3
+                3,
               )}</span></div>`
-            : `<div class="data-row"><span class="data-label">WASTAGE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
                 wastAmt,
-                3
+                3,
               )}</span></div>`
         }
         <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
           nwt,
-          3
+          3,
         )}</span></div>
         <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          amtValue
+          amtValue,
         )}</span></div>
       `;
     }
-
-    htmlContent += `
+    if (Number(printModel) === 4) {
+      htmlContent += `
+       <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+         mcAmt,
+       )}</span></div>
+        <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+          totalItemAmt ?? item?.ITEM_TOTAMT,
+        )}</span></div>
+      `;
+    } else {
+      htmlContent += `
       ${
         ["M", "ALL"].includes(wastMc)
           ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue}/g</span><span class="data-value">${formatNum(
-              mcAmt
+              mcAmt,
             )}</span></div>`
           : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-              mcAmt
+              mcAmt,
             )}</span></div>`
       }
       <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-        totalItemAmt ?? item?.ITEM_TOTAMT
+        totalItemAmt ?? item?.ITEM_TOTAMT,
       )}</span></div>
     `;
+    }
     matchedStones.forEach((s) => {
       const pcsStr = s?.NOPCS && s.NOPCS > 0 ? ` (${s.NOPCS}P)` : "";
       const weightLabel = s.CTS ? "CTS" : "GMS";
@@ -306,7 +323,7 @@ export const PrintModule2 = (
         <span style="display:inline-block; width:80px;">${s.ITEMNAME}</span> :
         <span style="display:inline-block; width:80px; text-align:right;">${formatNum(
           s.CTS ? s.CTS : s.GRMS,
-          3
+          3,
         )}</span>
         <span style="display:inline-block; width:25px;">${weightLabel}</span>
         <span style="display:inline-block; width:40px; text-align:left; margin-left: 2px;">${pcsStr}</span>
@@ -318,16 +335,16 @@ export const PrintModule2 = (
         <span style="display:inline-block; width:80px;">${s.ITEMNAME}</span> :
         <span style="display:inline-block; width:80px; text-align:right;">${formatNum(
           s.CTS ? s.CTS : s.GRMS,
-          3
+          3,
         )}</span>
         <span style="display:inline-block; width:25px;">${weightLabel}</span>
         <span style="display:inline-block; width:8px;">X</span>
         <span style="display:inline-block; width:40px; text-align:right;">${formatNum(
-          s.RATE
+          s.RATE,
         )}</span>
         <span style="display:inline-block; width:8px;">=</span>
         <span style="display:inline-block; width:40px; text-align:right;">${formatNum(
-          s.AMOUNT
+          s.AMOUNT,
         )}</span>
         <span style="display:inline-block; width:40px; text-align:left; margin-left: 2px;">${pcsStr}</span>
       </div>
@@ -339,7 +356,7 @@ export const PrintModule2 = (
       <div class="data-row bold" style="font-size:18px; margin-bottom: 15px;">
       <span class="data-label">TOTAL VALUE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
         totalAmtValue,
-        0
+        0,
       )}/-</span>
     </div>
     `;
@@ -354,22 +371,22 @@ export const PrintModule2 = (
         <div class="tot-row"><span class="tot-label">Tot Pcs</span><span class="tot-colon">:</span><span class="tot-value">${totalPcs}</span></div>
         <div class="tot-row"><span class="tot-label">Gross Wt</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
           totalGwt,
-          3
+          3,
         )}</span></div>
         <div class="tot-row"><span class="tot-label">Net Wt</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
           totalNwt,
-          3
+          3,
         )}</span></div>
         </div>
 
         <div class="col">
         <div class="tot-row"><span class="tot-label">Amount</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
-          totalAmt
+          totalAmt,
         )}</span></div>
         <div class="tot-row"><span class="tot-label"></span><span class="tot-colon"></span><span class="tot-value"></span></div>
         <div class="tot-row"><span class="tot-label">GST@${gstNo}%</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
-    totalGstAmt
-  )}</span></div>
+          totalGstAmt,
+        )}</span></div>
         </div>
     </div>
 
@@ -378,7 +395,7 @@ export const PrintModule2 = (
     <div class="data-row bold" style="font-size:18px;">
       <span class="total-label">TOTAL</span><span class="data-colon">:</span><span class="total-value">${formatNum(
         grandTotalAmount,
-        0
+        0,
       )}/-</span>
     </div>
 
@@ -419,7 +436,7 @@ export const PrintModule2 = (
   <div class="line"></div>
 
     <div class="footer-row"><span class="footer-label">Date</span><span class="footer-colon">:</span><span class="footer-value">${dayjs().format(
-      "DD-MM-YYYY hh:mm A"
+      "DD-MM-YYYY hh:mm A",
     )}</span></div>
     <div class="footer-row"><span class="footer-label">User Name</span><span class="footer-colon">:</span><span class="footer-value">${loginName}</span></div>
   `;

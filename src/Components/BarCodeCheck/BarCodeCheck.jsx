@@ -93,6 +93,7 @@ const BarCodeCheck = () => {
   const loginName = localStorage.getItem("loginName");
   const wastMc = localStorage.getItem("wastMc");
   const pdfModule = localStorage.getItem("pdfModule");
+  const wastValue = localStorage.getItem("wastValue");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -106,7 +107,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       // Axios already returns parsed JSON under response.data
@@ -132,7 +133,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -154,7 +155,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -221,7 +222,7 @@ const BarCodeCheck = () => {
 
         // Only keep new ones that are not already added
         const filteredData = modifiedTotalData.filter(
-          (item) => !existingTags.has(item.TAGNO)
+          (item) => !existingTags.has(item.TAGNO),
         );
 
         if (filteredData.length === 0) {
@@ -262,15 +263,15 @@ const BarCodeCheck = () => {
 
         const pcs = updatedData.reduce(
           (sum, item) => sum + (item.PIECES || 0),
-          0
+          0,
         );
         const gwt = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.GWT) || 0),
-          0
+          0,
         );
         const nwt = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.NWT) || 0),
-          0
+          0,
         );
         // const totalAmount = updatedData.reduce(
         //   (sum, item) => sum + (parseFloat(item.SALE_AMOUNT) || 0),
@@ -286,40 +287,40 @@ const BarCodeCheck = () => {
         // );
         const totalWastAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
-          0
+          0,
         );
         const totalMcAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.CATTOTMC) || 0),
-          0
+          0,
         );
         const totalCtsAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.Item_Cts) || 0),
-          0
+          0,
         );
         const totalUnCutsAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.Item_Uncuts) || 0),
-          0
+          0,
         );
         const totalItemDiaAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.Item_diamonds) || 0),
-          0
+          0,
         );
         const totalDiamondAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.Diamond_Amount) || 0),
-          0
+          0,
         );
 
         const totalPurAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.COST_AMOUNT) || 0),
-          0
+          0,
         );
         const totalPurGstAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.COST_GSTAMOUNT) || 0),
-          0
+          0,
         );
         const totalPurNwtAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.COST_NETAMOUNT) || 0),
-          0
+          0,
         );
 
         setTotalPcs(pcs);
@@ -357,7 +358,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -374,7 +375,7 @@ const BarCodeCheck = () => {
         const existingTags = prevData.map((item) => item.TAGNO);
 
         const filteredData = data.filter(
-          (item) => !existingTags.includes(item.TAGNO)
+          (item) => !existingTags.includes(item.TAGNO),
         );
 
         if (filteredData.length === 0) {
@@ -386,7 +387,7 @@ const BarCodeCheck = () => {
 
         const totalStoneAmount = updatedData.reduce(
           (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-          0
+          0,
         );
 
         setTotalStoneAmt(totalStoneAmount);
@@ -406,17 +407,17 @@ const BarCodeCheck = () => {
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
       const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
       const matchedTotals = totalAmounts.find(
-        (tot) => tot.TAGNO === item.TAGNO
+        (tot) => tot.TAGNO === item.TAGNO,
       );
       const matchedStone = stonesData.filter(
-        (stone) => stone.TAGNO === item.TAGNO
+        (stone) => stone.TAGNO === item.TAGNO,
       );
       const totalStoneAmount = matchedStone.reduce(
         (sum, item) => sum + (Number(item?.AMOUNT) || 0),
-        0
+        0,
       );
       return {
-        estimationNo: String(tagNo ? tagNo : est ?? "-"), // always a string
+        estimationNo: String(tagNo ? tagNo : (est ?? "-")), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
         mname: String(item?.MNAME ?? "-"),
         productName: String(item?.PRODUCTNAME ?? "-"),
@@ -428,7 +429,7 @@ const BarCodeCheck = () => {
         directWastage: String(matched?.DIRECTWT ?? "-"),
         cattotwast: String(matched?.TOTALWT ?? item?.CATTOTWAST ?? "-"),
         makingCharges: String(
-          matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? "-"
+          matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? "-",
         ),
         directMc: String(matchedMc?.DIRECTAMT ?? "-"),
         cattotMc: String(matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? "-"),
@@ -475,7 +476,7 @@ const BarCodeCheck = () => {
             "Content-Type": "application/json",
             tenantName: tenantName,
           },
-        }
+        },
       );
       let data = response?.data;
     } catch (error) {
@@ -539,7 +540,7 @@ const BarCodeCheck = () => {
             "Content-Type": "application/json",
             tenantName: tenantName,
           },
-        }
+        },
       );
       let data = response?.data;
       estimationNo();
@@ -580,7 +581,7 @@ const BarCodeCheck = () => {
             "Content-Type": "application/json",
             tenantName: tenantName,
           },
-        }
+        },
       );
       let data = response?.data;
       // window.location.reload();
@@ -607,7 +608,7 @@ const BarCodeCheck = () => {
         {
           params,
           headers: { tenantName },
-        }
+        },
       );
 
       const data = response.data;
@@ -676,7 +677,7 @@ const BarCodeCheck = () => {
           const existingTags = prevData.map((item) => item.TAGNO);
 
           const filteredData = modifiedTotalData.filter(
-            (item) => !existingTags.includes(item.TAGNO)
+            (item) => !existingTags.includes(item.TAGNO),
           );
 
           if (filteredData.length === 0) {
@@ -693,7 +694,7 @@ const BarCodeCheck = () => {
           const existingTags = prevData.map((item) => item.TAGNO);
 
           const filteredData = modifiedData.filter(
-            (item) => !existingTags.includes(item.TAGNO)
+            (item) => !existingTags.includes(item.TAGNO),
           );
 
           if (filteredData.length === 0) {
@@ -710,7 +711,7 @@ const BarCodeCheck = () => {
           const existingTags = prevData.map((item) => item.TAGNO);
 
           const filteredData = modifiedMcData.filter(
-            (item) => !existingTags.includes(item.TAGNO)
+            (item) => !existingTags.includes(item.TAGNO),
           );
 
           if (filteredData.length === 0) {
@@ -758,7 +759,7 @@ const BarCodeCheck = () => {
         {
           params,
           headers: { tenantName },
-        }
+        },
       );
 
       const data = response.data;
@@ -790,7 +791,7 @@ const BarCodeCheck = () => {
         {
           params,
           headers: { tenantName },
-        }
+        },
       );
 
       const data = response.data;
@@ -813,7 +814,7 @@ const BarCodeCheck = () => {
           ISSDATE: null,
           ISSNO: null,
           ITEMCODE: "-",
-          ITEMNAME: "-",
+          ITEMNAME: item?.ItemName,
           MNAME: "-",
           NOPCS: item?.NoPcs ?? 0,
           PIECES: item?.pieces ?? 0,
@@ -846,7 +847,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -862,7 +863,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -877,7 +878,7 @@ const BarCodeCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error posting data:", error);
@@ -943,7 +944,7 @@ const BarCodeCheck = () => {
         },
         (error) => {
           console.warn("QR Scan Error:", error);
-        }
+        },
       );
     } catch (error) {
       console.error("Failed to start scanner:", error);
@@ -972,80 +973,80 @@ const BarCodeCheck = () => {
     const pcs = barCodeData.reduce((sum, item) => sum + (item.PIECES || 0), 0);
     const gwt = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.GWT) || 0),
-      0
+      0,
     );
     const nwt = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.NWT) || 0),
-      0
+      0,
     );
     const totalAmount = totalAmounts.reduce(
       (sum, item) => sum + (parseFloat(item.TOTALAMT) || 0),
-      0
+      0,
     );
     const totalGstAmount = totalAmounts.reduce(
       (sum, item) => sum + (parseFloat(item.GSTTOTALAMT) || 0),
-      0
+      0,
     );
     const totalNwtAmount = totalAmounts.reduce(
       (sum, item) => sum + (parseFloat(item.NETAMT) || 0),
-      0
+      0,
     );
     const totWastAmount = wastageData.reduce(
       (sum, item) => sum + (parseFloat(item.TOTALWT) || 0),
-      0
+      0,
     );
     const totDirectWast = wastageData.reduce(
       (sum, item) => sum + (parseFloat(item.DIRECTWT) || 0),
-      0
+      0,
     );
     const totMcAmount = mcData.reduce(
       (sum, item) => sum + (parseFloat(item.TOTALAMT) || 0),
-      0
+      0,
     );
     const totDirectMc = mcData.reduce(
       (sum, item) => sum + (parseFloat(item.DIRECTAMT) || 0),
-      0
+      0,
     );
     const totalWastAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
-      0
+      0,
     );
     const totalMcAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.CATTOTMC) || 0),
-      0
+      0,
     );
     const totalCtsAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.Item_Cts) || 0),
-      0
+      0,
     );
     const totalUnCutsAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.Item_Uncuts) || 0),
-      0
+      0,
     );
     const totalItemDiaAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.Item_diamonds) || 0),
-      0
+      0,
     );
     const totalDiamondAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.Diamond_Amount) || 0),
-      0
+      0,
     );
 
     const totalPurAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.COST_AMOUNT) || 0),
-      0
+      0,
     );
     const totalPurGstAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.COST_GSTAMOUNT) || 0),
-      0
+      0,
     );
     const totalPurNwtAmount = barCodeData.reduce(
       (sum, item) => sum + (parseFloat(item.COST_NETAMOUNT) || 0),
-      0
+      0,
     );
     const totalStoneAmount = stonesData.reduce(
       (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-      0
+      0,
     );
 
     setTotalStoneAmt(totalStoneAmount);
@@ -1273,11 +1274,11 @@ const BarCodeCheck = () => {
       const matched = wastageData.find((item) => item.TAGNO === barCode.TAGNO);
       const matchedMc = mcData.find((item) => item.TAGNO === barCode.TAGNO);
       const matchedStone = stonesData.filter(
-        (item) => item.TAGNO === barCode.TAGNO
+        (item) => item.TAGNO === barCode.TAGNO,
       );
       const totalStoneAmount = matchedStone.reduce(
         (sum, item) => sum + (Number(item?.AMOUNT) || 0),
-        0
+        0,
       );
 
       const wastageAmt = matched?.TOTALWT
@@ -1328,7 +1329,7 @@ const BarCodeCheck = () => {
       wastageData,
       mcData,
       totalAmounts,
-      wastMc
+      wastMc,
     );
   };
 
@@ -1354,7 +1355,7 @@ const BarCodeCheck = () => {
       wastageData,
       mcData,
       totalAmounts,
-      wastMc
+      wastMc,
     );
   };
 
@@ -1380,7 +1381,8 @@ const BarCodeCheck = () => {
       wastageData,
       mcData,
       totalAmounts,
-      wastMc
+      wastMc,
+      wastValue,
     );
   };
 
@@ -1406,7 +1408,8 @@ const BarCodeCheck = () => {
       wastageData,
       mcData,
       totalAmounts,
-      wastMc
+      wastMc,
+      wastValue,
     );
   };
 
@@ -1533,39 +1536,39 @@ const BarCodeCheck = () => {
             <>
               {barCodeData.map((barCode, index) => {
                 const matchedTotals = totalAmounts.find(
-                  (item) => item.TAGNO === barCode.TAGNO
+                  (item) => item.TAGNO === barCode.TAGNO,
                 );
 
                 const matchedStones = stonesData.filter(
-                  (item) => item.TAGNO === barCode.TAGNO
+                  (item) => item.TAGNO === barCode.TAGNO,
                 );
                 const totalCts = matchedStones.reduce(
                   (sum, item) => sum + (parseFloat(item.CTS) || 0),
-                  0
+                  0,
                 );
                 const totalGrams = matchedStones.reduce(
                   (sum, item) => sum + (parseFloat(item.GRMS) || 0),
-                  0
+                  0,
                 );
                 const totalItemAmt = matchedStones.reduce(
                   (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-                  0
+                  0,
                 );
                 const diamondItems = matchedStones.filter((item) => {
                   const matched = itemsData.find(
-                    (i) => i.ITEMNAME === item.ITEMNAME && i.DIAMONDS === true
+                    (i) => i.ITEMNAME === item.ITEMNAME && i.DIAMONDS === true,
                   );
                   return !!matched;
                 });
 
                 const diaCts = diamondItems.reduce(
                   (sum, item) => sum + (parseFloat(item.CTS) || 0),
-                  0
+                  0,
                 );
 
                 const diaAmount = diamondItems.reduce(
                   (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-                  0
+                  0,
                 );
 
                 const ctsData = totalCts / 5 + totalGrams;
@@ -1726,7 +1729,7 @@ const BarCodeCheck = () => {
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
                             {Number(ctsData ?? barCode?.ITEM_TOTAMT)?.toFixed(
-                              3
+                              3,
                             ) + "g" ?? "0.000g"}
                           </span>
                         </div>
@@ -1770,7 +1773,7 @@ const BarCodeCheck = () => {
                             {(() => {
                               // ✅ Check if wastageData has a matching TAGNO
                               const matched = wastageData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO
+                                (item) => item.TAGNO === barCode?.TAGNO,
                               );
 
                               // ✅ Return display text dynamically
@@ -1821,7 +1824,7 @@ const BarCodeCheck = () => {
                           <span className={styles.value2}>
                             {(() => {
                               const matched = wastageData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO
+                                (item) => item.TAGNO === barCode?.TAGNO,
                               );
 
                               if (matched) {
@@ -1845,7 +1848,7 @@ const BarCodeCheck = () => {
                             {(() => {
                               // ✅ Check if wastageData has a matching TAGNO
                               const matched = mcData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO
+                                (item) => item.TAGNO === barCode?.TAGNO,
                               );
 
                               // ✅ Return display text dynamically
@@ -1895,7 +1898,7 @@ const BarCodeCheck = () => {
                             ₹{" "}
                             {(() => {
                               const matched = mcData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO
+                                (item) => item.TAGNO === barCode?.TAGNO,
                               );
 
                               if (matched) {

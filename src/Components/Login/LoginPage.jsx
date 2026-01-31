@@ -33,7 +33,7 @@ const LoginPage = ({ onLogin }) => {
           headers: {
             tenantName: name,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -59,7 +59,7 @@ const LoginPage = ({ onLogin }) => {
           headers: {
             tenantName: name,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -71,6 +71,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("loginName", data[0].USERNAME);
         localStorage.setItem("wastMc", data[0].WAST_MC);
         localStorage.setItem("pdfModule", data[0].PRINTQUALITY);
+        localStorage.setItem("wastValue", data[0]?.WASTAGEDESC);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
@@ -81,7 +82,7 @@ const LoginPage = ({ onLogin }) => {
     const { username, password } = values;
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Tenant/CheckValidTenant?userName=${username}&password=${password}`
+        `${CREATE_jwel}/api/Tenant/CheckValidTenant?userName=${username}&password=${password}`,
       );
 
       if (response?.data) {
