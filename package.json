@@ -16,7 +16,7 @@
     "@testing-library/user-event": "^13.5.0",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
-    "antd": "^5.24.6",
+    "antd": "^6.2.3",
     "antd-img-crop": "^4.24.0",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",

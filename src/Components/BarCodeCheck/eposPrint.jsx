@@ -21,7 +21,8 @@ export const printReceipt = (
   wastageData,
   mcData,
   totalAmounts,
-  wastMc
+  wastMc,
+  wastValue,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -35,7 +36,7 @@ export const printReceipt = (
         "local_printer",
         ePosDev.DEVICE_TYPE_PRINTER,
         { crypto: true, buffer: false },
-        cbCreateDevice_printer
+        cbCreateDevice_printer,
       );
     } else {
       console.log("Connection failed:", data);
@@ -145,11 +146,11 @@ export const printReceipt = (
       const purity = (item?.PREFIX ?? "").padEnd(4, " ");
       const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
         27,
-        " "
+        " ",
       ); // right-align AMOUNT
 
       const matchedTotal = totalAmounts.find(
-        (tot) => tot.TAGNO === item?.TAGNO
+        (tot) => tot.TAGNO === item?.TAGNO,
       );
 
       const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
@@ -157,46 +158,48 @@ export const printReceipt = (
       const mcg =
         mcgValue > 0 ? `${mcgValue}/g`.padEnd(6, " ") : "".padEnd(6, " ");
       const mcAmt = `${Number(
-        matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0
+        matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
       ).toFixed(2)}`.padStart(20, " ");
 
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
       const matchedStone = stonesData.filter(
-        (item) => item.TAGNO === item.TAGNO
+        (item) => item.TAGNO === item.TAGNO,
       );
       const totalCts = matchedStone.reduce(
         (sum, item) => sum + (parseFloat(item.CTS) || 0),
-        0
+        0,
       );
       const totalGrams = matchedStone.reduce(
         (sum, item) => sum + (parseFloat(item.GRMS) || 0),
-        0
+        0,
       );
       const totalItemAmt = matchedStone.reduce(
         (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-        0
+        0,
       );
       const ctsData = totalCts / 5 + totalGrams;
       const netWt = item?.GWT - ctsData;
+      const netWeight = netWt ?? item?.NWT ?? 0;
 
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");
       const swt = `${Number(ctsData ?? item?.stonewt ?? 0).toFixed(
-        3
+        3,
       )}`.padStart(27, " ");
       const nwt = `${Number(netWt ?? item?.NWT ?? 0).toFixed(3)}`.padStart(
         27,
-        " "
+        " ",
       );
       const wastageValue = matched?.WASTAGE ?? item?.WASTAGE ?? 0;
+      const wastAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
       const WGrams =
         wastageValue > 0
           ? `${wastageValue}%`.padEnd(6, " ")
           : "".padEnd(6, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
-        3
+        3,
       )}`.padStart(20, " ");
       const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
-        2
+        2,
       )}`.padStart(27, " ");
       const calculateAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
       const nwtAmt = Number(netWt ?? item?.NWT ?? 0);
@@ -209,15 +212,18 @@ export const printReceipt = (
       const totalAmtValue = matchedTotal?.TOTALAMT;
       const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(2)}`.padStart(
         27,
-        " "
+        " ",
       );
       const rate = Number(item?.RATE ?? 0);
       const nwtValue = Number(netWt ?? item?.NWT ?? 0);
       const totalValue = rate * nwtValue;
+      const totWt = Number(netWeight) + Number(wastAmt);
       const metalValue = `${Number(totalValue ?? 0).toFixed(2)}`.padStart(
         27,
-        " "
+        " ",
       );
+
+      const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(27, " ");
       // Main row (aligned with header)
       printer.addTextFont(printer.FONT_B);
       printer.addTextAlign(printer.ALIGN_LEFT);
@@ -241,17 +247,41 @@ export const printReceipt = (
       if (Number(printModel) === 3) {
         printer.addText(`    METAL VALUE    : ${metalValue}\n`);
         if (wastMc === "W" || wastMc === "ALL") {
-          printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            : ${WGrams} ${WAmt}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             : ${WGrams} ${WAmt}\n`);
+          } else {
+            printer.addText(`    WASTAGE        : ${WGrams}${WAmt}\n`);
+          }
         } else {
-          printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            :        ${WAmt}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             :        ${WAmt}\n`);
+          } else {
+            printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+          }
         }
       } else {
         if (wastMc === "W" || wastMc === "ALL") {
-          printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            : ${WGrams} ${WAmt}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             : ${WGrams} ${WAmt}\n`);
+          } else {
+            printer.addText(`    WASTAGE        : ${WGrams}${WAmt}\n`);
+          }
         } else {
-          printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            :        ${WAmt}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             :        ${WAmt}\n`);
+          } else {
+            printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+          }
         }
-        printer.addText(`    TOTAL WEIGHT   : ${nwt}\n`);
+        printer.addText(`    TOTAL WEIGHT   : ${totalWt}\n`);
         printer.addText(`    AMOUNT         : ${amt}\n`);
       }
       if (wastMc === "M" || wastMc === "ALL") {
@@ -261,7 +291,7 @@ export const printReceipt = (
       }
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
       const matchedStones = stonesData.filter(
-        (stone) => stone.TAGNO === item.TAGNO
+        (stone) => stone.TAGNO === item.TAGNO,
       );
       matchedStones.forEach((stone, index) => {
         const itemName = (stone.ITEMNAME || "")
@@ -270,7 +300,7 @@ export const printReceipt = (
 
         // Use CTS if available else GRMS
         const qty =
-          stone?.CTS && stone.CTS !== 0 ? stone.CTS : stone?.GRMS ?? 0;
+          stone?.CTS && stone.CTS !== 0 ? stone.CTS : (stone?.GRMS ?? 0);
 
         const qtyStr = qty.toFixed(3).padStart(7, " "); // right-align like in image
         const rateStr = stone?.RATE?.toFixed(0).padStart(7, " "); // right-aligned
@@ -287,13 +317,13 @@ export const printReceipt = (
           printer.addText(
             `       ${itemName} : ${qtyStr} ${
               stone?.CTS ? "CTS" : "GMS"
-            }${pcsStr}\n`
+            }${pcsStr}\n`,
           );
         } else {
           printer.addText(
             `         ${itemName} : ${qtyStr} ${
               stone?.CTS ? "CTS" : "GMS"
-            } X ${rateStr} = ${amtStr}${pcsStr}\n`
+            } X ${rateStr} = ${amtStr}${pcsStr}\n`,
           );
         }
         printer.addTextFont(printer.FONT_A);
@@ -335,9 +365,13 @@ export const printReceipt = (
     const leftValue2 = totalNwt.toFixed(3);
     const leftText2 = leftLabel2 + leftValue2;
 
-    const rightLabel2 = `GST@${gstNo}% : `;
-    const rightValue2 = totalGstAmt.toFixed(2);
-    const rightText2 = rightLabel2 + rightValue2;
+    let rightText2 = "";
+
+    if (Number(gstNo) > 0) {
+      const rightLabel2 = `GST@${gstNo}% : `;
+      const rightValue2 = totalGstAmt.toFixed(2);
+      rightText2 = rightLabel2 + rightValue2;
+    }
 
     let spaceCount2 = lineWidth - (leftText2.length + rightText2.length);
     let spaces2 = " ".repeat(spaceCount2 > 0 ? spaceCount2 : 1);

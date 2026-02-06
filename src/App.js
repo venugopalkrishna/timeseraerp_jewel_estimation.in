@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import LoginPage from "./Components/Login/LoginPage";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import TopTen from "./Components/TopTen/TopTen";
@@ -12,13 +17,13 @@ import InvoiceWiseStock from "./Components/Inventory/InvoiceWiseStock";
 import Graphs from "./Components/Graphs/Graphs";
 import BarCodeCheck from "./Components/BarCodeCheck/BarCodeCheck";
 import TagCheck from "./Components/TagCheck/TagCheck";
-
+import Estimation from "./Components/Estimation2.jsx/Estimation";
 
 function App() {
   const tenantName = localStorage.getItem("tenantName");
   const [isAuthenticated, setIsAuthenticated] = useState(
     // localStorage.getItem("isLoggedIn") === "true"
-    tenantName
+    tenantName,
   );
 
   const handleLogin = (name) => {
@@ -44,7 +49,11 @@ function App() {
                 <Route path="/crm" element={<Crm />} />
                 <Route path="/graphs" element={<Graphs />} />
                 <Route path="/bar-code-check" element={<BarCodeCheck />} />
-                <Route path="/invoice-wise-stock" element={<InvoiceWiseStock />} />
+                <Route path="/estimation" element={<Estimation />} />
+                <Route
+                  path="/invoice-wise-stock"
+                  element={<InvoiceWiseStock />}
+                />
                 <Route path="/tag-check" element={<TagCheck />} />
               </Routes>
             ) : (

@@ -23,9 +23,8 @@ import WastageDialog from "./WastageDialog";
 import MakingChargesDialog from "./MakingChargesDialog";
 import { PrintModule1 } from "./PrintModule1";
 import { PrintModule2 } from "./PrintModule2";
-import Tag from "./NewTagDetails";
 
-const BarCodeCheck = () => {
+const Estimation = () => {
   const tagNoRef = useRef(null);
   const submitRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -78,41 +77,7 @@ const BarCodeCheck = () => {
   const [printOpen, setPrintOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [photo, setPhoto] = useState();
-  const [homeDrawerOpen, setHomeDrawerOpen] = useState(false);
-  const [gst, setGst] = useState(0);
-  const [newStonesData, setNewStonesData] = useState([]);
-  const [selectTagMainProduct, setSelectTagMainProduct] = useState(null);
-  const [selectTagProductName, setSelectTagProductName] = useState(null);
-  const [tagPieces, setTagPieces] = useState();
-  const [tagGwt, setTagGWt] = useState(0);
-  const [tagLess, setTagLess] = useState(0);
-  const [tagNwt, setTagNwt] = useState(0);
-  const [selectTagPurity, setSelectTagPurity] = useState(null);
-  const [tagHuid, setTagHuid] = useState();
-  const [tagDesc, setTagDesc] = useState();
-  const [tagWastage, setTagWastage] = useState(0);
-  const [tagDirectWt, setTagDirectWt] = useState(0);
-  const [tagTotalWt, setTagTotalWt] = useState(0);
-  const [tagMaking, setTagMaking] = useState(0);
-  const [tagDirectMc, setTagDirectMc] = useState(0);
-  const [tagTotalMc, setTagTotalMc] = useState(0);
-  const [stoneTotalPcs, setStoneTotalPcs] = useState();
-  const [stoneTotalCts, setStoneTotalCts] = useState();
-  const [stoneTotalGrams, setStoneTotalGrams] = useState();
-  const [stoneTotalAmt, setStoneTotalAmt] = useState();
-  const [stoneTotalNoPcs, setStoneTotalNoPcs] = useState();
-  const [stoneDiaCts, setStoneDiaCts] = useState();
-  const [stoneDiaAmt, setStoneDiaAmt] = useState();
-  const [tagBeadsLess, setTagBeadsLess] = useState();
-  const [tagProductCategory, setTagProductCategory] = useState();
-  const [tagProductCode, setTagProductCode] = useState();
-  const [tagCategoryName, setTagCategoryName] = useState();
-  const [tagHsnCode, setTagHsnCode] = useState();
-  const [tray, setTray] = useState(false);
-  const [trayTagNo, setTrayTagNo] = useState(0);
-  const [selectTagBrandName, setSelectTagBrandName] = useState(null);
-  const [tagBrandValue, setTagBrandValue] = useState();
-  const [tagBrandAmt, setTagBrandAmt] = useState();
+  const [copperData, setCopperData] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -130,8 +95,6 @@ const BarCodeCheck = () => {
   const wastMc = localStorage.getItem("wastMc");
   const pdfModule = localStorage.getItem("pdfModule");
   const wastValue = localStorage.getItem("wastValue");
-  const homeFilesomeDrawer = () => setHomeDrawerOpen(true);
-  const homecloseDrawer = () => setHomeDrawerOpen(false);
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -177,6 +140,26 @@ const BarCodeCheck = () => {
       const data = response.data;
       if (Array.isArray(data) && data.length > 0) {
         setItemsData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
+    }
+  };
+
+  const copperAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=MAIN_PRODUCT`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setCopperData(data);
       }
     } catch (error) {
       console.error("Error fetching account number:", error);
@@ -455,6 +438,26 @@ const BarCodeCheck = () => {
         (sum, item) => sum + (Number(item?.AMOUNT) || 0),
         0,
       );
+      const totalCts = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.CTS) || 0),
+        0,
+      );
+      const totalGrams = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+        0,
+      );
+      const wastAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+      const ctsData = totalCts / 5 + totalGrams;
+      const netWt = item?.GWT - ctsData;
+      const netWeight = netWt ?? item?.NWT ?? 0;
+      const totWt = Number(netWeight) + Number(wastAmt);
+      const matchedCopper = copperData.find((c) => c.MNAME === item?.MNAME);
+
+      const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
+      const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
+      const fNwt = Number(netWeight) - Number(copperWt);
+
+      const castMetal = Number(totWt) * Number(item?.FINERATE);
       return {
         estimationNo: String(tagNo ? tagNo : (est ?? "-")), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
@@ -480,7 +483,7 @@ const BarCodeCheck = () => {
         estDate: new Date().toISOString(),
         estTime: new Date().toISOString(),
         rate: Number(item?.RATE ?? 0),
-        homekey: Number(item?.ISSBRANCHNAME),
+        homekey: 0,
         tray: false,
         tagDate: new Date().toISOString(),
         dealerName: String(item?.DEALERNAME ?? "-"),
@@ -490,8 +493,8 @@ const BarCodeCheck = () => {
         prefix: String(item?.PREFIX ?? "-"),
         suspence: String(item?.SUSPENCE ?? "-"),
         smCode: "APP",
-        less_Wper: Number(item?.LESS_WPER ?? 0),
-        disAmt: 0,
+        less_Wper: Number(copperWt ?? 0),
+        disAmt: Number(fNwt ?? 0),
         descrption: "-",
         iteM_CTS: Number(item?.Item_Cts ?? 0),
         iteM_DIAMONDS: Number(item?.Item_diamonds ?? 0),
@@ -607,7 +610,7 @@ const BarCodeCheck = () => {
         colour: item?.COLOUR,
         cut: item?.CUT,
         clarity: item?.CLARITY,
-        homeKey: Number(item?.ISSBRANCHNAME),
+        homeKey: 0,
       };
     });
 
@@ -914,9 +917,6 @@ const BarCodeCheck = () => {
         setCustomerName(data[0]?.CustName);
         setCustomerMobile(data[0]?.MOBILENO);
         setCustomerArea(data[0]?.CITY);
-        setTotalAmt(data[0]?.TotAmount);
-        setTotalGstAmt(data[0]?.VatAmt);
-        setTotalNwtAmt(data[0]?.NetAmt);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -1018,7 +1018,6 @@ const BarCodeCheck = () => {
       console.error("Error posting data:", error);
     }
   };
-
   const estimationDeleteItems = async () => {
     try {
       const response = await axios.post(
@@ -1118,6 +1117,7 @@ const BarCodeCheck = () => {
       scannedRef.current = false;
     }
   };
+
   const num = (v) => Number.parseFloat(v) || 0;
 
   // useEffect(() => {
@@ -1290,7 +1290,6 @@ const BarCodeCheck = () => {
     setTotalPurGstAmt(totalPurGstAmount);
     setTotalPurNwtAmt(totalPurNwtAmount);
   }, [barCodeData, stonesData, totalAmounts, wastageData, mcData]);
-
   const handleDelete = (indexToDelete) => {
     setBarCodeData((prevData) => {
       const updatedData = [...prevData];
@@ -1487,6 +1486,7 @@ const BarCodeCheck = () => {
   useEffect(() => {
     estimationNo();
     itemsAPI();
+    copperAPI();
   }, []);
 
   useEffect(() => {
@@ -1552,6 +1552,7 @@ const BarCodeCheck = () => {
       mcData,
       totalAmounts,
       wastMc,
+      copperData,
       wastValue,
     );
   };
@@ -1579,6 +1580,7 @@ const BarCodeCheck = () => {
       mcData,
       totalAmounts,
       wastMc,
+      copperData,
       wastValue,
     );
   };
@@ -1607,6 +1609,7 @@ const BarCodeCheck = () => {
       totalAmounts,
       wastMc,
       wastValue,
+      copperData,
     );
   };
 
@@ -1634,6 +1637,7 @@ const BarCodeCheck = () => {
       totalAmounts,
       wastMc,
       wastValue,
+      copperData,
     );
   };
 
@@ -1686,14 +1690,9 @@ const BarCodeCheck = () => {
               ref={submitRef}
               className={styles.submitButton}
               onClick={() => {
-                if (Number(barCode) === 0) {
-                  homeFilesomeDrawer();
-                  setBarCode();
-                } else {
-                  tagNoAPI();
-                  stonesDetailsAPI();
-                  setBarCode();
-                }
+                tagNoAPI();
+                stonesDetailsAPI();
+                setBarCode();
               }}
             >
               Show
@@ -1809,11 +1808,21 @@ const BarCodeCheck = () => {
                 const wastAmt = Number(
                   matchedW?.TOTALWT ?? barCode?.CATTOTWAST ?? 0,
                 );
+                const matchedCopper = copperData.find(
+                  (c) => c.MNAME === barCode?.MNAME,
+                );
+
+                const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
 
                 const totWt = Number(netWeight) + Number(wastAmt);
 
+                const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
+                const fNwt = Number(netWeight) - Number(copperWt);
+
+                const castMetal = Number(totWt) * Number(barCode?.FINERATE);
+
                 return (
-                  <div className={styles.card} key={index}>
+                  <div className={styles.card}>
                     <div className={styles.header}>
                       <div>
                         <span style={{ fontWeight: "bold", fontSize: "18px" }}>
@@ -1977,6 +1986,20 @@ const BarCodeCheck = () => {
                           <span className={styles.value2}>
                             {Number(netWt ?? barCode?.NWT)?.toFixed(3) + "g" ??
                               "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Copper Wt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {Number(copperWt)?.toFixed(3) + "g" ?? "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Fin Nwt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {Number(fNwt)?.toFixed(3) + "g" ?? "0.000g"}
                           </span>
                         </div>
                         {/* <div className={styles.rowTag2}>
@@ -2160,14 +2183,10 @@ const BarCodeCheck = () => {
                           </span>
                         </div>
                         <div className={styles.highlightBox2}>
-                          <span className={styles.label2}>Metal Value </span>
+                          <span className={styles.label2}>Cast Of Metal </span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            ₹{" "}
-                            {(
-                              (barCode?.RATE ?? 0) *
-                              (netWt ?? barCode?.NWT ?? 0)
-                            ).toFixed(2)}
+                            ₹ {Number(castMetal).toFixed(2)}
                           </span>
                         </div>
                         <div
@@ -2960,87 +2979,8 @@ const BarCodeCheck = () => {
         mcData={mcData}
         mcTagNo={mcTagNo}
       />
-      <Tag
-        homecloseDrawer={homecloseDrawer}
-        homeDrawerOpen={homeDrawerOpen}
-        gstNo={gst}
-        billNo={tagNo}
-        invNo={estNo}
-        setNewStonesData={setNewStonesData}
-        newStonesData={newStonesData}
-        selectTagMainProduct={selectTagMainProduct}
-        setSelectTagMainProduct={setSelectTagMainProduct}
-        selectTagProductName={selectTagProductName}
-        setSelectTagProductName={setSelectTagProductName}
-        tagPieces={tagPieces}
-        setTagPieces={setTagPieces}
-        tagGwt={tagGwt}
-        setTagGWt={setTagGWt}
-        tagLess={tagLess}
-        setTagLess={setTagLess}
-        tagNwt={tagNwt}
-        setTagNwt={setTagNwt}
-        selectTagPurity={selectTagPurity}
-        setSelectTagPurity={setSelectTagPurity}
-        tagHuid={tagHuid}
-        setTagHuid={setTagHuid}
-        tagDesc={tagDesc}
-        setTagDesc={setTagDesc}
-        tagWastage={tagWastage}
-        setTagWastage={setTagWastage}
-        tagDirectWt={tagDirectWt}
-        setTagDirectWt={setTagDirectWt}
-        tagTotalWt={tagTotalWt}
-        setTagTotalWt={setTagTotalWt}
-        tagMaking={tagMaking}
-        setTagMaking={setTagMaking}
-        tagDirectMc={tagDirectMc}
-        setTagDirectMc={setTagDirectMc}
-        tagTotalMc={tagTotalMc}
-        setTagTotalMc={setTagTotalMc}
-        stoneTotalPcs={stoneTotalPcs}
-        setStoneTotalPcs={setStoneTotalPcs}
-        stoneTotalCts={stoneTotalCts}
-        setStoneTotalCts={setStoneTotalCts}
-        stoneTotalGrams={stoneTotalGrams}
-        setStoneTotalGrams={setStoneTotalGrams}
-        stoneTotalAmt={stoneTotalAmt}
-        setStoneTotalAmt={setStoneTotalAmt}
-        stoneTotalNoPcs={stoneTotalNoPcs}
-        setStoneTotalNoPcs={setStoneTotalNoPcs}
-        setStonesData={setStonesData}
-        stonesData={stonesData}
-        setData={setBarCodeData}
-        data={barCodeData}
-        // selectJewelType={selectJewelType}
-        tagProductCategory={tagProductCategory}
-        setTagProductCategory={setTagProductCategory}
-        tagProductCode={tagProductCode}
-        setTagProductCode={setTagProductCode}
-        tagCategoryName={tagCategoryName}
-        setTagCategoryName={setTagCategoryName}
-        tagHsnCode={tagHsnCode}
-        setTagHsnCode={setTagHsnCode}
-        stoneDiaCts={stoneDiaCts}
-        setStoneDiaCts={setStoneDiaCts}
-        stoneDiaAmt={stoneDiaAmt}
-        setStoneDiaAmt={setStoneDiaAmt}
-        tagBeadsLess={tagBeadsLess}
-        setTagBeadsLess={setTagBeadsLess}
-        setTrayTagNo={setTrayTagNo}
-        trayTagNo={trayTagNo}
-        tray={tray}
-        setTray={setTray}
-        messageApi={messageApi}
-        setSelectTagBrandName={setSelectTagBrandName}
-        selectTagBrandName={selectTagBrandName}
-        setTagBrandValue={setTagBrandValue}
-        tagBrandValue={tagBrandValue}
-        setTagBrandAmt={setTagBrandAmt}
-        tagBrandAmt={tagBrandAmt}
-      />
     </div>
   );
 };
 
-export default BarCodeCheck;
+export default Estimation;

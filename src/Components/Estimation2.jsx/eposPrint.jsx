@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const printReceiptModule2 = (
+export const printReceipt = (
   printerIP,
   EstNo,
   userName,
@@ -22,12 +22,14 @@ export const printReceiptModule2 = (
   mcData,
   totalAmounts,
   wastMc,
+  copperData,
   wastValue,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
 
   ePosDev.connect(printerIP, 8008, cbConnect);
+  // ePosDev.connect(printerIP, 8043, cbConnect, { secure: true });
 
   function cbConnect(data) {
     if (data === "OK") {
@@ -151,6 +153,9 @@ export const printReceiptModule2 = (
       const matchedTotal = totalAmounts.find(
         (tot) => tot.TAGNO === item?.TAGNO,
       );
+      const matchedCopper = copperData.find((c) => c.MNAME === item?.MNAME);
+
+      const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
 
       const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
       const mcgValue = matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0;
@@ -158,7 +163,7 @@ export const printReceiptModule2 = (
         mcgValue > 0 ? `${mcgValue}/g`.padEnd(6, " ") : "".padEnd(6, " ");
       const mcAmt = `${Number(
         matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
-      ).toFixed(2)}`.padStart(20, " ");
+      ).toFixed(2)}`.padStart(27, " ");
 
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
       const matchedStone = stonesData.filter(
@@ -179,6 +184,7 @@ export const printReceiptModule2 = (
       const ctsData = totalCts / 5 + totalGrams;
       const netWt = item?.GWT - ctsData;
       const netWeight = netWt ?? item?.NWT ?? 0;
+
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");
       const swt = `${Number(ctsData ?? item?.stonewt ?? 0).toFixed(
         3,
@@ -195,7 +201,7 @@ export const printReceiptModule2 = (
           : "".padEnd(6, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3,
-      )}`.padStart(20, " ");
+      )}`.padStart(27, " ");
       const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
         2,
       )}`.padStart(27, " ");
@@ -212,17 +218,25 @@ export const printReceiptModule2 = (
         27,
         " ",
       );
-
       const rate = Number(item?.RATE ?? 0);
       const nwtValue = Number(netWt ?? item?.NWT ?? 0);
       const totalValue = rate * nwtValue;
       const totWt = Number(netWeight) + Number(wastAmt);
-      const metalValue = `${Number(totalValue ?? 0).toFixed(2)}`.padStart(
+      const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
+      const fNwt = Number(netWeight) - Number(copperWt);
+
+      const castMetal = Number(totWt) * Number(item?.FINERATE);
+      const metalValue = `${Number(castMetal ?? 0).toFixed(2)}`.padStart(
         27,
         " ",
       );
-      const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(27, " ");
 
+      const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(27, " ");
+      const copperValue = `${Number(copperWt ?? 0).toFixed(3)}`.padStart(
+        27,
+        " ",
+      );
+      const fineValue = `${Number(fNwt ?? 0).toFixed(3)}`.padStart(27, " ");
       // Main row (aligned with header)
       printer.addTextFont(printer.FONT_B);
       printer.addTextAlign(printer.ALIGN_LEFT);
@@ -243,51 +257,38 @@ export const printReceiptModule2 = (
       printer.addText(`    GROSS WEIGHT   : ${gwt}\n`);
       printer.addText(`    STONE LESS     : ${swt}\n`);
       printer.addText(`    NWT WEIGHT     : ${nwt}\n`);
-      if (Number(printModel) === 3) {
-        printer.addText(`    METAL VALUE    : ${metalValue}\n`);
-        if (wastMc === "W" || wastMc === "ALL") {
-          if (wastValue === "V.A") {
-            printer.addText(`    V.A            : ${WGrams} ${WAmt}\n`);
-          } else if (wastValue === "VA") {
-            printer.addText(`    VA             : ${WGrams} ${WAmt}\n`);
-          } else {
-            printer.addText(`    WASTAGE        : ${WGrams}${WAmt}\n`);
-          }
-        } else {
-          if (wastValue === "V.A") {
-            printer.addText(`    V.A            :        ${WAmt}\n`);
-          } else if (wastValue === "VA") {
-            printer.addText(`    VA             :        ${WAmt}\n`);
-          } else {
-            printer.addText(`    WASTAGE        :        ${WAmt}\n`);
-          }
-        }
+      printer.addText(`    COPPER WEIGHT  : ${copperValue}\n`);
+      printer.addText(`    FIN NWT        : ${fineValue}\n`);
+      if (wastValue === "V.A") {
+        printer.addText(`    V.A            : ${WAmt}\n`);
+      } else if (wastValue === "VA") {
+        printer.addText(`    VA             : ${WAmt}\n`);
       } else {
-        if (wastMc === "W" || wastMc === "ALL") {
-          if (wastValue === "V.A") {
-            printer.addText(`    V.A            : ${WGrams} ${WAmt}\n`);
-          } else if (wastValue === "VA") {
-            printer.addText(`    VA             : ${WGrams} ${WAmt}\n`);
-          } else {
-            printer.addText(`    WASTAGE        : ${WGrams}${WAmt}\n`);
-          }
-        } else {
-          if (wastValue === "V.A") {
-            printer.addText(`    V.A            :        ${WAmt}\n`);
-          } else if (wastValue === "VA") {
-            printer.addText(`    VA             :        ${WAmt}\n`);
-          } else {
-            printer.addText(`    WASTAGE        :        ${WAmt}\n`);
-          }
-        }
-        printer.addText(`    TOTAL WEIGHT   : ${totalWt}\n`);
-        printer.addText(`    AMOUNT         : ${amt}\n`);
+        printer.addText(`    WASTAGE        : ${WAmt}\n`);
       }
-      if (wastMc === "M" || wastMc === "ALL") {
-        printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
-      } else {
-        printer.addText(`    MAKING CHARGES :        ${mcAmt}\n`);
-      }
+      printer.addText(`    TOTAL WEIGHT   : ${totalWt}\n`);
+      printer.addText(`    MAKING CHARGES : ${mcAmt}\n`);
+      // if (Number(printModel) === 3) {
+      //   printer.addText(`    CAST OF METAL  : ${metalValue}\n`);
+      //   if (wastMc === "W" || wastMc === "ALL") {
+      //     printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+      //   } else {
+      //     printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+      //   }
+      // } else {
+      //   if (wastMc === "W" || wastMc === "ALL") {
+      //     printer.addText(`    WASTAGE        : ${WGrams} ${WAmt}\n`);
+      //   } else {
+      //     printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+      //   }
+      //   printer.addText(`    TOTAL WEIGHT   : ${totalWt}\n`);
+      //   printer.addText(`    AMOUNT         : ${amt}\n`);
+      // }
+      // if (wastMc === "M" || wastMc === "ALL") {
+      //   printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
+      // } else {
+      //   printer.addText(`    MAKING CHARGES :        ${mcAmt}\n`);
+      // }
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
       const matchedStones = stonesData.filter(
         (stone) => stone.TAGNO === item.TAGNO,
@@ -385,38 +386,43 @@ export const printReceiptModule2 = (
     printer.addFeedLine(1);
     printer.addTextFont(printer.FONT_A);
     printer.addTextSize(1, 1);
-    printer.addTextAlign(printer.ALIGN_CENTER);
-    printer.addText("***Settlement Amount***\n");
-    printer.addTextAlign(printer.ALIGN_LEFT);
-    const lineLength = 42;
-    function formatLine(label) {
-      const labelWithColon = label.padEnd(14, " ") + ":"; // label + colon
-      const remainingSpace = lineLength - labelWithColon.length;
-      return labelWithColon + "_".repeat(remainingSpace) + "\n";
-    }
-    printer.addText(formatLine("Cash"));
-    printer.addText(formatLine("Card/Online"));
-    printer.addText(formatLine("Upi/Qr"));
-    printer.addText(formatLine("OG/SR"));
-    printer.addText(formatLine("RB/Due"));
-    printer.addText(formatLine("Advance"));
-    printer.addText(formatLine("Scheme"));
-    printer.addText(formatLine("Total"));
-    printer.addTextAlign(printer.ALIGN_CENTER);
-    printer.addText("*** VALID FOR ONE HOUR ONLY ***\n");
-    printer.addTextAlign(printer.ALIGN_LEFT);
-    printer.addText("New Customer    {   }  Existing Customer {   }\n");
-    printer.addText(`Mobile No  : ${customerMobile}\n`);
-    printer.addText(`Name       : ${customerName}\n`);
-    printer.addText(`City       : ${customerArea}\n`);
-    printer.addText("Address    : \n");
-    printer.addText("Address2   : \n");
-    printer.addText("Address3   : \n");
-    printer.addText("Address4   : \n");
+    // printer.addTextAlign(printer.ALIGN_CENTER);
+    // printer.addText("***Settlement Amount***\n");
+    // printer.addTextAlign(printer.ALIGN_LEFT);
+    // const lineLength = 42;
+    // function formatLine(label) {
+    //   const labelWithColon = label.padEnd(14, " ") + ":"; // label + colon
+    //   const remainingSpace = lineLength - labelWithColon.length;
+    //   return labelWithColon + "_".repeat(remainingSpace) + "\n";
+    // }
+    // printer.addText(formatLine("Cash"));
+    // printer.addText(formatLine("Card/Online"));
+    // printer.addText(formatLine("Upi/Qr"));
+    // printer.addText(formatLine("OG/SR"));
+    // printer.addText(formatLine("RB/Due"));
+    // printer.addText(formatLine("Advance"));
+    // printer.addText(formatLine("Scheme"));
+    // printer.addText(formatLine("Total"));
+    // printer.addTextAlign(printer.ALIGN_CENTER);
+    // printer.addText("*** VALID FOR ONE HOUR ONLY ***\n");
+    // printer.addTextAlign(printer.ALIGN_LEFT);
+    // printer.addText("New Customer    {   }  Existing Customer {   }\n");
+    // printer.addText("Mobile No  : \n");
+    // printer.addText("Name       : \n");
+    // printer.addText("City       : \n");
+    // printer.addText("Address    : \n");
+    // printer.addText("Address2   : \n");
+    // printer.addText("Address3   : \n");
+    // printer.addText("Address4   : \n");
     printer.addFeedLine(1);
 
     printer.addTextAlign(printer.ALIGN_LEFT);
-    printer.addText(`Date : ${dayjs().format("DD-MM-YYYY hh:mm A")}\n`);
+    printer.addText(`Name      : ${customerName}\n`);
+    printer.addText(`Mobile No : ${customerMobile}\n`);
+    printer.addText(`City      : ${customerArea}\n`);
+    printer.addText("------------------------------------------------\n");
+    printer.addFeedLine(1);
+    printer.addText(`Date      : ${dayjs().format("DD-MM-YYYY hh:mm A")}\n`);
     printer.addText(`User Name : ${loginName}\n`);
     printer.addFeedLine(2);
     printer.addCut(printer.CUT_FEED);

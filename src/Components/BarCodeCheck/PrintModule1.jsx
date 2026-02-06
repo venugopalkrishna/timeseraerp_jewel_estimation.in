@@ -187,6 +187,7 @@ export const PrintModule1 = (
     );
     const ctsData = totalCts / 5 + totalGrams;
     const netWt = item?.GWT - ctsData;
+    const netWeight = netWt ?? item?.NWT ?? 0;
 
     const nwt = Number(netWt ?? item?.NWT ?? 0);
     const gwt = Number(item?.GWT ?? 0);
@@ -198,6 +199,7 @@ export const PrintModule1 = (
     const totalAmtValue = matchedTotal?.TOTALAMT ?? 0;
     const amtValue = (nwt + wastAmt) * rate;
     const totalValue = rate * nwt;
+    const totWt = Number(netWeight) + Number(wastAmt);
     const piecesText = item.PIECES
       ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
       : "";
@@ -266,7 +268,7 @@ export const PrintModule1 = (
               )}</span></div>`
         }
         <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          nwt,
+          totWt,
           3,
         )}</span></div>
         <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
@@ -370,9 +372,13 @@ export const PrintModule1 = (
           totalAmt,
         )}</span></div>
         <div class="tot-row"><span class="tot-label"></span><span class="tot-colon"></span><span class="tot-value"></span></div>
-        <div class="tot-row"><span class="tot-label">GST@${gstNo}%</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
-          totalGstAmt,
-        )}</span></div>
+        ${
+          gstNo > 0
+            ? `<div class="tot-row"><span class="tot-label">GST@${gstNo}%</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
+                totalGstAmt,
+              )}</span></div>`
+            : ""
+        }
         </div>
     </div>
 

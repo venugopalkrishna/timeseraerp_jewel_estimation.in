@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
 
-export const PrintModule2 = (
+export const PrintModule1 = (
   localIp,
   EstNo,
   userName,
@@ -24,6 +24,7 @@ export const PrintModule2 = (
   totalAmounts,
   wastMc,
   wastValue,
+  copperData,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -47,12 +48,6 @@ export const PrintModule2 = (
           text-align: center;
           margin: 0 0 5px 0;
           font-size: 20px;
-          letter-spacing: 1px;
-        }
-           h5 {
-          text-align: center;
-          margin: 10px 0 5px 0;
-          font-size: 13px;
           letter-spacing: 1px;
         }
         .line {
@@ -87,15 +82,9 @@ export const PrintModule2 = (
         }
         .footer-value {
           flex: 1;
-          text-align: left;
+          text-align: right;
           min-width: 50px;
           font-size: 16px;
-        }
-          .footer-line {
-          flex: 1;
-          text-align: left;
-          min-width: 50px;
-          font-size: 10px;
         }
           .data-row {
           display: flex;
@@ -109,7 +98,6 @@ export const PrintModule2 = (
           font-size: 14px;
           font-weight: bold;
         }
-          
         .data-colon {
           flex: 0 0 10px;
           text-align: center;
@@ -131,6 +119,7 @@ export const PrintModule2 = (
           width: 130px;
           text-align: left;
           font-size: 25px;
+          font-weight: bold;
         }
           .total-value {
           flex: 1;
@@ -185,7 +174,6 @@ export const PrintModule2 = (
     const matchedMc = mcData.find((mc) => mc.TAGNO === tag);
     const matchedW = wastageData.find((w) => w.TAGNO === tag);
     const matchedStones = stonesData.filter((s) => s.TAGNO === tag);
-
     const totalCts = matchedStones.reduce(
       (sum, item) => sum + (parseFloat(item.CTS) || 0),
       0,
@@ -198,6 +186,9 @@ export const PrintModule2 = (
       (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
       0,
     );
+    const matchedCopper = copperData.find((c) => c.MNAME === item?.MNAME);
+
+    const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
     const ctsData = totalCts / 5 + totalGrams;
     const netWt = item?.GWT - ctsData;
     const netWeight = netWt ?? item?.NWT ?? 0;
@@ -213,6 +204,10 @@ export const PrintModule2 = (
     const amtValue = (nwt + wastAmt) * rate;
     const totalValue = rate * nwt;
     const totWt = Number(netWeight) + Number(wastAmt);
+    const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
+    const fNwt = Number(netWeight) - Number(copperWt);
+
+    const castMetal = Number(totWt) * Number(item?.FINERATE);
     const piecesText = item.PIECES
       ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
       : "";
@@ -242,83 +237,105 @@ export const PrintModule2 = (
            nwt,
            3,
          )}</span></div>
+         <div class="data-row"><span class="data-label">COPPER WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           copperWt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">FIN NWT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           fNwt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           wastAmt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           totWt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           mcAmt,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           totalItemAmt ?? item?.ITEM_TOTAMT,
+         )}</span></div>
     `;
 
-    if (Number(printModel) === 3) {
-      htmlContent += `
-       <div class="data-row"><span class="data-label">METAL VALUE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-         totalValue,
-       )}</span></div>
-        ${
-          ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-        }
-      `;
-    } else if (Number(printModel) === 4) {
-      htmlContent += `
-      <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
-        Number(gwt) > 8 ? wastageValue + "%" : formatNum(wastAmt, 3)
-      }</span></div>
-      `;
-    } else {
-      htmlContent += `
-        ${
-          ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-        }
-        <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          totWt,
-          3,
-        )}</span></div>
-        <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          amtValue,
-        )}</span></div>
-      `;
-    }
-    if (Number(printModel) === 4) {
-      htmlContent += `
-       <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-         mcAmt,
-       )}</span></div>
-        <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          totalItemAmt ?? item?.ITEM_TOTAMT,
-        )}</span></div>
-      `;
-    } else {
-      htmlContent += `
-      ${
-        ["M", "ALL"].includes(wastMc)
-          ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue}/g</span><span class="data-value">${formatNum(
-              mcAmt,
-            )}</span></div>`
-          : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-              mcAmt,
-            )}</span></div>`
-      }
-      <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-        totalItemAmt ?? item?.ITEM_TOTAMT,
-      )}</span></div>
-    `;
-    }
+    // if (Number(printModel) === 3) {
+    //   htmlContent += `
+    //    <div class="data-row"><span class="data-label">CAST OF METAL</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //      castMetal,
+    //    )}</span></div>
+    //     ${
+    //       ["W", "ALL"].includes(wastMc)
+    //         ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //         : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //     }
+    //   `;
+    // } else if (Number(printModel) === 4) {
+    //   htmlContent += `
+    //   <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
+    //     Number(gwt) > 8 ? wastageValue + "%" : formatNum(wastAmt, 3)
+    //   }</span></div>
+    //   `;
+    // } else {
+    //   htmlContent += `
+    //     ${
+    //       ["W", "ALL"].includes(wastMc)
+    //         ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //         : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //     }
+    //     <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //       totWt,
+    //       3,
+    //     )}</span></div>
+    //     <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //       amtValue,
+    //     )}</span></div>
+    //   `;
+    // }
+
+    // if (Number(printModel) === 4) {
+    //   htmlContent += `
+    //    <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //      mcAmt,
+    //    )}</span></div>
+    //     <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //       totalItemAmt ?? item?.ITEM_TOTAMT,
+    //     )}</span></div>
+    //   `;
+    // } else {
+    //   htmlContent += `
+    //   ${
+    //     ["M", "ALL"].includes(wastMc)
+    //       ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue}/g</span><span class="data-value">${formatNum(
+    //           mcAmt,
+    //         )}</span></div>`
+    //       : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //           mcAmt,
+    //         )}</span></div>`
+    //   }
+    //   <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //     totalItemAmt ?? item?.ITEM_TOTAMT,
+    //   )}</span></div>
+    // `;
+    // }
     matchedStones.forEach((s) => {
       const pcsStr = s?.NOPCS && s.NOPCS > 0 ? ` (${s.NOPCS}P)` : "";
       const weightLabel = s.CTS ? "CTS" : "GMS";
 
-      // Fixed-width formatted layout (like printed bill)
       if (Number(printModel) === 2) {
         htmlContent += `
      <div class="row-line" style="font-size:9px; font-family:monospace; margin-left:10px;">
@@ -364,7 +381,6 @@ export const PrintModule2 = (
     `;
   });
 
-  // Footer summary
   htmlContent += `
     <div class="line"></div>
 
@@ -407,39 +423,17 @@ export const PrintModule2 = (
 
     <div class="line"></div>
 
-    <h5>***Settlement Amount***</h5>
+    <div class="footer-row"><span class="footer-label">Name</span><span class="footer-colon">:</span><span class="footer-value">${
+      customerName || ""
+    }</span></div>
+    <div class="footer-row"><span class="footer-label">Mobile No</span><span class="footer-colon">:</span><span class="footer-value">${
+      customerMobile || ""
+    }</span></div>
+    <div class="footer-row"><span class="footer-label">City</span><span class="footer-colon">:</span><span class="footer-value">${
+      customerArea || ""
+    }</span></div>
 
-  <div class="footer-row"><span class="footer-label">Cash</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Card/Online</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Upi/Qr</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">OG/SR</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">RB/Due</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Advance</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Scheme</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label bold">Total</span><span class="footer-colon">:</span><span class="footer-line bold">_________________________________</span></div>
-
-  <h5>*** VALID FOR ONE HOUR ONLY ***</h5>
-
-  <div style="display:flex; justify-content:center; margin:6px 0;">
-    <span style="margin-right:20px;">New Customer { }</span>
-    <span>Existing Customer { }</span>
-  </div>
-
-  <div class="footer-row"><span class="footer-label">Mobile No</span><span class="footer-colon">:</span><span class="footer-value">${
-    customerMobile || ""
-  }</span></div>
-  <div class="footer-row"><span class="footer-label">Name</span><span class="footer-colon">:</span><span class="footer-value">${
-    customerName || ""
-  }</span></div>
-  <div class="footer-row"><span class="footer-label">City</span><span class="footer-colon">:</span><span class="footer-value">${
-    customerArea || ""
-  }</span></div>
-  <div class="footer-row"><span class="footer-label">Address</span><span class="footer-colon">:</span><span class="footer-value"></span></div>
-  <div class="footer-row"><span class="footer-label">Address2</span><span class="footer-colon">:</span><span class="footer-value"></span></div>
-  <div class="footer-row"><span class="footer-label">Address3</span><span class="footer-colon">:</span><span class="footer-value"></span></div>
-  <div class="footer-row"><span class="footer-label">Address4</span><span class="footer-colon">:</span><span class="footer-value"></span></div>
-
-  <div class="line"></div>
+    <div class="line"></div>
 
     <div class="footer-row"><span class="footer-label">Date</span><span class="footer-colon">:</span><span class="footer-value">${dayjs().format(
       "DD-MM-YYYY hh:mm A",

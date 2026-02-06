@@ -24,6 +24,7 @@ export const PrintModule2 = (
   totalAmounts,
   wastMc,
   wastValue,
+  copperData,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -198,6 +199,9 @@ export const PrintModule2 = (
       (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
       0,
     );
+    const matchedCopper = copperData.find((c) => c.MNAME === item?.MNAME);
+
+    const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
     const ctsData = totalCts / 5 + totalGrams;
     const netWt = item?.GWT - ctsData;
     const netWeight = netWt ?? item?.NWT ?? 0;
@@ -213,6 +217,10 @@ export const PrintModule2 = (
     const amtValue = (nwt + wastAmt) * rate;
     const totalValue = rate * nwt;
     const totWt = Number(netWeight) + Number(wastAmt);
+    const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
+    const fNwt = Number(netWeight) - Number(copperWt);
+
+    const castMetal = Number(totWt) * Number(item?.FINERATE);
     const piecesText = item.PIECES
       ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
       : "";
@@ -242,78 +250,103 @@ export const PrintModule2 = (
            nwt,
            3,
          )}</span></div>
+         <div class="data-row"><span class="data-label">COPPER WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           copperWt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">FIN NWT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           fNwt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           wastAmt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           totWt,
+           3,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           mcAmt,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           totalItemAmt ?? item?.ITEM_TOTAMT,
+         )}</span></div>
+         <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+           totalItemAmt ?? item?.ITEM_TOTAMT,
+         )}</span></div>
     `;
 
-    if (Number(printModel) === 3) {
-      htmlContent += `
-       <div class="data-row"><span class="data-label">METAL VALUE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-         totalValue,
-       )}</span></div>
-        ${
-          ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-        }
-      `;
-    } else if (Number(printModel) === 4) {
-      htmlContent += `
-      <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
-        Number(gwt) > 8 ? wastageValue + "%" : formatNum(wastAmt, 3)
-      }</span></div>
-      `;
-    } else {
-      htmlContent += `
-        ${
-          ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-        }
-        <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          totWt,
-          3,
-        )}</span></div>
-        <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          amtValue,
-        )}</span></div>
-      `;
-    }
-    if (Number(printModel) === 4) {
-      htmlContent += `
-       <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-         mcAmt,
-       )}</span></div>
-        <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-          totalItemAmt ?? item?.ITEM_TOTAMT,
-        )}</span></div>
-      `;
-    } else {
-      htmlContent += `
-      ${
-        ["M", "ALL"].includes(wastMc)
-          ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue}/g</span><span class="data-value">${formatNum(
-              mcAmt,
-            )}</span></div>`
-          : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-              mcAmt,
-            )}</span></div>`
-      }
-      <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-        totalItemAmt ?? item?.ITEM_TOTAMT,
-      )}</span></div>
-    `;
-    }
+    // if (Number(printModel) === 3) {
+    //   htmlContent += `
+    //    <div class="data-row"><span class="data-label">CAST OF METAL</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //      castMetal,
+    //    )}</span></div>
+    //     ${
+    //       ["W", "ALL"].includes(wastMc)
+    //         ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //         : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //     }
+    //   `;
+    // } else if (Number(printModel) === 4) {
+    //   htmlContent += `
+    //   <div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
+    //     Number(gwt) > 8 ? wastageValue + "%" : formatNum(wastAmt, 3)
+    //   }</span></div>
+    //   `;
+    // } else {
+    //   htmlContent += `
+    //     ${
+    //       ["W", "ALL"].includes(wastMc)
+    //         ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //         : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //             wastAmt,
+    //             3,
+    //           )}</span></div>`
+    //     }
+    //     <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //       totWt,
+    //       3,
+    //     )}</span></div>
+    //     <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //       amtValue,
+    //     )}</span></div>
+    //   `;
+    // }
+    // if (Number(printModel) === 4) {
+    //   htmlContent += `
+    //    <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //      mcAmt,
+    //    )}</span></div>
+    //     <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //       totalItemAmt ?? item?.ITEM_TOTAMT,
+    //     )}</span></div>
+    //   `;
+    // } else {
+    //   htmlContent += `
+    //   ${
+    //     ["M", "ALL"].includes(wastMc)
+    //       ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue}/g</span><span class="data-value">${formatNum(
+    //           mcAmt,
+    //         )}</span></div>`
+    //       : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //           mcAmt,
+    //         )}</span></div>`
+    //   }
+    //   <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+    //     totalItemAmt ?? item?.ITEM_TOTAMT,
+    //   )}</span></div>
+    // `;
+    // }
     matchedStones.forEach((s) => {
       const pcsStr = s?.NOPCS && s.NOPCS > 0 ? ` (${s.NOPCS}P)` : "";
       const weightLabel = s.CTS ? "CTS" : "GMS";
@@ -386,13 +419,13 @@ export const PrintModule2 = (
           totalAmt,
         )}</span></div>
         <div class="tot-row"><span class="tot-label"></span><span class="tot-colon"></span><span class="tot-value"></span></div>
-        ${
-          gstNo > 0
-            ? `<div class="tot-row"><span class="tot-label">GST@${gstNo}%</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
-                totalGstAmt,
-              )}</span></div>`
-            : ""
-        }
+       ${
+         gstNo > 0
+           ? `<div class="tot-row"><span class="tot-label">GST@${gstNo}%</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
+               totalGstAmt,
+             )}</span></div>`
+           : ""
+       }
         </div>
     </div>
 

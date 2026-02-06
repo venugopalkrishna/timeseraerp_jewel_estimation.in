@@ -1,0 +1,526 @@
+.card {
+  /* max-width: 300px; */
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e6e6e6;
+  font-family: Arial, sans-serif;
+  margin-top: 10px;
+}
+
+.tagno {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.todayrates {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.header {
+  background: #1a237e;
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header2 {
+  background: #1a237e;
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header1 {
+  background: #52bd91;
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.amount {
+  color: #00c853;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.amount3 {
+  color: #00c853;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.amount1 {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.amount5 {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.content {
+  padding: 15px;
+  font-size: 14px;
+}
+
+.productHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.productName {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.qtyBox {
+  background: #dff6e2;
+  color: #007e33;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-weight: bold;
+}
+
+.divider {
+  border-top: 1px solid #999;
+  margin: 10px 0;
+}
+
+.details {
+  line-height: 1.8;
+}
+
+.rowTag2 {
+  display: flex;
+  align-items: center;
+  /* margin: 4px 0; */
+  font-size: 12px;
+  /* margin-bottom: 10px; */
+  /* padding: 0px 3px 0px 3px; */
+  /* margin-top: 5px; */
+  /* color: #fff; */
+}
+
+.rowTagTwoCol2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 0;
+  margin-bottom: 10px;
+  padding: 0px 8px 0px 8px;
+  /* color: #fff; */
+}
+
+.column2 {
+  display: flex;
+  align-items: center;
+  /* flex: 1; */
+}
+
+.label2 {
+  width: 50%;
+  font-size: 14px;
+  font-weight: bold;
+  /* color: #fff; */
+}
+
+.separator2 {
+  margin: 0 4px;
+  /* color: #fff; */
+}
+
+.value2 {
+  flex: 1;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: right;
+  color: black;
+  /* color: #fff; */
+}
+
+.highlightBox {
+  border: 1px solid #00e5ff;
+  padding: 3px 4px 3px 4px;
+  border-radius: 6px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.highlightBox1 {
+  background: #00e5ff;
+  border: 1px solid #00e5ff;
+  padding: 3px 4px 3px 4px;
+  border-radius: 6px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.highlightBox2 {
+  background: #ffd93d;
+  border: 1px solid #ffd93d;
+  padding: 3px 4px 3px 4px;
+  border-radius: 6px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.highlightBox3 {
+  background: lightgreen;
+  border: 1px solid lightgreen;
+  padding: 3px 4px 3px 4px;
+  border-radius: 6px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.value {
+  float: right;
+}
+
+.piecesinput {
+  width: 75%;
+  height: 20px;
+  text-align: right;
+}
+
+.piecesinput2 {
+  width: 30%;
+  height: 20px;
+  text-align: center;
+}
+
+.dropdown2 {
+  width: 200px;
+  /* Small and neat */
+  /* padding: 8px 10px; */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 12px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border 0.2s ease,
+    box-shadow 0.2s ease;
+  margin-left: 20px;
+  height: 30px;
+  /* margin-top: 18px; */
+}
+
+.dia {
+  color: black;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.diacontainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: black;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 8px;
+  border: 1px solid lightgreen;
+  border-radius: 8px;
+  background: lightgreen;
+}
+
+.brandcontainer {
+  display: flex;
+  justify-content: space-between;
+  /* align-items: center; */
+  font-size: 14px;
+  color: black;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 8px;
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  background: lightgray;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 796px) {
+  .card {
+    /* max-width: 300px; */
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e6e6e6;
+    font-family: Arial, sans-serif;
+    margin-top: 10px;
+  }
+
+  .tagno {
+    font-weight: bold;
+    font-size: 25px;
+  }
+
+  .todayrates {
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .header {
+    background: #1a237e;
+    color: white;
+    padding: 20px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header2 {
+    background: #1a237e;
+    color: white;
+    padding: 20px 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .header1 {
+    background: #52bd91;
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 25px;
+  }
+
+  .amount {
+    color: #00c853;
+    font-weight: bold;
+    font-size: 25px;
+  }
+
+  .amount3 {
+    color: #00c853;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .amount1 {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 25px;
+  }
+
+  .amount5 {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 25px;
+  }
+
+  .content {
+    padding: 15px;
+    font-size: 20px;
+  }
+
+  .productHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .productName {
+    font-weight: bold;
+    font-size: 23px;
+  }
+
+  .qtyBox {
+    background: #dff6e2;
+    color: #007e33;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-weight: bold;
+  }
+
+  .divider {
+    border-top: 1px solid #999;
+    margin: 15px 0;
+  }
+
+  .details {
+    line-height: 1.8;
+  }
+
+  .rowTag2 {
+    display: flex;
+    align-items: center;
+    /* margin: 4px 0; */
+    font-size: 20px;
+    /* margin-bottom: 10px; */
+    /* padding: 0px 3px 0px 3px; */
+    /* margin-top: 5px; */
+    /* color: #fff; */
+  }
+
+  .rowTagTwoCol2 {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 4px 0;
+    margin-bottom: 10px;
+    padding: 0px 8px 0px 8px;
+    /* color: #fff; */
+  }
+
+  .column2 {
+    display: flex;
+    align-items: center;
+    /* flex: 1; */
+  }
+
+  .label2 {
+    width: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    /* color: #fff; */
+  }
+
+  .separator2 {
+    margin: 0 4px;
+    /* color: #fff; */
+  }
+
+  .value2 {
+    flex: 1;
+    font-weight: bold;
+    font-size: 23px;
+    text-align: right;
+    color: black;
+    /* color: #fff; */
+  }
+
+  .highlightBox {
+    border: 1px solid #00e5ff;
+    padding: 3px 4px 3px 4px;
+    border-radius: 6px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  .highlightBox1 {
+    background: #00e5ff;
+    border: 1px solid #00e5ff;
+    padding: 3px 4px 3px 4px;
+    border-radius: 6px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  .highlightBox2 {
+    background: #ffd93d;
+    border: 1px solid #ffd93d;
+    padding: 3px 4px 3px 4px;
+    border-radius: 6px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  .highlightBox3 {
+    background: lightgreen;
+    border: 1px solid lightgreen;
+    padding: 3px 4px 3px 4px;
+    border-radius: 6px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  .value {
+    float: right;
+  }
+
+  .piecesinput {
+    width: 75%;
+    height: 30px;
+    text-align: right;
+  }
+
+  .piecesinput2 {
+    width: 30%;
+    height: 30px;
+    text-align: center;
+  }
+
+  .dropdown2 {
+    width: 500px;
+    /* Small and neat */
+    /* padding: 8px 10px; */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 20px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    transition:
+      border 0.2s ease,
+      box-shadow 0.2s ease;
+    margin-left: 20px;
+    height: 40px;
+    /* margin-top: 18px; */
+  }
+
+  .diacontainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 20px;
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 8px;
+    border: 1px solid lightgreen;
+    border-radius: 8px;
+    background: lightgreen;
+  }
+
+  .dia {
+    color: black;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .brandcontainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 8px;
+    border: 1px solid lightgray;
+    border-radius: 8px;
+    background: lightgray;
+  }
+}

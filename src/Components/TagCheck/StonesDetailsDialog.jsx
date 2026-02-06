@@ -8,10 +8,10 @@ const StonesDetailsDialog = ({ stonesOpen, handleCancel, stonesData }) => {
       // onCancel={handleCancel}
       footer={null}
       closable={false}
-      maskStyle={{
-        backdropFilter: "blur(8px)",
-        backgroundColor: "rgba(0, 0, 0, 0.2)",
-      }}
+      // maskStyle={{
+      //   backdropFilter: "blur(8px)",
+      //   backgroundColor: "rgba(0, 0, 0, 0.2)",
+      // }}
       title={
         <div style={{ position: "relative" }}>
           <strong
@@ -75,8 +75,8 @@ const StonesDetailsDialog = ({ stonesOpen, handleCancel, stonesData }) => {
                 {stone.PIECES > 0
                   ? `(${stone.PIECES} piece${stone.PIECES > 1 ? "s" : ""})`
                   : stone.GRMS > 0
-                  ? `(${stone.GRMS.toFixed(3)}/g)`
-                  : `(${stone.CTS.toFixed(3)}cts)`}
+                    ? `(${stone.GRMS.toFixed(3)}/g)`
+                    : `(${stone.CTS.toFixed(3)}cts)`}
               </span>{" "}
               Rate:
               <span style={{ fontWeight: "bold", color: "#162566" }}>
