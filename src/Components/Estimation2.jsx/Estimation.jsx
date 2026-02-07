@@ -78,6 +78,7 @@ const Estimation = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [photo, setPhoto] = useState();
   const [copperData, setCopperData] = useState([]);
+  const [storeDetails, setStoreDetails] = useState({});
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -126,6 +127,7 @@ const Estimation = () => {
       console.error("Error fetching estimation number:", error);
     }
   };
+
   const itemsAPI = async () => {
     try {
       const response = await axios.get(
@@ -163,6 +165,27 @@ const Estimation = () => {
       }
     } catch (error) {
       console.error("Error fetching account number:", error);
+    }
+  };
+
+  const userAPI = async (name) => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=FIRM_CONFIGURE`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        setStoreDetails(data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching estimation count:", error);
     }
   };
 
@@ -1487,6 +1510,7 @@ const Estimation = () => {
     estimationNo();
     itemsAPI();
     copperAPI();
+    userAPI();
   }, []);
 
   useEffect(() => {
@@ -1554,6 +1578,7 @@ const Estimation = () => {
       wastMc,
       copperData,
       wastValue,
+      storeDetails,
     );
   };
 
@@ -1582,6 +1607,7 @@ const Estimation = () => {
       wastMc,
       copperData,
       wastValue,
+      storeDetails,
     );
   };
 
@@ -1610,6 +1636,7 @@ const Estimation = () => {
       wastMc,
       wastValue,
       copperData,
+      storeDetails,
     );
   };
 
@@ -1638,6 +1665,7 @@ const Estimation = () => {
       wastMc,
       wastValue,
       copperData,
+      storeDetails,
     );
   };
 
@@ -1654,7 +1682,7 @@ const Estimation = () => {
       />
       <div className={styles.container}>
         <div className={styles.headerContainer}>
-          <h3 className={styles.heading}>Estimation</h3>
+          <h3 className={styles.heading}>Estimation-2</h3>
           <span style={{ fontSize: "14px", fontWeight: "bold", color: "#222" }}>
             NO:{" "}
             <span

@@ -25,6 +25,7 @@ export const PrintModule1 = (
   wastMc,
   wastValue,
   copperData,
+  storeDetails,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -50,6 +51,20 @@ export const PrintModule1 = (
           font-size: 20px;
           letter-spacing: 1px;
         }
+          h3 {
+          text-align: center;
+          margin: 0 0 5px 0;
+          font-size: 14px;
+          letter-spacing: 1px;
+          color: #000
+        }
+          h2 {
+          text-align: center;
+          margin: 0 0 5px 0;
+          font-size: 18px;
+          letter-spacing: 1px;
+          color: #000
+        }
         .line {
           border-top: 1px dashed #000;
           margin: 4px 0;
@@ -71,7 +86,7 @@ export const PrintModule1 = (
           padding: 2px 0;
         }
         .footer-label {
-          width: 130px;
+          width: 100px;
           text-align: left;
           font-size: 16px;
           font-weight: bold;
@@ -81,6 +96,12 @@ export const PrintModule1 = (
           text-align: center;
         }
         .footer-value {
+          flex: 1;
+          text-align: left;
+          min-width: 50px;
+          font-size: 16px;
+        }
+          .footer-value1 {
           flex: 1;
           text-align: right;
           min-width: 50px;
@@ -156,7 +177,25 @@ export const PrintModule1 = (
       </style>
     </head>
     <body>
+    <h2>${storeDetails?.FIRMNAME}</h2>
+    <h3>${storeDetails?.ADD1}</h3>
+    <h3>${storeDetails?.ADD2}</h3>
+    <h3>PHNO:${storeDetails?.FMOBILE}</h3>
       <h1>ESTIMATION</h1>
+      <div class="line"></div>
+
+    <div class="footer-row"><span class="footer-label">Name</span><span class="footer-colon">:</span><span class="footer-value">${
+      customerName || ""
+    }</span></div>
+    <div class="footer-row"><span class="footer-label">Mobile No</span><span class="footer-colon">:</span><span class="footer-value">${
+      customerMobile || ""
+    }</span></div>
+    <div class="footer-row"><span class="footer-label">City</span><span class="footer-colon">:</span><span class="footer-value">${
+      customerArea || ""
+    }</span></div>
+    <div class="footer-row"><span class="footer-label">Date</span><span class="footer-colon">:</span><span class="footer-value">${dayjs().format(
+      "DD-MM-YYYY hh:mm A",
+    )}</span></div>
       <div class="line"></div>
       <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${EstNo}</span></div>
       <div class="line"></div>
@@ -241,7 +280,7 @@ export const PrintModule1 = (
            copperWt,
            3,
          )}</span></div>
-         <div class="data-row"><span class="data-label">FIN NWT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+         <div class="data-row"><span class="data-label">FINE.NWT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
            fNwt,
            3,
          )}</span></div>
@@ -421,24 +460,12 @@ export const PrintModule1 = (
       )}/-</span>
     </div>
 
-    <div class="line"></div>
-
-    <div class="footer-row"><span class="footer-label">Name</span><span class="footer-colon">:</span><span class="footer-value">${
-      customerName || ""
-    }</span></div>
-    <div class="footer-row"><span class="footer-label">Mobile No</span><span class="footer-colon">:</span><span class="footer-value">${
-      customerMobile || ""
-    }</span></div>
-    <div class="footer-row"><span class="footer-label">City</span><span class="footer-colon">:</span><span class="footer-value">${
-      customerArea || ""
-    }</span></div>
+    
 
     <div class="line"></div>
 
-    <div class="footer-row"><span class="footer-label">Date</span><span class="footer-colon">:</span><span class="footer-value">${dayjs().format(
-      "DD-MM-YYYY hh:mm A",
-    )}</span></div>
-    <div class="footer-row"><span class="footer-label">User Name</span><span class="footer-colon">:</span><span class="footer-value">${loginName}</span></div>
+    
+    <div class="footer-row"><span class="footer-label">User Name</span><span class="footer-colon">:</span><span class="footer-value1">${loginName}</span></div>
   `;
 
   htmlContent += `

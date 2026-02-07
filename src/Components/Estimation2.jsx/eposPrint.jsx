@@ -24,6 +24,7 @@ export const printReceipt = (
   wastMc,
   copperData,
   wastValue,
+  storeDetails,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -56,6 +57,8 @@ export const printReceipt = (
   function executeAddedCode() {
     const lineWidth = 48;
     printer.addTextAlign(printer.ALIGN_CENTER);
+    printer.addFeedLine(1);
+    printer.addTextSize(2, 1);
     // const img = new Image();
     // img.src = base64Images;
 
@@ -87,6 +90,11 @@ export const printReceipt = (
     //     printer.HALFTONE_DITHER,
     //     1
     //   );
+    printer.addText(storeDetails?.FIRMNAME + "\n");
+    printer.addTextSize(1, 1);
+    printer.addText(storeDetails?.ADD1 + "\n");
+    printer.addText(storeDetails?.ADD2 + "\n");
+    printer.addText(storeDetails?.FMOBILE + "\n");
     printer.addFeedLine(1);
     printer.addTextSize(2, 2); // Large font
     printer.addText("ESTIMATION \n");
@@ -258,7 +266,7 @@ export const printReceipt = (
       printer.addText(`    STONE LESS     : ${swt}\n`);
       printer.addText(`    NWT WEIGHT     : ${nwt}\n`);
       printer.addText(`    COPPER WEIGHT  : ${copperValue}\n`);
-      printer.addText(`    FIN NWT        : ${fineValue}\n`);
+      printer.addText(`    FINE.NWT       : ${fineValue}\n`);
       if (wastValue === "V.A") {
         printer.addText(`    V.A            : ${WAmt}\n`);
       } else if (wastValue === "VA") {

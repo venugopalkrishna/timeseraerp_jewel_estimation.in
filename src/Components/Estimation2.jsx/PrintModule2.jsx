@@ -25,6 +25,7 @@ export const PrintModule2 = (
   wastMc,
   wastValue,
   copperData,
+  storeDetails,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -77,7 +78,13 @@ export const PrintModule2 = (
           padding: 2px 0;
         }
         .footer-label {
-          width: 130px;
+          width: 100px;
+          text-align: left;
+          font-size: 16px;
+          font-weight: bold;
+        }
+          .footer-label1 {
+          width: 120px;
           text-align: left;
           font-size: 16px;
           font-weight: bold;
@@ -168,6 +175,10 @@ export const PrintModule2 = (
       </style>
     </head>
     <body>
+    <div style="text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${storeDetails?.FIRMNAME}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">${storeDetails?.ADD1}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">${storeDetails?.ADD2}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">PHNO:${storeDetails?.FMOBILE}</div>
       <h1>ESTIMATION</h1>
       <div class="line"></div>
       <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${EstNo}</span></div>
@@ -254,7 +265,7 @@ export const PrintModule2 = (
            copperWt,
            3,
          )}</span></div>
-         <div class="data-row"><span class="data-label">FIN NWT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+         <div class="data-row"><span class="data-label">FINE.NWT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
            fNwt,
            3,
          )}</span></div>
@@ -442,14 +453,14 @@ export const PrintModule2 = (
 
     <h5>***Settlement Amount***</h5>
 
-  <div class="footer-row"><span class="footer-label">Cash</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Card/Online</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Upi/Qr</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">OG/SR</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">RB/Due</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Advance</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label">Scheme</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
-  <div class="footer-row"><span class="footer-label bold">Total</span><span class="footer-colon">:</span><span class="footer-line bold">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">Cash</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">Card/Online</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">Upi/Qr</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">OG/SR</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">RB/Due</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">Advance</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1">Scheme</span><span class="footer-colon">:</span><span class="footer-line">_________________________________</span></div>
+  <div class="footer-row"><span class="footer-label1 bold">Total</span><span class="footer-colon">:</span><span class="footer-line bold">_________________________________</span></div>
 
   <h5>*** VALID FOR ONE HOUR ONLY ***</h5>
 
@@ -474,10 +485,10 @@ export const PrintModule2 = (
 
   <div class="line"></div>
 
-    <div class="footer-row"><span class="footer-label">Date</span><span class="footer-colon">:</span><span class="footer-value">${dayjs().format(
-      "DD-MM-YYYY hh:mm A",
-    )}</span></div>
-    <div class="footer-row"><span class="footer-label">User Name</span><span class="footer-colon">:</span><span class="footer-value">${loginName}</span></div>
+  <div class="footer-row"><span class="footer-label">Date</span><span class="footer-colon">:</span><span class="footer-value">${dayjs().format(
+    "DD-MM-YYYY hh:mm A",
+  )}</span></div>
+  <div class="footer-row"><span class="footer-label">User Name</span><span class="footer-colon">:</span><span class="footer-value">${loginName}</span></div>
   `;
 
   htmlContent += `
