@@ -144,6 +144,7 @@ const Tag = ({
   const [totalGstAmount, setTotalGstAmount] = useState(0);
   const [totalNetAmount, setTotalNetAmount] = useState(0);
   const [gstValue, setGstValue] = useState(0);
+  console.log(tagNwt, "tagNwt");
 
   const mainProductAPI = async () => {
     try {
@@ -369,10 +370,13 @@ const Tag = ({
         0,
       );
       const ctsData = totalCts / 5 + totalGrams;
-      const totalLess = ctsData + Number(tagBeadsLess);
+      const totalLess = ctsData;
       const less = totalLess?.toFixed(3);
+      console.log(less, "tagLess");
+
       const nwt = Number(tagGwt) - less;
       const totNwt = nwt?.toFixed(3);
+      console.log(totNwt, "tagNwtless");
 
       setStoneTotalPcs(totalPcs);
       setStoneTotalCts(totalCts);
@@ -702,67 +706,68 @@ const Tag = ({
     setTagTotalWt(totalWt || 0);
   }, [tagWastage, tagDirectWt]);
 
-  useEffect(() => {
-    const matchedItems = newStonesData.filter((item) => {
-      const matched = itemsData.find(
-        (i) =>
-          i.ITEMNAME === item.ITEMNAME &&
-          (i.EFFECTON_GOLD === true || i.DIAMONDS === true),
-      );
-      return !!matched;
-    });
-    const diamondItems = newStonesData.filter((item) => {
-      const matched = itemsData.find(
-        (i) => i.ITEMNAME === item.ITEMNAME && i.DIAMONDS === true,
-      );
-      return !!matched;
-    });
+  // useEffect(() => {
+  //   const matchedItems = newStonesData.filter((item) => {
+  //     const matched = itemsData.find(
+  //       (i) =>
+  //         i.ITEMNAME === item.ITEMNAME &&
+  //         (i.EFFECTON_GOLD === true || i.DIAMONDS === true),
+  //     );
+  //     return !!matched;
+  //   });
+  //   const diamondItems = newStonesData.filter((item) => {
+  //     const matched = itemsData.find(
+  //       (i) => i.ITEMNAME === item.ITEMNAME && i.DIAMONDS === true,
+  //     );
+  //     return !!matched;
+  //   });
 
-    const diaCts = diamondItems.reduce(
-      (sum, item) => sum + (parseFloat(item.CTS) || 0),
-      0,
-    );
-    const diaAmount = diamondItems.reduce(
-      (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-      0,
-    );
+  //   const diaCts = diamondItems.reduce(
+  //     (sum, item) => sum + (parseFloat(item.CTS) || 0),
+  //     0,
+  //   );
+  //   const diaAmount = diamondItems.reduce(
+  //     (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+  //     0,
+  //   );
 
-    const totalCts = matchedItems.reduce(
-      (sum, item) => sum + (parseFloat(item.CTS) || 0),
-      0,
-    );
-    const totalGrams = matchedItems.reduce(
-      (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
-      0,
-    );
-    const totalAmt = matchedItems.reduce(
-      (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-      0,
-    );
-    const totalPcs = newStonesData.reduce(
-      (sum, item) => sum + (parseFloat(item.PIECES) || 0),
-      0,
-    );
-    const totalNoPcs = newStonesData.reduce(
-      (sum, item) => sum + (parseFloat(item.NOPCS) || 0),
-      0,
-    );
-    const ctsData = totalCts / 5 + totalGrams;
-    const totalLess = ctsData + Number(tagBeadsLess);
-    const less = totalLess?.toFixed(3);
-    const nwt = Number(tagGwt) - less;
-    const totNwt = nwt?.toFixed(3);
+  //   const totalCts = matchedItems.reduce(
+  //     (sum, item) => sum + (parseFloat(item.CTS) || 0),
+  //     0,
+  //   );
+  //   const totalGrams = matchedItems.reduce(
+  //     (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
+  //     0,
+  //   );
+  //   const totalAmt = matchedItems.reduce(
+  //     (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+  //     0,
+  //   );
+  //   const totalPcs = newStonesData.reduce(
+  //     (sum, item) => sum + (parseFloat(item.PIECES) || 0),
+  //     0,
+  //   );
+  //   const totalNoPcs = newStonesData.reduce(
+  //     (sum, item) => sum + (parseFloat(item.NOPCS) || 0),
+  //     0,
+  //   );
+  //   const ctsData = totalCts / 5 + totalGrams;
+  //   const totalLess = ctsData + Number(tagBeadsLess);
+  //   const less = totalLess?.toFixed(3);
+  //   const nwt = Number(tagGwt) - less;
+  //   const totNwt = nwt?.toFixed(3);
+  //   console.log(totNwt, "tagNwtlessuse");
 
-    setStoneTotalPcs(totalPcs);
-    setStoneTotalCts(totalCts);
-    setStoneTotalGrams(totalGrams);
-    setStoneTotalAmt(totalAmt);
-    setStoneTotalNoPcs(totalNoPcs);
-    setStoneDiaCts(diaCts);
-    setStoneDiaAmt(diaAmount);
-    setTagLess(less);
-    setTagNwt(totNwt);
-  }, [newStonesData]);
+  //   setStoneTotalPcs(totalPcs);
+  //   setStoneTotalCts(totalCts);
+  //   setStoneTotalGrams(totalGrams);
+  //   setStoneTotalAmt(totalAmt);
+  //   setStoneTotalNoPcs(totalNoPcs);
+  //   setStoneDiaCts(diaCts);
+  //   setStoneDiaAmt(diaAmount);
+  //   setTagLess(less);
+  //   setTagNwt(totNwt);
+  // }, [newStonesData]);
 
   useEffect(() => {
     if (tagBrandAmt > 0) {

@@ -1663,6 +1663,9 @@ const BarCodeCheck = () => {
       wastValue,
     );
   };
+  console.log(mcData, "mcData");
+  console.log(wastageData, "wast");
+  console.log(barCodeData, "data");
 
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
@@ -2038,10 +2041,18 @@ const BarCodeCheck = () => {
                           >
                             {(() => {
                               // ✅ Check if wastageData has a matching TAGNO
-                              const matched = wastageData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO,
-                              );
-
+                              let matched;
+                              if (barCode.TAGNO > 0) {
+                                matched = wastageData.find(
+                                  (item) => item.TAGNO === barCode?.TAGNO,
+                                );
+                              } else {
+                                matched = wastageData.find(
+                                  (item) =>
+                                    item.ISSBRANCHNAME ===
+                                    barCode?.ISSBRANCHNAME,
+                                );
+                              }
                               // ✅ Return display text dynamically
                               if (matched) {
                                 return (
@@ -2089,9 +2100,18 @@ const BarCodeCheck = () => {
 
                           <span className={styles.value2}>
                             {(() => {
-                              const matched = wastageData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO,
-                              );
+                              let matched;
+                              if (barCode.TAGNO > 0) {
+                                matched = wastageData.find(
+                                  (item) => item.TAGNO === barCode?.TAGNO,
+                                );
+                              } else {
+                                matched = wastageData.find(
+                                  (item) =>
+                                    item.ISSBRANCHNAME ===
+                                    barCode?.ISSBRANCHNAME,
+                                );
+                              }
 
                               if (matched) {
                                 return `${Number(matched.TOTALWT).toFixed(3)}g`;
@@ -2121,9 +2141,18 @@ const BarCodeCheck = () => {
                           >
                             {(() => {
                               // ✅ Check if wastageData has a matching TAGNO
-                              const matched = mcData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO,
-                              );
+                              let matched;
+                              if (barCode.TAGNO > 0) {
+                                matched = mcData.find(
+                                  (item) => item.TAGNO === barCode?.TAGNO,
+                                );
+                              } else {
+                                matched = mcData.find(
+                                  (item) =>
+                                    item.ISSBRANCHNAME ===
+                                    barCode?.ISSBRANCHNAME,
+                                );
+                              }
 
                               // ✅ Return display text dynamically
                               if (matched) {
@@ -2171,9 +2200,18 @@ const BarCodeCheck = () => {
                           <span className={styles.value2}>
                             ₹{" "}
                             {(() => {
-                              const matched = mcData.find(
-                                (item) => item.TAGNO === barCode?.TAGNO,
-                              );
+                              let matched;
+                              if (barCode.TAGNO > 0) {
+                                matched = mcData.find(
+                                  (item) => item.TAGNO === barCode?.TAGNO,
+                                );
+                              } else {
+                                matched = mcData.find(
+                                  (item) =>
+                                    item.ISSBRANCHNAME ===
+                                    barCode?.ISSBRANCHNAME,
+                                );
+                              }
 
                               if (matched) {
                                 return `${Number(matched.TOTALAMT).toFixed(2)}`;
