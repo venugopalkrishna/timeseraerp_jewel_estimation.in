@@ -75,9 +75,11 @@ const PrintTemplateDialog = ({
       <button
         onClick={async () => {
           if (pdfModule === "WIFI") {
-            handleEposPrint();
+            const nextInvNo = await estimationNo();
+            handleEposPrint(nextInvNo);
           } else {
-            handlePrintModule1();
+            const nextInvNo = await estimationNo();
+            handlePrintModule1(nextInvNo);
           }
 
           if (tagNo) {
@@ -114,9 +116,11 @@ const PrintTemplateDialog = ({
       <button
         onClick={async () => {
           if (pdfModule === "WIFI") {
-            handleEposPrintModule2();
+            const nextInvNo = await estimationNo();
+            handleEposPrintModule2(nextInvNo);
           } else {
-            handlePrintModule2();
+            const nextInvNo = await estimationNo();
+            handlePrintModule2(nextInvNo);
           }
           if (tagNo) {
             await estimationDeleteData();
