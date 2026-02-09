@@ -483,12 +483,12 @@ const BarCodeCheck = () => {
         nwt: Number(item?.NWT ?? 0),
         categoryName: String(item?.CATEGORYNAME ?? "-"),
         wastage: String(matched?.WASTAGE ?? item?.WASTAGE ?? "-"),
-        directWastage: String(matched?.DIRECTWT ?? "-"),
+        directWastage: String(matched?.DIRECTWT ?? item?.DIRECTWASTAGE ?? "-"),
         cattotwast: String(matched?.TOTALWT ?? item?.CATTOTWAST ?? "-"),
         makingCharges: String(
           matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? "-",
         ),
-        directMc: String(matchedMc?.DIRECTAMT ?? "-"),
+        directMc: String(matchedMc?.DIRECTAMT ?? item?.DIRECTMC ?? "-"),
         cattotMc: String(matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? "-"),
         brandName: String(item?.BRANDNAME ?? "-"),
         brandAmt: Number(item?.BRANDAMT ?? 0),
@@ -678,7 +678,10 @@ const BarCodeCheck = () => {
           NWT: nwt,
           WASTAGE: wastage ? wastage.toString() : "",
           DIRECTWT: item?.DirectWastage,
-          TOTALWT: Number((nwt * wastage) / 100),
+          TOTALWT:
+            wastage > 0
+              ? Number((nwt * wastage) / 100)
+              : (item?.DirectWastage ?? 0),
         };
       });
 
@@ -691,7 +694,7 @@ const BarCodeCheck = () => {
           NWT: nwt,
           MAKINGCHARGES: making ? making.toString() : "",
           DIRECTAMT: item?.DirectMc,
-          TOTALAMT: Number(nwt * making),
+          TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DirectMc ?? 0),
         };
       });
 
@@ -837,8 +840,8 @@ const BarCodeCheck = () => {
           COUNTERNAME: "-",
           DEALERNAME: String(item?.DealerName) || "-",
           DESC1: "-",
-          DIRECTMC: String(item?.DirectMc) || "0",
-          DIRECTWASTAGE: String(item?.DirectWastage) || "0",
+          DIRECTMC: Number(item?.DirectMc) || "0",
+          DIRECTWASTAGE: Number(item?.DirectWastage) || "0",
           DealerApprovals: false,
           Diamond_Amount: Number(item?.DIAMOND_AMOUNT) || 0,
           FINERATE: Number(item?.PAMT) || 0,
@@ -1438,7 +1441,7 @@ const BarCodeCheck = () => {
       ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
       NWT: nwt,
       WASTAGE: wastage ? wastage.toString() : "",
-      DIRECTWT: 0,
+      DIRECTWT: Number(item?.DIRECTWASTAGE) ?? 0,
       TOTALWT: Number((nwt * wastage) / 100),
     };
 
@@ -1467,7 +1470,7 @@ const BarCodeCheck = () => {
       ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
       NWT: nwt,
       MAKINGCHARGES: mc ? mc.toString() : "",
-      DIRECTAMT: 0,
+      DIRECTAMT: Number(item?.DIRECTMC) ?? 0,
       TOTALAMT: Number(nwt * mc),
     };
 

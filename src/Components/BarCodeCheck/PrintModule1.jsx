@@ -278,7 +278,7 @@ export const PrintModule1 = (
       htmlContent += `
         ${
           ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue > 0 ? wastageValue + "%" : ""}</span><span class="data-value">${formatNum(
                 wastAmt,
                 3,
               )}</span></div>`
@@ -310,7 +310,7 @@ export const PrintModule1 = (
       htmlContent += `
       ${
         ["M", "ALL"].includes(wastMc)
-          ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue}/g</span><span class="data-value">${formatNum(
+          ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue > 0 ? mcgValue + "/g" : ""}</span><span class="data-value">${formatNum(
               mcAmt,
             )}</span></div>`
           : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(

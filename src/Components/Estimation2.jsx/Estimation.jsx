@@ -685,7 +685,10 @@ const Estimation = () => {
           NWT: nwt,
           WASTAGE: wastage ? wastage.toString() : "",
           DIRECTWT: item?.DirectWastage,
-          TOTALWT: Number((nwt * wastage) / 100),
+          TOTALWT:
+            wastage > 0
+              ? Number((nwt * wastage) / 100)
+              : (item?.DirectWastage ?? 0),
         };
       });
 
@@ -697,7 +700,7 @@ const Estimation = () => {
           NWT: nwt,
           MAKINGCHARGES: making ? making.toString() : "",
           DIRECTAMT: item?.DirectMc,
-          TOTALAMT: Number(nwt * making),
+          TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DirectMc ?? 0),
         };
       });
 
@@ -1438,7 +1441,7 @@ const Estimation = () => {
       TAGNO: item?.TAGNO ?? 0,
       NWT: nwt,
       WASTAGE: wastage ? wastage.toString() : "",
-      DIRECTWT: 0,
+      DIRECTWT: Number(item?.DIRECTWASTAGE) ?? 0,
       TOTALWT: Number((nwt * wastage) / 100),
     };
 
@@ -1466,7 +1469,7 @@ const Estimation = () => {
       TAGNO: item?.TAGNO ?? 0,
       NWT: nwt,
       MAKINGCHARGES: mc ? mc.toString() : "",
-      DIRECTAMT: 0,
+      DIRECTAMT: Number(item?.DIRECTMC) ?? 0,
       TOTALAMT: Number(nwt * mc),
     };
 
