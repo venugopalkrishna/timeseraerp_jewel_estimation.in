@@ -283,9 +283,6 @@ export const PrintModule2 = (
          <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
            totalItemAmt ?? item?.ITEM_TOTAMT,
          )}</span></div>
-         <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-           totalItemAmt ?? item?.ITEM_TOTAMT,
-         )}</span></div>
     `;
 
     // if (Number(printModel) === 3) {
