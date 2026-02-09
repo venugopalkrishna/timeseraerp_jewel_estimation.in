@@ -8,11 +8,15 @@ const WastageDialog = ({
   setWastageData,
   wastageData,
   wastageTagNo,
+  wastageHomeKey,
 }) => {
   const inputRef = useRef(null);
 
   // ✅ Find selected tag data
-  const selectedWastage = wastageData.find((w) => w.TAGNO === wastageTagNo);
+  const selectedWastage =
+    wastageTagNo > 0
+      ? wastageData.find((w) => w.TAGNO === wastageTagNo)
+      : wastageData.find((w) => w.ISSBRANCHNAME === wastageHomeKey);
 
   // ✅ Local state for inputs (keep as string for smoother typing)
   const [formValues, setFormValues] = useState({

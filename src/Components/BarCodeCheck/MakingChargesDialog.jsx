@@ -8,11 +8,15 @@ const MakingChargesDialog = ({
   setMcData,
   mcData,
   mcTagNo,
+  mcHomeKey,
 }) => {
   const inputRef = useRef(null);
 
   // ✅ Find selected tag data
-  const selectedWastage = mcData.find((w) => w.TAGNO === mcTagNo);
+  const selectedWastage =
+    mcTagNo > 0
+      ? mcData.find((w) => w.TAGNO === mcTagNo)
+      : mcData.find((w) => w.ISSBRANCHNAME === mcHomeKey);
 
   // ✅ Local state for inputs (keep as string for smoother typing)
   const [formValues, setFormValues] = useState({

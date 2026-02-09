@@ -52,9 +52,11 @@ const BarCodeCheck = () => {
   const [wastageData, setWastageData] = useState([]);
   const [wastageOpen, setWastageOpen] = useState(false);
   const [wastageTagNo, setWastageTagNo] = useState();
+  const [wastageHomeKey, setWastageHomeKey] = useState();
   const [mcData, setMcData] = useState([]);
   const [mcOpen, setMcOpen] = useState(false);
   const [mcTagNo, setMcTagNo] = useState();
+  const [mcHomeKey, setMcHomeKey] = useState();
   const [totalAmounts, setTotalAmounts] = useState([]);
   const [itemsData, setItemsData] = useState([]);
   // const [imagesData, setImagesData] = useState([]);
@@ -248,6 +250,7 @@ const BarCodeCheck = () => {
 
         return {
           TAGNO: item?.TAGNO ?? "",
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
           TOTALAMT: totalAmount,
           GSTTOTALAMT: gstAmount,
           NETAMT: netAmount,
@@ -443,14 +446,29 @@ const BarCodeCheck = () => {
 
   const createEstimationData = async (est) => {
     const requestBody = barCodeData.map((item, index) => {
-      const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
-      const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
-      const matchedTotals = totalAmounts.find(
-        (tot) => tot.TAGNO === item.TAGNO,
-      );
-      const matchedStone = stonesData.filter(
-        (stone) => stone.TAGNO === item.TAGNO,
-      );
+      let matchedStone;
+      let matched;
+      let matchedMc;
+      let matchedTotals;
+      if (item.TAGNO > 0) {
+        matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+        matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+        matchedTotals = totalAmounts.find((tot) => tot.TAGNO === item.TAGNO);
+        matchedStone = stonesData.filter((stone) => stone.TAGNO === item.TAGNO);
+      } else {
+        matched = wastageData.find(
+          (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+        );
+        matchedMc = mcData.find(
+          (item) => item.ISSBRANCHNAME === item.ISSBRANCHNAME,
+        );
+        matchedStone = stonesData.filter(
+          (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+        );
+        matchedTotals = totalAmounts.find(
+          (tot) => tot.ISSBRANCHNAME === item.ISSBRANCHNAME,
+        );
+      }
       const totalStoneAmount = matchedStone.reduce(
         (sum, item) => sum + (Number(item?.AMOUNT) || 0),
         0,
@@ -656,6 +674,7 @@ const BarCodeCheck = () => {
         const wastage = Number(item?.Wastage) || 0;
         return {
           TAGNO: item?.TagNo ?? 0,
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
           NWT: nwt,
           WASTAGE: wastage ? wastage.toString() : "",
           DIRECTWT: item?.DirectWastage,
@@ -668,6 +687,7 @@ const BarCodeCheck = () => {
         const making = Number(item?.MakingCharges) || 0;
         return {
           TAGNO: item?.TagNo ?? 0,
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
           NWT: nwt,
           MAKINGCHARGES: making ? making.toString() : "",
           DIRECTAMT: item?.DirectMc,
@@ -702,6 +722,7 @@ const BarCodeCheck = () => {
 
         return {
           TAGNO: item?.TagNo ?? "",
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
           TOTALAMT: totalAmount,
           GSTTOTALAMT: gstAmount,
           NETAMT: netAmount,
@@ -1414,6 +1435,7 @@ const BarCodeCheck = () => {
 
     const newEntry = {
       TAGNO: item?.TAGNO ?? 0,
+      ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
       NWT: nwt,
       WASTAGE: wastage ? wastage.toString() : "",
       DIRECTWT: 0,
@@ -1442,6 +1464,7 @@ const BarCodeCheck = () => {
 
     const newEntry = {
       TAGNO: item?.TAGNO ?? 0,
+      ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
       NWT: nwt,
       MAKINGCHARGES: mc ? mc.toString() : "",
       DIRECTAMT: 0,
@@ -2006,6 +2029,7 @@ const BarCodeCheck = () => {
                             onClick={() => {
                               handleWastageOpen(barCode);
                               setWastageTagNo(barCode?.TAGNO);
+                              setWastageHomeKey(barCode?.ISSBRANCHNAME);
                             }}
                           >
                             {(() => {
@@ -2088,6 +2112,7 @@ const BarCodeCheck = () => {
                             onClick={() => {
                               handleMcOpen(barCode);
                               setMcTagNo(barCode?.TAGNO);
+                              setMcHomeKey(barCode?.ISSBRANCHNAME);
                             }}
                           >
                             {(() => {
@@ -2952,6 +2977,7 @@ const BarCodeCheck = () => {
         setWastageData={setWastageData}
         wastageData={wastageData}
         wastageTagNo={wastageTagNo}
+        wastageHomeKey={wastageHomeKey}
       />
       <MakingChargesDialog
         mcOpen={mcOpen}
@@ -2959,6 +2985,7 @@ const BarCodeCheck = () => {
         setMcData={setMcData}
         mcData={mcData}
         mcTagNo={mcTagNo}
+        mcHomeKey={mcHomeKey}
       />
       <Tag
         homecloseDrawer={homecloseDrawer}

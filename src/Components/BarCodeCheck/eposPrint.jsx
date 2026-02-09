@@ -149,11 +149,29 @@ export const printReceipt = (
         " ",
       ); // right-align AMOUNT
 
-      const matchedTotal = totalAmounts.find(
-        (tot) => tot.TAGNO === item?.TAGNO,
-      );
-
-      const matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+      let matched;
+      let matchedMc;
+      let matchedStone;
+      let matchedTotal;
+      if (item.TAGNO > 0) {
+        matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+        matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+        matchedTotal = totalAmounts.find((tot) => tot.TAGNO === item.TAGNO);
+        matchedStone = stonesData.filter((stone) => stone.TAGNO === item.TAGNO);
+      } else {
+        matched = wastageData.find(
+          (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+        );
+        matchedMc = mcData.find(
+          (item) => item.ISSBRANCHNAME === item.ISSBRANCHNAME,
+        );
+        matchedStone = stonesData.filter(
+          (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+        );
+        matchedTotal = totalAmounts.find(
+          (tot) => tot.ISSBRANCHNAME === item.ISSBRANCHNAME,
+        );
+      }
       const mcgValue = matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0;
       const mcg =
         mcgValue > 0 ? `${mcgValue}/g`.padEnd(6, " ") : "".padEnd(6, " ");
@@ -161,10 +179,6 @@ export const printReceipt = (
         matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
       ).toFixed(2)}`.padStart(20, " ");
 
-      const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
-      const matchedStone = stonesData.filter(
-        (item) => item.TAGNO === item.TAGNO,
-      );
       const totalCts = matchedStone.reduce(
         (sum, item) => sum + (parseFloat(item.CTS) || 0),
         0,
@@ -290,10 +304,7 @@ export const printReceipt = (
         printer.addText(`    MAKING CHARGES :        ${mcAmt}\n`);
       }
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
-      const matchedStones = stonesData.filter(
-        (stone) => stone.TAGNO === item.TAGNO,
-      );
-      matchedStones.forEach((stone, index) => {
+      matchedStone.forEach((stone, index) => {
         const itemName = (stone.ITEMNAME || "")
           .substring(0, 10)
           .padEnd(10, " ");

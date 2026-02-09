@@ -169,10 +169,29 @@ export const PrintModule1 = (
     const tag = item?.TAGNO || "-";
     const purity = item?.PREFIX || "";
     const rate = Number(item?.RATE ?? 0);
-    const matchedTotal = totalAmounts.find((t) => t.TAGNO === tag);
-    const matchedMc = mcData.find((mc) => mc.TAGNO === tag);
-    const matchedW = wastageData.find((w) => w.TAGNO === tag);
-    const matchedStones = stonesData.filter((s) => s.TAGNO === tag);
+    let matchedW;
+    let matchedMc;
+    let matchedStones;
+    let matchedTotal;
+    if (item.TAGNO > 0) {
+      matchedW = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+      matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+      matchedTotal = totalAmounts.find((tot) => tot.TAGNO === item.TAGNO);
+      matchedStones = stonesData.filter((stone) => stone.TAGNO === item.TAGNO);
+    } else {
+      matchedW = wastageData.find(
+        (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+      );
+      matchedMc = mcData.find(
+        (item) => item.ISSBRANCHNAME === item.ISSBRANCHNAME,
+      );
+      matchedStones = stonesData.filter(
+        (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+      );
+      matchedTotal = totalAmounts.find(
+        (tot) => tot.ISSBRANCHNAME === item.ISSBRANCHNAME,
+      );
+    }
     const totalCts = matchedStones.reduce(
       (sum, item) => sum + (parseFloat(item.CTS) || 0),
       0,
