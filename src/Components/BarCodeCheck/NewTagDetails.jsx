@@ -144,7 +144,6 @@ const Tag = ({
   const [totalGstAmount, setTotalGstAmount] = useState(0);
   const [totalNetAmount, setTotalNetAmount] = useState(0);
   const [gstValue, setGstValue] = useState(0);
-  console.log(tagNwt, "tagNwt");
 
   const mainProductAPI = async () => {
     try {
@@ -372,11 +371,9 @@ const Tag = ({
       const ctsData = totalCts / 5 + totalGrams;
       const totalLess = ctsData;
       const less = totalLess?.toFixed(3);
-      console.log(less, "tagLess");
 
       const nwt = Number(tagGwt) - less;
       const totNwt = nwt?.toFixed(3);
-      console.log(totNwt, "tagNwtless");
 
       setStoneTotalPcs(totalPcs);
       setStoneTotalCts(totalCts);
@@ -756,7 +753,6 @@ const Tag = ({
   //   const less = totalLess?.toFixed(3);
   //   const nwt = Number(tagGwt) - less;
   //   const totNwt = nwt?.toFixed(3);
-  //   console.log(totNwt, "tagNwtlessuse");
 
   //   setStoneTotalPcs(totalPcs);
   //   setStoneTotalCts(totalCts);

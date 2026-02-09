@@ -1666,9 +1666,6 @@ const BarCodeCheck = () => {
       wastValue,
     );
   };
-  console.log(mcData, "mcData");
-  console.log(wastageData, "wast");
-  console.log(barCodeData, "data");
 
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
