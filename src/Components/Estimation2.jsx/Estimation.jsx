@@ -2024,7 +2024,7 @@ const Estimation = () => {
                           </span>
                         </div>
                         <div className={styles.rowTag2}>
-                          <span className={styles.label2}>Fin Nwt</span>
+                          <span className={styles.label2}>Fine Nwt</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
                             {Number(fNwt)?.toFixed(3) + "g" ?? "0.000g"}
