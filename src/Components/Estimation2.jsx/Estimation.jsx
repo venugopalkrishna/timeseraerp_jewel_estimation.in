@@ -1553,10 +1553,11 @@ const Estimation = () => {
 
   const EstNo = tagNo ? tagNo : estNo;
 
-  const handleEposPrint = () => {
+  const handleEposPrint = (est) => {
     printReceipt(
       localIp,
-      EstNo,
+      est,
+      tagNo,
       userName,
       barCodeData,
       stonesData,
@@ -1582,10 +1583,11 @@ const Estimation = () => {
     );
   };
 
-  const handleEposPrintModule2 = () => {
+  const handleEposPrintModule2 = (est) => {
     printReceiptModule2(
       localIp,
-      EstNo,
+      est,
+      tagNo,
       userName,
       barCodeData,
       stonesData,
@@ -1611,10 +1613,11 @@ const Estimation = () => {
     );
   };
 
-  const handlePrintModule1 = () => {
+  const handlePrintModule1 = (est) => {
     PrintModule1(
       localIp,
-      EstNo,
+      est,
+      tagNo,
       userName,
       barCodeData,
       stonesData,
@@ -1640,10 +1643,11 @@ const Estimation = () => {
     );
   };
 
-  const handlePrintModule2 = () => {
+  const handlePrintModule2 = (est) => {
     PrintModule2(
       localIp,
-      EstNo,
+      est,
+      tagNo,
       userName,
       barCodeData,
       stonesData,

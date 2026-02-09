@@ -3,7 +3,8 @@ import html2pdf from "html2pdf.js";
 
 export const PrintModule2 = (
   localIp,
-  EstNo,
+  est,
+  tagNo,
   userName,
   barCodeData,
   stonesData,
@@ -181,7 +182,7 @@ export const PrintModule2 = (
     <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">PHNO:${storeDetails?.FMOBILE}</div>
       <h1>ESTIMATION</h1>
       <div class="line"></div>
-      <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${EstNo}</span></div>
+      <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${tagNo ? tagNo : est}</span></div>
       <div class="line"></div>
       <div class="bold" style="display:flex; justify-content:space-between;">
         <span>Description</span><span>Amount</span>
@@ -495,7 +496,7 @@ export const PrintModule2 = (
 
   const opt = {
     margin: 0,
-    filename: `Estimation_${EstNo}.pdf`,
+    filename: `Estimation_${tagNo ? tagNo : est}.pdf`,
     image: { type: "jpeg", quality: 1 },
     html2canvas: { scale: 2 },
     jsPDF: { unit: "mm", format: [90, 297], orientation: "portrait" },
