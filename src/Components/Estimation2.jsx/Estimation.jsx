@@ -1559,8 +1559,7 @@ const Estimation = () => {
   const handleEposPrint = (est) => {
     printReceipt(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
@@ -1589,8 +1588,7 @@ const Estimation = () => {
   const handleEposPrintModule2 = (est) => {
     printReceiptModule2(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
@@ -1619,8 +1617,7 @@ const Estimation = () => {
   const handlePrintModule1 = (est) => {
     PrintModule1(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
@@ -1649,8 +1646,7 @@ const Estimation = () => {
   const handlePrintModule2 = (est) => {
     PrintModule2(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,

@@ -3,8 +3,7 @@ import html2pdf from "html2pdf.js";
 
 export const PrintModule1 = (
   localIp,
-  est,
-  tagNo,
+  EstNo,
   userName,
   barCodeData,
   stonesData,
@@ -198,7 +197,7 @@ export const PrintModule1 = (
       "DD-MM-YYYY hh:mm A",
     )}</span></div>
       <div class="line"></div>
-      <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${tagNo ? tagNo : est}</span></div>
+      <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${EstNo}</span></div>
       <div class="line"></div>
       <div class="bold" style="display:flex; justify-content:space-between;">
         <span>Description</span><span>Amount</span>
@@ -476,7 +475,7 @@ export const PrintModule1 = (
 
   const opt = {
     margin: 0,
-    filename: `Estimation_${tagNo ? tagNo : est}.pdf`,
+    filename: `Estimation_${EstNo}.pdf`,
     image: { type: "jpeg", quality: 1 },
     html2canvas: { scale: 2 },
     jsPDF: { unit: "mm", format: [90, 297], orientation: "portrait" },

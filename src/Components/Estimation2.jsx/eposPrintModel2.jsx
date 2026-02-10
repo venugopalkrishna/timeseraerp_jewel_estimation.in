@@ -2,8 +2,7 @@ import dayjs from "dayjs";
 
 export const printReceiptModule2 = (
   printerIP,
-  est,
-  tagNo,
+  EstNo,
   userName,
   barCodeData,
   stonesData,
@@ -111,7 +110,7 @@ export const printReceiptModule2 = (
     printer.addTextAlign(printer.ALIGN_LEFT);
     printer.addTextSize(2, 1);
     // printer.addTextStyle(true, false, true, printer.COLOR_3);
-    printer.addText("EST NO :" + " " + tagNo ? tagNo : est + "\n");
+    printer.addText("EST NO :" + " " + EstNo + "\n");
     // printer.addTextStyle(false, false, false, printer.COLOR_BLACK);
     printer.addFeedLine(1);
     printer.addTextFont(printer.FONT_A);

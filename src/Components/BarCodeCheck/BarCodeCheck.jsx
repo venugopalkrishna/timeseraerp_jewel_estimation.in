@@ -1558,8 +1558,7 @@ const BarCodeCheck = () => {
   const handleEposPrint = (est) => {
     printReceipt(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
@@ -1586,8 +1585,7 @@ const BarCodeCheck = () => {
   const handleEposPrintModule2 = (est) => {
     printReceiptModule2(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
@@ -1614,8 +1612,7 @@ const BarCodeCheck = () => {
   const handlePrintModule1 = (est) => {
     PrintModule1(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
@@ -1642,8 +1639,7 @@ const BarCodeCheck = () => {
   const handlePrintModule2 = (est) => {
     PrintModule2(
       localIp,
-      est,
-      tagNo,
+      EstNo,
       userName,
       barCodeData,
       stonesData,
