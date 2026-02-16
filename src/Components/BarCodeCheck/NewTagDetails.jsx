@@ -262,9 +262,9 @@ const Tag = ({
   const todayRatesAPI = async (value) => {
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=DAILY_RATES&where=RDATE='${dayjs(
-          "11/15/2025",
-        ).format("MM/DD/YYYY")}' AND PREFIX='${value}'`,
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=DAILY_RATES&where=RDATE='${dayjs().format(
+          "MM/DD/YYYY",
+        )}' AND PREFIX='${value}'`,
         {
           headers: {
             tenantName: tenantName,
@@ -281,6 +281,7 @@ const Tag = ({
       console.error("Error fetching today rates:", error);
     }
   };
+
   const itemsAPI = async () => {
     try {
       const response = await axios.get(
@@ -567,7 +568,7 @@ const Tag = ({
     });
     setSelectTagMainProduct(null);
     setSelectTagProductName(null);
-    setTagPieces();
+    setTagPieces(0);
     setTagGWt(0);
     setTagLess(0);
     setTagNwt(0);
@@ -601,6 +602,7 @@ const Tag = ({
     setTotalAmount(0);
     setTotalGstAmount(0);
     setTotalNetAmount(0);
+    setTagRate(0);
   };
 
   const handleStonesSubmit = async (nextNo) => {
@@ -847,7 +849,46 @@ const Tag = ({
               cursor: "pointer",
               color: "#000",
             }}
-            onClick={homecloseDrawer}
+            onClick={() => {
+              homecloseDrawer();
+              setSelectTagMainProduct(null);
+              setSelectTagProductName(null);
+              setTagPieces(0);
+              setTagGWt(0);
+              setTagLess(0);
+              setTagNwt(0);
+              setSelectTagPurity(null);
+              setTagHuid();
+              setTagDesc();
+              setTagWastage(0);
+              setTagDirectWt(0);
+              setTagTotalWt(0);
+              setTagMaking(0);
+              setTagDirectMc(0);
+              setTagTotalMc(0);
+              setStoneTotalPcs();
+              setStoneTotalCts();
+              setStoneTotalGrams();
+              setStoneTotalAmt();
+              setStoneTotalNoPcs();
+              setTagProductCategory();
+              setTagProductCode();
+              setTagCategoryName();
+              setTagHsnCode();
+              setTrayTagNo(0);
+              setTray(false);
+              setSelectBrand("PIECE");
+              setTagBrandValue();
+              setTagBrandAmt();
+              setTagBeadsLess();
+              setSelectTagBrandName(null);
+              setStoneDiaCts();
+              setStoneDiaAmt();
+              setTotalAmount(0);
+              setTotalGstAmount(0);
+              setTotalNetAmount(0);
+              setTagRate(0);
+            }}
           />
         </div>
       }
@@ -863,6 +904,43 @@ const Tag = ({
         // setTagDesc();
         // setTagWastage();
         // setTagMaking();
+        setSelectTagMainProduct(null);
+        setSelectTagProductName(null);
+        setTagPieces(0);
+        setTagGWt(0);
+        setTagLess(0);
+        setTagNwt(0);
+        setSelectTagPurity(null);
+        setTagHuid();
+        setTagDesc();
+        setTagWastage(0);
+        setTagDirectWt(0);
+        setTagTotalWt(0);
+        setTagMaking(0);
+        setTagDirectMc(0);
+        setTagTotalMc(0);
+        setStoneTotalPcs();
+        setStoneTotalCts();
+        setStoneTotalGrams();
+        setStoneTotalAmt();
+        setStoneTotalNoPcs();
+        setTagProductCategory();
+        setTagProductCode();
+        setTagCategoryName();
+        setTagHsnCode();
+        setTrayTagNo(0);
+        setTray(false);
+        setSelectBrand("PIECE");
+        setTagBrandValue();
+        setTagBrandAmt();
+        setTagBeadsLess();
+        setSelectTagBrandName(null);
+        setStoneDiaCts();
+        setStoneDiaAmt();
+        setTotalAmount(0);
+        setTotalGstAmount(0);
+        setTotalNetAmount(0);
+        setTagRate(0);
       }}
       open={homeDrawerOpen}
       height="85%"
@@ -912,6 +990,8 @@ const Tag = ({
                     value={selectTagMainProduct || null}
                     onChange={(value) => {
                       setSelectTagMainProduct(value);
+                      setSelectTagProductName(null);
+                      setSelectTagPurity(null);
                       productNameAPI(value);
                       gstAPI(value);
                       purityAPI(value);
@@ -934,6 +1014,8 @@ const Tag = ({
                         if (filtered.length > 0) {
                           const selected = filtered[0].MName;
                           setSelectTagMainProduct(selected);
+                          setSelectTagProductName(null);
+                          setSelectTagPurity(null);
                           productNameAPI(selected);
                           gstAPI(selected);
                           purityAPI(selected);
@@ -986,9 +1068,11 @@ const Tag = ({
                           setTagCategoryName(selectedproduct.CATEGORYNAME);
                           setTagHsnCode(selectedproduct.HSNCODE);
                         }
+                        setSelectTagPurity(null);
                       } else {
                         // ✅ Clear both values when cleared
                         setSelectTagProductName(null);
+                        setSelectTagPurity(null);
                         setTagProductCategory("");
                         setTagProductCode("");
                         setTagCategoryName();
@@ -1013,6 +1097,7 @@ const Tag = ({
                         if (filtered.length > 0) {
                           const selected = filtered[0].PRODUCTNAME;
                           setSelectTagProductName(selected);
+                          setSelectTagPurity(null);
                           setTagProductCategory(selected.PRODUCTCATEGORY);
                           setTagProductCode(selected.PRODUCTCODE);
                           setTagCategoryName(selected.CATEGORYNAME);
@@ -1056,8 +1141,9 @@ const Tag = ({
                     onChange={(value) => {
                       setSelectTagPurity(value);
                       todayRatesAPI(value);
+                      setTagPieces(1);
                       setTimeout(() => {
-                        tagPiecesRef?.current?.focus();
+                        tagGwtRef?.current?.focus();
                       }, 0);
                     }}
                     filterOption={(input, option) =>
@@ -1076,8 +1162,9 @@ const Tag = ({
                           const selected = filtered[0].Prefix;
                           setSelectTagPurity(selected);
                           todayRatesAPI(selected);
+                          setTagPieces(1);
                           setTimeout(() => {
-                            tagPiecesRef?.current?.focus();
+                            tagGwtRef?.current?.focus();
                           }, 0);
                         }
                       }
@@ -1637,6 +1724,43 @@ const Tag = ({
             // setTagDesc();
             // setTagWastage();
             // setTagMaking();
+            setSelectTagMainProduct(null);
+            setSelectTagProductName(null);
+            setTagPieces(0);
+            setTagGWt(0);
+            setTagLess(0);
+            setTagNwt(0);
+            setSelectTagPurity(null);
+            setTagHuid();
+            setTagDesc();
+            setTagWastage(0);
+            setTagDirectWt(0);
+            setTagTotalWt(0);
+            setTagMaking(0);
+            setTagDirectMc(0);
+            setTagTotalMc(0);
+            setStoneTotalPcs();
+            setStoneTotalCts();
+            setStoneTotalGrams();
+            setStoneTotalAmt();
+            setStoneTotalNoPcs();
+            setTagProductCategory();
+            setTagProductCode();
+            setTagCategoryName();
+            setTagHsnCode();
+            setTrayTagNo(0);
+            setTray(false);
+            setSelectBrand("PIECE");
+            setTagBrandValue();
+            setTagBrandAmt();
+            setTagBeadsLess();
+            setSelectTagBrandName(null);
+            setStoneDiaCts();
+            setStoneDiaAmt();
+            setTotalAmount(0);
+            setTotalGstAmount(0);
+            setTotalNetAmount(0);
+            setTagRate(0);
           }}
           style={{
             backgroundColor: "#fff",
