@@ -1295,11 +1295,22 @@ const BarCodeCheck = () => {
     );
 
     const totalStoneAmount = stonesData.reduce((s, i) => s + num(i.AMOUNT), 0);
+    const totalCts = stonesData.reduce(
+      (sum, item) => sum + (parseFloat(item.CTS) || 0),
+      0,
+    );
+    const totalGrams = stonesData.reduce(
+      (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+      0,
+    );
+
+    const ctsData = totalCts / 5 + totalGrams;
+    const netWt = gwt - ctsData;
 
     setTotalStoneAmt(totalStoneAmount);
     setTotalPcs(pcs);
     setTotalGwt(gwt);
-    setTotalNwt(nwt);
+    setTotalNwt(netWt ?? nwt);
     setTotalAmt(totalAmount);
     setTotalGstAmt(totalGstAmount);
     setTotalNwtAmt(totalNwtAmount);
@@ -1528,6 +1539,17 @@ const BarCodeCheck = () => {
         (sum, item) => sum + (Number(item?.AMOUNT) || 0),
         0,
       );
+      const totalCts = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.CTS) || 0),
+        0,
+      );
+      const totalGrams = matchedStone.reduce(
+        (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+        0,
+      );
+
+      const ctsData = totalCts / 5 + totalGrams;
+      const netWt = barCode?.GWT - ctsData;
 
       const wastageAmt = matched?.TOTALWT
         ? Number(matched.TOTALWT)
@@ -1537,7 +1559,8 @@ const BarCodeCheck = () => {
         : Number(barCode.CATTOTMC ?? 0);
       const stoneAmount = Number(totalStoneAmount ?? 0);
       const rateAmount =
-        (Number(barCode.NWT ?? 0) + wastageAmt) * Number(barCode.RATE ?? 0);
+        (Number(netWt ?? barCode.NWT ?? 0) + wastageAmt) *
+        Number(barCode.RATE ?? 0);
       const totalAmount = rateAmount + mcAmount + stoneAmount;
       const gstAmount = (totalAmount * barCode?.GSTRATE) / 100;
       const netAmount = totalAmount + gstAmount;
