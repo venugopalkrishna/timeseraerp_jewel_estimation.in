@@ -1246,85 +1246,115 @@ const BarCodeCheck = () => {
   // }, [barCodeData, stonesData, totalAmounts, wastageData, mcData]);
 
   useEffect(() => {
-    if (!barCodeData?.length) return;
+    if (barCodeData?.length > 0) {
+      const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
+      const gwt = barCodeData.reduce((s, i) => s + num(i.GWT), 0);
+      const nwt = barCodeData.reduce((s, i) => s + num(i.NWT), 0);
 
-    const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
-    const gwt = barCodeData.reduce((s, i) => s + num(i.GWT), 0);
-    const nwt = barCodeData.reduce((s, i) => s + num(i.NWT), 0);
+      const totalAmount = totalAmounts.reduce((s, i) => s + num(i.TOTALAMT), 0);
+      const totalGstAmount = totalAmounts.reduce(
+        (s, i) => s + num(i.GSTTOTALAMT),
+        0,
+      );
+      const totalNwtAmount = totalAmounts.reduce(
+        (s, i) => s + num(i.NETAMT),
+        0,
+      );
 
-    const totalAmount = totalAmounts.reduce((s, i) => s + num(i.TOTALAMT), 0);
-    const totalGstAmount = totalAmounts.reduce(
-      (s, i) => s + num(i.GSTTOTALAMT),
-      0,
-    );
-    const totalNwtAmount = totalAmounts.reduce((s, i) => s + num(i.NETAMT), 0);
+      const totWastAmount = wastageData.reduce((s, i) => s + num(i.TOTALWT), 0);
+      const totMcAmount = mcData.reduce((s, i) => s + num(i.TOTALAMT), 0);
 
-    const totWastAmount = wastageData.reduce((s, i) => s + num(i.TOTALWT), 0);
-    const totMcAmount = mcData.reduce((s, i) => s + num(i.TOTALAMT), 0);
+      const totalWastAmount = barCodeData.reduce(
+        (s, i) => s + num(i.CATTOTWAST),
+        0,
+      );
+      const totalMcAmount = barCodeData.reduce(
+        (s, i) => s + num(i.CATTOTMC),
+        0,
+      );
 
-    const totalWastAmount = barCodeData.reduce(
-      (s, i) => s + num(i.CATTOTWAST),
-      0,
-    );
-    const totalMcAmount = barCodeData.reduce((s, i) => s + num(i.CATTOTMC), 0);
+      const totalCtsAmount = barCodeData.reduce(
+        (s, i) => s + num(i.Item_Cts),
+        0,
+      );
+      const totalUnCutsAmount = barCodeData.reduce(
+        (s, i) => s + num(i.Item_Uncuts),
+        0,
+      );
+      const totalItemDiaAmount = barCodeData.reduce(
+        (s, i) => s + num(i.Item_diamonds),
+        0,
+      );
+      const totalDiamondAmount = barCodeData.reduce(
+        (s, i) => s + num(i.Diamond_Amount),
+        0,
+      );
 
-    const totalCtsAmount = barCodeData.reduce((s, i) => s + num(i.Item_Cts), 0);
-    const totalUnCutsAmount = barCodeData.reduce(
-      (s, i) => s + num(i.Item_Uncuts),
-      0,
-    );
-    const totalItemDiaAmount = barCodeData.reduce(
-      (s, i) => s + num(i.Item_diamonds),
-      0,
-    );
-    const totalDiamondAmount = barCodeData.reduce(
-      (s, i) => s + num(i.Diamond_Amount),
-      0,
-    );
+      const totalPurAmount = barCodeData.reduce(
+        (s, i) => s + num(i.COST_AMOUNT),
+        0,
+      );
+      const totalPurGstAmount = barCodeData.reduce(
+        (s, i) => s + num(i.COST_GSTAMOUNT),
+        0,
+      );
+      const totalPurNwtAmount = barCodeData.reduce(
+        (s, i) => s + num(i.COST_NETAMOUNT),
+        0,
+      );
 
-    const totalPurAmount = barCodeData.reduce(
-      (s, i) => s + num(i.COST_AMOUNT),
-      0,
-    );
-    const totalPurGstAmount = barCodeData.reduce(
-      (s, i) => s + num(i.COST_GSTAMOUNT),
-      0,
-    );
-    const totalPurNwtAmount = barCodeData.reduce(
-      (s, i) => s + num(i.COST_NETAMOUNT),
-      0,
-    );
+      const totalStoneAmount = stonesData.reduce(
+        (s, i) => s + num(i.AMOUNT),
+        0,
+      );
+      const totalCts = stonesData.reduce(
+        (sum, item) => sum + (parseFloat(item.CTS) || 0),
+        0,
+      );
+      const totalGrams = stonesData.reduce(
+        (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+        0,
+      );
 
-    const totalStoneAmount = stonesData.reduce((s, i) => s + num(i.AMOUNT), 0);
-    const totalCts = stonesData.reduce(
-      (sum, item) => sum + (parseFloat(item.CTS) || 0),
-      0,
-    );
-    const totalGrams = stonesData.reduce(
-      (sum, item) => sum + (parseFloat(item.GRMS) || 0),
-      0,
-    );
+      const ctsData = totalCts / 5 + totalGrams;
+      const netWt = gwt - ctsData;
 
-    const ctsData = totalCts / 5 + totalGrams;
-    const netWt = gwt - ctsData;
-
-    setTotalStoneAmt(totalStoneAmount);
-    setTotalPcs(pcs);
-    setTotalGwt(gwt);
-    setTotalNwt(netWt ?? nwt);
-    setTotalAmt(totalAmount);
-    setTotalGstAmt(totalGstAmount);
-    setTotalNwtAmt(totalNwtAmount);
-    setTotalWastAmt(totWastAmount || totalWastAmount);
-    setTotalMcAmt(totMcAmount || totalMcAmount);
-    setTotalItemCtsAmt(totalCtsAmount);
-    setTotalItemUncAmt(totalUnCutsAmount);
-    setTotalItemDiaAmt(totalItemDiaAmount);
-    setTotalDiamondAmt(totalDiamondAmount);
-    setGstNo(barCodeData[0]?.GSTRATE || 0);
-    setTotalPurAmt(totalPurAmount);
-    setTotalPurGstAmt(totalPurGstAmount);
-    setTotalPurNwtAmt(totalPurNwtAmount);
+      setTotalStoneAmt(totalStoneAmount);
+      setTotalPcs(pcs);
+      setTotalGwt(gwt);
+      setTotalNwt(netWt ?? nwt);
+      setTotalAmt(totalAmount);
+      setTotalGstAmt(totalGstAmount);
+      setTotalNwtAmt(totalNwtAmount);
+      setTotalWastAmt(totWastAmount || totalWastAmount);
+      setTotalMcAmt(totMcAmount || totalMcAmount);
+      setTotalItemCtsAmt(totalCtsAmount);
+      setTotalItemUncAmt(totalUnCutsAmount);
+      setTotalItemDiaAmt(totalItemDiaAmount);
+      setTotalDiamondAmt(totalDiamondAmount);
+      setGstNo(barCodeData[0]?.GSTRATE || 0);
+      setTotalPurAmt(totalPurAmount);
+      setTotalPurGstAmt(totalPurGstAmount);
+      setTotalPurNwtAmt(totalPurNwtAmount);
+    } else {
+      setTotalStoneAmt(0);
+      setTotalPcs(0);
+      setTotalGwt(0);
+      setTotalNwt(0);
+      setTotalAmt(0);
+      setTotalGstAmt(0);
+      setTotalNwtAmt(0);
+      setTotalWastAmt(0);
+      setTotalMcAmt(0);
+      setTotalItemCtsAmt(0);
+      setTotalItemUncAmt(0);
+      setTotalItemDiaAmt(0);
+      setTotalDiamondAmt(0);
+      setGstNo(0);
+      setTotalPurAmt(0);
+      setTotalPurGstAmt(0);
+      setTotalPurNwtAmt(0);
+    }
   }, [barCodeData, stonesData, totalAmounts, wastageData, mcData]);
 
   const handleDelete = (indexToDelete) => {
@@ -1335,27 +1365,37 @@ const BarCodeCheck = () => {
     });
   };
 
-  const handleStonesDelete = (tagNo) => {
+  const handleStonesDelete = (tagNo, issBranchName) => {
     setStonesData((prevData) => {
-      return prevData.filter((stone) => stone.TAGNO !== tagNo);
+      return prevData.filter((stone) =>
+        tagNo > 0
+          ? stone.TAGNO !== tagNo
+          : stone.ISSBRANCHNAME !== issBranchName,
+      );
     });
   };
 
-  const handleWastageDelete = (tagNo) => {
+  const handleWastageDelete = (tagNo, issBranchName) => {
     setWastageData((prevData) => {
-      return prevData.filter((wast) => wast.TAGNO !== tagNo);
+      return prevData.filter((wast) =>
+        tagNo > 0 ? wast.TAGNO !== tagNo : wast.ISSBRANCHNAME !== issBranchName,
+      );
     });
   };
 
-  const handleMcDelete = (tagNo) => {
+  const handleMcDelete = (tagNo, issBranchName) => {
     setMcData((prevData) => {
-      return prevData.filter((wast) => wast.TAGNO !== tagNo);
+      return prevData.filter((wast) =>
+        tagNo > 0 ? wast.TAGNO !== tagNo : wast.ISSBRANCHNAME !== issBranchName,
+      );
     });
   };
 
-  const handleTotalsDelete = (tagNo) => {
+  const handleTotalsDelete = (tagNo, issBranchName) => {
     setTotalAmounts((prevData) => {
-      return prevData.filter((wast) => wast.TAGNO !== tagNo);
+      return prevData.filter((wast) =>
+        tagNo > 0 ? wast.TAGNO !== tagNo : wast.ISSBRANCHNAME !== issBranchName,
+      );
     });
   };
 
@@ -2080,10 +2120,22 @@ const BarCodeCheck = () => {
                             }}
                             onClick={() => {
                               handleDelete(index);
-                              handleStonesDelete(barCode?.TAGNO);
-                              handleWastageDelete(barCode?.TAGNO);
-                              handleMcDelete(barCode?.TAGNO);
-                              handleTotalsDelete(barCode?.TAGNO);
+                              handleStonesDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                              handleWastageDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                              handleMcDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                              handleTotalsDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
                             }}
                           />
                         </span>
@@ -2753,10 +2805,22 @@ const BarCodeCheck = () => {
                           }}
                           onClick={() => {
                             handleDelete(index);
-                            handleStonesDelete(barCode?.TAGNO);
-                            handleWastageDelete(barCode?.TAGNO);
-                            handleMcDelete(barCode?.TAGNO);
-                            handleTotalsDelete(barCode?.TAGNO);
+                            handleStonesDelete(
+                              barCode?.TAGNO,
+                              barCode?.ISSBRANCHNAME,
+                            );
+                            handleWastageDelete(
+                              barCode?.TAGNO,
+                              barCode?.ISSBRANCHNAME,
+                            );
+                            handleMcDelete(
+                              barCode?.TAGNO,
+                              barCode?.ISSBRANCHNAME,
+                            );
+                            handleTotalsDelete(
+                              barCode?.TAGNO,
+                              barCode?.ISSBRANCHNAME,
+                            );
                           }}
                         />
                       </span>
