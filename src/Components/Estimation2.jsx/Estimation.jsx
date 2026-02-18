@@ -727,7 +727,7 @@ const Estimation = () => {
 
         const totalAmount = safeNumber(amount) + safeNumber(mcStone);
         const gstAmount = (totalAmount * item?.PVALUE) / 100;
-        const netAmount = totalAmount + gstAmount;
+        const netAmount = safeNumber(totalAmount) + safeNumber(gstAmount);
 
         return {
           TAGNO: item?.TagNo ?? "",
@@ -1527,47 +1527,117 @@ const Estimation = () => {
     userAPI();
   }, []);
 
+  // useEffect(() => {
+  //   if (!barCodeData.length) return;
+
+  //   const perData = barCodeData.map((barCode) => {
+  //     const matched = wastageData.find((item) => item.TAGNO === barCode.TAGNO);
+  //     const matchedMc = mcData.find((item) => item.TAGNO === barCode.TAGNO);
+  //     const matchedStone = stonesData.filter(
+  //       (item) => item.TAGNO === barCode.TAGNO,
+  //     );
+  //     const totalStoneAmount = matchedStone.reduce(
+  //       (sum, item) => sum + (Number(item?.AMOUNT) || 0),
+  //       0,
+  //     );
+  //     const totalCts = matchedStone.reduce(
+  //       (sum, item) => sum + (parseFloat(item.CTS) || 0),
+  //       0,
+  //     );
+  //     const totalGrams = matchedStone.reduce(
+  //       (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+  //       0,
+  //     );
+
+  //     const ctsData = totalCts / 5 + totalGrams;
+  //     const netWt = barCode?.GWT - ctsData;
+
+  //     const wastageAmt = matched?.TOTALWT
+  //       ? Number(matched.TOTALWT)
+  //       : Number(barCode.CATTOTWAST ?? 0);
+  //     const mcAmount = matchedMc?.TOTALAMT
+  //       ? Number(matchedMc.TOTALAMT)
+  //       : Number(barCode.CATTOTMC ?? 0);
+  //     const stoneAmount = Number(totalStoneAmount ?? 0);
+  //     const rateAmount =
+  //       (Number(netWt ?? barCode.NWT ?? 0) + wastageAmt) *
+  //       Number(barCode.RATE ?? 0);
+  //     const totalAmount = rateAmount + mcAmount + stoneAmount;
+  //     const gstAmount = (totalAmount * barCode?.GSTRATE) / 100;
+  //     const netAmount = totalAmount + gstAmount;
+
+  //     return {
+  //       TAGNO: barCode.TAGNO ?? "",
+  //       TOTALAMT: Number(totalAmount.toFixed(2)),
+  //       GSTTOTALAMT: Number(gstAmount.toFixed(2)),
+  //       NETAMT: Number(netAmount.toFixed(2)),
+  //     };
+  //   });
+
+  //   setTotalAmounts(perData);
+  // }, [wastageData, mcData, stonesData]);
   useEffect(() => {
-    if (!barCodeData.length) return;
+    if (!Array.isArray(barCodeData) || barCodeData.length === 0) {
+      setTotalAmounts([]);
+      return;
+    }
+
+    const toNumber = (val) => Number(val) || 0;
 
     const perData = barCodeData.map((barCode) => {
-      const matched = wastageData.find((item) => item.TAGNO === barCode.TAGNO);
-      const matchedMc = mcData.find((item) => item.TAGNO === barCode.TAGNO);
-      const matchedStone = stonesData.filter(
-        (item) => item.TAGNO === barCode.TAGNO,
-      );
-      const totalStoneAmount = matchedStone.reduce(
-        (sum, item) => sum + (Number(item?.AMOUNT) || 0),
-        0,
-      );
-      const totalCts = matchedStone.reduce(
-        (sum, item) => sum + (parseFloat(item.CTS) || 0),
-        0,
-      );
-      const totalGrams = matchedStone.reduce(
-        (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+      const tagNo = barCode?.TAGNO;
+      const branchName = barCode?.ISSBRANCHNAME;
+
+      // ---- Match Data ----
+      const matchedWastage = wastageData?.find((w) => w.TAGNO === tagNo);
+
+      const matchedMc = mcData?.find((mc) => mc.TAGNO === tagNo);
+
+      const matchedStones = stonesData?.filter((s) => s.TAGNO === tagNo);
+
+      // ---- Stone Calculations ----
+      const totalStoneAmount = matchedStones.reduce(
+        (sum, item) => sum + toNumber(item?.AMOUNT),
         0,
       );
 
-      const ctsData = totalCts / 5 + totalGrams;
-      const netWt = barCode?.GWT - ctsData;
+      const totalCts = matchedStones.reduce(
+        (sum, item) => sum + toNumber(item?.CTS),
+        0,
+      );
 
-      const wastageAmt = matched?.TOTALWT
-        ? Number(matched.TOTALWT)
-        : Number(barCode.CATTOTWAST ?? 0);
-      const mcAmount = matchedMc?.TOTALAMT
-        ? Number(matchedMc.TOTALAMT)
-        : Number(barCode.CATTOTMC ?? 0);
-      const stoneAmount = Number(totalStoneAmount ?? 0);
-      const rateAmount =
-        (Number(netWt ?? barCode.NWT ?? 0) + wastageAmt) *
-        Number(barCode.RATE ?? 0);
-      const totalAmount = rateAmount + mcAmount + stoneAmount;
-      const gstAmount = (totalAmount * barCode?.GSTRATE) / 100;
+      const totalGrams = matchedStones.reduce(
+        (sum, item) => sum + toNumber(item?.GRMS),
+        0,
+      );
+
+      const stoneWeight = totalCts / 5 + totalGrams;
+
+      // ---- Net Weight ----
+      const grossWt = toNumber(barCode?.GWT);
+      const netWt = grossWt - stoneWeight || toNumber(barCode?.NWT);
+
+      // ---- Wastage / MC ----
+      const wastageAmt = toNumber(
+        matchedWastage?.TOTALWT ?? barCode?.CATTOTWAST,
+      );
+
+      const mcAmount = toNumber(matchedMc?.TOTALAMT ?? barCode?.CATTOTMC);
+
+      // ---- Rate Calculation ----
+      const rate = toNumber(barCode?.RATE);
+
+      const rateAmount = (netWt + wastageAmt) * rate;
+
+      const totalAmount = rateAmount + mcAmount + totalStoneAmount;
+
+      const gstRate = toNumber(barCode?.GSTRATE);
+      const gstAmount = (totalAmount * gstRate) / 100;
+
       const netAmount = totalAmount + gstAmount;
 
       return {
-        TAGNO: barCode.TAGNO ?? "",
+        TAGNO: tagNo ?? "",
         TOTALAMT: Number(totalAmount.toFixed(2)),
         GSTTOTALAMT: Number(gstAmount.toFixed(2)),
         NETAMT: Number(netAmount.toFixed(2)),
@@ -1575,7 +1645,7 @@ const Estimation = () => {
     });
 
     setTotalAmounts(perData);
-  }, [wastageData, mcData, wastageOpen, mcOpen, stonesData]);
+  }, [barCodeData, wastageData, mcData, stonesData]);
 
   const EstNo = tagNo ? tagNo : estNo;
 
