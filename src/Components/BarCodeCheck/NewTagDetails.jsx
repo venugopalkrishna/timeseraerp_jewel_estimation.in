@@ -333,6 +333,7 @@ const Tag = ({
         );
         return !!matched;
       });
+
       const diamondItems = updatedData.filter((item) => {
         const matched = itemsData.find(
           (i) => i.ITEMNAME === item.ITEMNAME && i.DIAMONDS === true,
@@ -357,7 +358,7 @@ const Tag = ({
         (sum, item) => sum + (parseFloat(item.GRAMS) || 0),
         0,
       );
-      const totalAmt = matchedItems.reduce(
+      const totalAmt = updatedData.reduce(
         (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
         0,
       );

@@ -69,6 +69,7 @@ const BarCodeCheck = () => {
   const [modifyOpen, setModifyOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stoneNo, setStoneNo] = useState();
+  const [homeNo, setHomeNo] = useState();
   const [customerArea, setCustomerArea] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerMobile, setCustomerMobile] = useState("");
@@ -1363,9 +1364,10 @@ const BarCodeCheck = () => {
     setTimeout(() => startScanner(), 300); // give DOM time to mount
   };
 
-  const handleOk = (tagNo) => {
+  const handleOk = (tagNo, home) => {
     setStonesOpen(true);
     setStoneNo(tagNo);
+    setHomeNo(home);
   };
 
   const handleCancel = () => {
@@ -1666,6 +1668,7 @@ const BarCodeCheck = () => {
 
       return {
         TAGNO: tagNo ?? "",
+        ISSBRANCHNAME: barCode?.ISSBRANCHNAME,
         TOTALAMT: Number(totalAmount.toFixed(2)),
         GSTTOTALAMT: Number(gstAmount.toFixed(2)),
         NETAMT: Number(netAmount.toFixed(2)),
@@ -1912,13 +1915,60 @@ const BarCodeCheck = () => {
           {changeCard === true ? (
             <>
               {barCodeData.map((barCode, index) => {
-                const matchedTotals = totalAmounts.find(
-                  (item) => item.TAGNO === barCode.TAGNO,
-                );
+                const tagNo = barCode?.TAGNO;
+                const branchName = barCode?.ISSBRANCHNAME;
+                let matchedTotals;
+                let matchedW;
+                let matchedMc;
+                let matchedStones;
 
-                const matchedStones = stonesData.filter(
-                  (item) => item.TAGNO === barCode.TAGNO,
-                );
+                // const matchedW =
+                //   tagNo > 0
+                //     ? wastageData?.find((w) => w.TAGNO === tagNo)
+                //     : wastageData?.find((w) => w.ISSBRANCHNAME === branchName);
+
+                // const matchedMc =
+                //   tagNo > 0
+                //     ? mcData?.find((mc) => mc.TAGNO === tagNo)
+                //     : mcData?.find((mc) => mc.ISSBRANCHNAME === branchName);
+
+                // const matchedStones =
+                //   tagNo > 0
+                //     ? stonesData?.filter((s) => s.TAGNO === tagNo)
+                //     : stonesData?.filter((s) => s.ISSBRANCHNAME === branchName);
+
+                if (barCode.TAGNO > 0) {
+                  matchedW = wastageData.find(
+                    (w) => w.TAGNO === barCode?.TAGNO,
+                  );
+                  matchedMc = mcData.find((mc) => mc.TAGNO === barCode?.TAGNO);
+                  matchedTotals = totalAmounts.find(
+                    (tot) => tot.TAGNO === barCode.TAGNO,
+                  );
+                  matchedStones = stonesData.filter(
+                    (stone) => stone.TAGNO === barCode.TAGNO,
+                  );
+                } else {
+                  matchedW = wastageData.find(
+                    (item) => item.ISSBRANCHNAME === barCode?.ISSBRANCHNAME,
+                  );
+                  matchedMc = mcData.find(
+                    (item) => item.ISSBRANCHNAME === barCode.ISSBRANCHNAME,
+                  );
+                  matchedStones = stonesData.filter(
+                    (item) => item.ISSBRANCHNAME === barCode?.ISSBRANCHNAME,
+                  );
+                  matchedTotals = totalAmounts.find(
+                    (tot) => tot.ISSBRANCHNAME === barCode.ISSBRANCHNAME,
+                  );
+                }
+                // const matchedTotals = totalAmounts.find(
+                //   (item) => item.TAGNO === barCode.TAGNO,
+                // );
+
+                // const matchedStones = stonesData.filter(
+                //   (item) => item.TAGNO === barCode.TAGNO,
+                // );
                 const totalCts = matchedStones.reduce(
                   (sum, item) => sum + (parseFloat(item.CTS) || 0),
                   0,
@@ -1947,9 +1997,9 @@ const BarCodeCheck = () => {
                   (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
                   0,
                 );
-                const matchedW = wastageData.find(
-                  (w) => w.TAGNO === barCode.TAGNO,
-                );
+                // const matchedW = wastageData.find(
+                //   (w) => w.TAGNO === barCode.TAGNO,
+                // );
 
                 const ctsData = totalCts / 5 + totalGrams;
                 const netWt = barCode?.GWT - ctsData;
@@ -2359,7 +2409,7 @@ const BarCodeCheck = () => {
                           className={styles.highlightBox1}
                           onClick={() => {
                             if (barCode?.ITEM_TOTAMT > 0) {
-                              handleOk(barCode?.TAGNO);
+                              handleOk(barCode?.TAGNO, barCode?.ISSBRANCHNAME);
                             }
                           }}
                         >
@@ -2545,7 +2595,7 @@ const BarCodeCheck = () => {
                         <span className={styles.amount1}>
                           ₹
                           {matchedTotals
-                            ? matchedTotals?.TOTALAMT.toFixed(2)
+                            ? Number(matchedTotals?.TOTALAMT).toFixed(2)
                             : 0.0}
                         </span>
                       </div>
@@ -2556,7 +2606,7 @@ const BarCodeCheck = () => {
                           <span className={styles.amount2}>
                             ₹
                             {matchedTotals
-                              ? matchedTotals?.GSTTOTALAMT.toFixed(2)
+                              ? Number(matchedTotals?.GSTTOTALAMT).toFixed(2)
                               : 0.0}
                           </span>
                         </div>
@@ -2569,7 +2619,7 @@ const BarCodeCheck = () => {
                         <span className={styles.amount1}>
                           ₹
                           {matchedTotals
-                            ? matchedTotals?.NETAMT.toFixed(2)
+                            ? Number(matchedTotals?.NETAMT).toFixed(2)
                             : 0.0}
                         </span>
                       </div>
@@ -3085,6 +3135,7 @@ const BarCodeCheck = () => {
         stonesData={stonesData}
         setStonesData={setStonesData}
         stoneNo={stoneNo}
+        homeNo={homeNo}
       />
       <ImageDialog
         handleImageCancel={handleImageCancel}

@@ -8,12 +8,21 @@ const StonesDetailsDialog = ({
   stonesData: initialStonesData,
   setStonesData,
   stoneNo,
+  homeNo,
 }) => {
   const [localStones, setLocalStones] = useState(initialStonesData || []);
+
   useEffect(() => {
     setLocalStones(initialStonesData || []);
   }, [initialStonesData]);
-  const matchedStones = localStones.filter((stone) => stone.TAGNO === stoneNo);
+  // const matchedStones = localStones.filter((stone) => stone.TAGNO === stoneNo);
+  const matchedStones = localStones.filter((stone) => {
+    if (stoneNo > 0) {
+      return stone.TAGNO === stoneNo;
+    } else {
+      return stone.ISSBRANCHNAME === homeNo;
+    }
+  });
   return (
     <Modal
       open={stonesOpen}
@@ -315,13 +324,12 @@ const StonesDetailsDialog = ({
                     setStonesData((prevData) =>
                       prevData.map((item) => {
                         const isSameStone =
-                          stoneNo > 0 &&
-                          item.TAGNO === stoneNo &&
-                          item.SNO === stone.SNO;
-                        //   ||
-                        // (stoneNo <= 0 &&
-                        //   item.ISSBRANCHNAME === stoneIssBranch &&
-                        //   item.SNO === stone.SNO);
+                          (stoneNo > 0 &&
+                            item.TAGNO === stoneNo &&
+                            item.SNO === stone.SNO) ||
+                          (stoneNo <= 0 &&
+                            item.ISSBRANCHNAME === homeNo &&
+                            item.SNO === stone.SNO);
                         if (!isSameStone) return item;
 
                         const rate = parseFloat(stone.RATE) || 0;
@@ -364,13 +372,12 @@ const StonesDetailsDialog = ({
                     setStonesData((prevData) =>
                       prevData.map((item) => {
                         const isSameStone =
-                          stoneNo > 0 &&
-                          item.TAGNO === stoneNo &&
-                          item.SNO === stone.SNO;
-                        //   ||
-                        // (stoneNo <= 0 &&
-                        //   item.ISSBRANCHNAME === stoneIssBranch &&
-                        //   item.SNO === stone.SNO);
+                          (stoneNo > 0 &&
+                            item.TAGNO === stoneNo &&
+                            item.SNO === stone.SNO) ||
+                          (stoneNo <= 0 &&
+                            item.ISSBRANCHNAME === homeNo &&
+                            item.SNO === stone.SNO);
                         if (!isSameStone) return item;
 
                         const rate = parseFloat(stone.RATE) || 0;
@@ -413,13 +420,12 @@ const StonesDetailsDialog = ({
                     setStonesData((prevData) =>
                       prevData.map((item) => {
                         const isSameStone =
-                          stoneNo > 0 &&
-                          item.TAGNO === stoneNo &&
-                          item.SNO === stone.SNO;
-                        //   ||
-                        // (stoneNo <= 0 &&
-                        //   item.ISSBRANCHNAME === stoneIssBranch &&
-                        //   item.SNO === stone.SNO);
+                          (stoneNo > 0 &&
+                            item.TAGNO === stoneNo &&
+                            item.SNO === stone.SNO) ||
+                          (stoneNo <= 0 &&
+                            item.ISSBRANCHNAME === homeNo &&
+                            item.SNO === stone.SNO);
                         if (!isSameStone) return item;
 
                         const rate = parseFloat(stone.RATE) || 0;
@@ -481,13 +487,12 @@ const StonesDetailsDialog = ({
                     setStonesData((prevData) =>
                       prevData.map((item) => {
                         const isSameStone =
-                          stoneNo > 0 &&
-                          item.TAGNO === stoneNo &&
-                          item.SNO === stone.SNO;
-                        //   ||
-                        // (stoneNo <= 0 &&
-                        //   item.ISSBRANCHNAME === stoneIssBranch &&
-                        //   item.SNO === stone.SNO);
+                          (stoneNo > 0 &&
+                            item.TAGNO === stoneNo &&
+                            item.SNO === stone.SNO) ||
+                          (stoneNo <= 0 &&
+                            item.ISSBRANCHNAME === homeNo &&
+                            item.SNO === stone.SNO);
                         if (!isSameStone) return item;
 
                         const qty =
