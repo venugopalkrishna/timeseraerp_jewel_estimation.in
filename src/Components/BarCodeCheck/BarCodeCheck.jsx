@@ -1646,73 +1646,95 @@ const BarCodeCheck = () => {
     const toNumber = (val) => Number(val) || 0;
 
     const perData = barCodeData.map((barCode) => {
-      const tagNo = barCode?.TAGNO;
-      const branchName = barCode?.ISSBRANCHNAME;
+      if (barCode?.BRANDAMT > 0) {
+        const safeNumber = (val) => {
+          const num = Number(val);
+          return isNaN(num) ? 0 : num;
+        };
+        const gstNo = barCode?.GSTRATE;
+        const stoneAmount = safeNumber(barCode?.ITEM_TOTAMT ?? 0);
+        const totalAmt = stoneAmount + barCode?.BRANDAMT;
 
-      // ---- Match Data ----
-      const matchedWastage =
-        tagNo > 0
-          ? wastageData?.find((w) => w.TAGNO === tagNo)
-          : wastageData?.find((w) => w.ISSBRANCHNAME === branchName);
+        const totalAmount = safeNumber(totalAmt);
+        const gstAmount = (totalAmount * gstNo) / 100;
+        const netAmount = totalAmount + gstAmount;
 
-      const matchedMc =
-        tagNo > 0
-          ? mcData?.find((mc) => mc.TAGNO === tagNo)
-          : mcData?.find((mc) => mc.ISSBRANCHNAME === branchName);
+        return {
+          TAGNO: barCode?.TAGNO ?? "",
+          ISSBRANCHNAME: barCode?.ISSBRANCHNAME,
+          TOTALAMT: totalAmount,
+          GSTTOTALAMT: gstAmount,
+          NETAMT: netAmount,
+        };
+      } else {
+        const tagNo = barCode?.TAGNO;
+        const branchName = barCode?.ISSBRANCHNAME;
 
-      const matchedStones =
-        tagNo > 0
-          ? stonesData?.filter((s) => s.TAGNO === tagNo)
-          : stonesData?.filter((s) => s.ISSBRANCHNAME === branchName);
+        // ---- Match Data ----
+        const matchedWastage =
+          tagNo > 0
+            ? wastageData?.find((w) => w.TAGNO === tagNo)
+            : wastageData?.find((w) => w.ISSBRANCHNAME === branchName);
 
-      // ---- Stone Calculations ----
-      const totalStoneAmount = matchedStones.reduce(
-        (sum, item) => sum + toNumber(item?.AMOUNT),
-        0,
-      );
+        const matchedMc =
+          tagNo > 0
+            ? mcData?.find((mc) => mc.TAGNO === tagNo)
+            : mcData?.find((mc) => mc.ISSBRANCHNAME === branchName);
 
-      const totalCts = matchedStones.reduce(
-        (sum, item) => sum + toNumber(item?.CTS),
-        0,
-      );
+        const matchedStones =
+          tagNo > 0
+            ? stonesData?.filter((s) => s.TAGNO === tagNo)
+            : stonesData?.filter((s) => s.ISSBRANCHNAME === branchName);
 
-      const totalGrams = matchedStones.reduce(
-        (sum, item) => sum + toNumber(item?.GRMS),
-        0,
-      );
+        // ---- Stone Calculations ----
+        const totalStoneAmount = matchedStones.reduce(
+          (sum, item) => sum + toNumber(item?.AMOUNT),
+          0,
+        );
 
-      const stoneWeight = totalCts / 5 + totalGrams;
+        const totalCts = matchedStones.reduce(
+          (sum, item) => sum + toNumber(item?.CTS),
+          0,
+        );
 
-      // ---- Net Weight ----
-      const grossWt = toNumber(barCode?.GWT);
-      const netWt = grossWt - stoneWeight || toNumber(barCode?.NWT);
+        const totalGrams = matchedStones.reduce(
+          (sum, item) => sum + toNumber(item?.GRMS),
+          0,
+        );
 
-      // ---- Wastage / MC ----
-      const wastageAmt = toNumber(
-        matchedWastage?.TOTALWT ?? barCode?.CATTOTWAST,
-      );
+        const stoneWeight = totalCts / 5 + totalGrams;
 
-      const mcAmount = toNumber(matchedMc?.TOTALAMT ?? barCode?.CATTOTMC);
+        // ---- Net Weight ----
+        const grossWt = toNumber(barCode?.GWT);
+        const netWt = grossWt - stoneWeight || toNumber(barCode?.NWT);
 
-      // ---- Rate Calculation ----
-      const rate = toNumber(barCode?.RATE);
+        // ---- Wastage / MC ----
+        const wastageAmt = toNumber(
+          matchedWastage?.TOTALWT ?? barCode?.CATTOTWAST,
+        );
 
-      const rateAmount = (netWt + wastageAmt) * rate;
+        const mcAmount = toNumber(matchedMc?.TOTALAMT ?? barCode?.CATTOTMC);
 
-      const totalAmount = rateAmount + mcAmount + totalStoneAmount;
+        // ---- Rate Calculation ----
+        const rate = toNumber(barCode?.RATE);
 
-      const gstRate = toNumber(barCode?.GSTRATE);
-      const gstAmount = (totalAmount * gstRate) / 100;
+        const rateAmount = (netWt + wastageAmt) * rate;
 
-      const netAmount = totalAmount + gstAmount;
+        const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
-      return {
-        TAGNO: tagNo ?? "",
-        ISSBRANCHNAME: barCode?.ISSBRANCHNAME,
-        TOTALAMT: Number(totalAmount.toFixed(2)),
-        GSTTOTALAMT: Number(gstAmount.toFixed(2)),
-        NETAMT: Number(netAmount.toFixed(2)),
-      };
+        const gstRate = toNumber(barCode?.GSTRATE);
+        const gstAmount = (totalAmount * gstRate) / 100;
+
+        const netAmount = totalAmount + gstAmount;
+
+        return {
+          TAGNO: tagNo ?? "",
+          ISSBRANCHNAME: barCode?.ISSBRANCHNAME,
+          TOTALAMT: Number(totalAmount.toFixed(2)),
+          GSTTOTALAMT: Number(gstAmount.toFixed(2)),
+          NETAMT: Number(netAmount.toFixed(2)),
+        };
+      }
     });
 
     setTotalAmounts(perData);
