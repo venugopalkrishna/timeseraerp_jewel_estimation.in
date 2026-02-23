@@ -409,6 +409,10 @@ const Tag = ({
       Modal.warning({ title: "Please select Main Product" });
       return;
     }
+    if (!tagGwt > 0) {
+      Modal.warning({ title: "Please enter GWT" });
+      return;
+    }
     const safeNumber = (val) => {
       const num = Number(val);
       return isNaN(num) ? 0 : num;
@@ -1782,6 +1786,23 @@ const Tag = ({
           // }}
           onClick={() => {
             // ✅ Compute next number BEFORE calling both functions
+            if (!selectTagMainProduct) {
+              Modal.warning({ title: "Please select Main Product" });
+              return;
+            }
+            if (!selectTagProductName) {
+              Modal.warning({ title: "Please select PName" });
+              return;
+            }
+            if (!selectTagPurity) {
+              Modal.warning({ title: "Please select Purity" });
+              return;
+            }
+
+            if (!tagGwt > 0) {
+              Modal.warning({ title: "Please enter GWT" });
+              return;
+            }
             if (tray === true) {
               const nextNumber = 0;
               // ✅ Pass to both
