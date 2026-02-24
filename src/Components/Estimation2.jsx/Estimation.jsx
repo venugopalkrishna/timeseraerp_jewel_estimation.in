@@ -79,6 +79,7 @@ const Estimation = () => {
   const [photo, setPhoto] = useState();
   const [copperData, setCopperData] = useState([]);
   const [storeDetails, setStoreDetails] = useState({});
+  const [gstData, setGstData] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -142,6 +143,27 @@ const Estimation = () => {
       const data = response.data;
       if (Array.isArray(data) && data.length > 0) {
         setItemsData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
+    }
+  };
+
+  const gstAPI = async (value) => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=MAIN_PRODUCT&where=MNAME='${value}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setGstData(data);
+        setGstNo(data[0]?.VAT);
       }
     } catch (error) {
       console.error("Error fetching account number:", error);
@@ -379,10 +401,11 @@ const Estimation = () => {
         setTotalItemUncAmt(totalUnCutsAmount);
         setTotalItemDiaAmt(totalItemDiaAmount);
         setTotalDiamondAmt(totalDiamondAmount);
-        setGstNo(updatedData[0]?.GSTRATE);
+        // setGstNo(updatedData[0]?.GSTRATE);
         setTotalPurAmt(totalPurAmount);
         setTotalPurGstAmt(totalPurGstAmount);
         setTotalPurNwtAmt(totalPurNwtAmount);
+        gstAPI(updatedData[0]?.MNAME);
 
         return updatedData;
       });
@@ -911,6 +934,7 @@ const Estimation = () => {
           stonewt: 0,
         }));
         setBarCodeData(updatedData);
+        gstAPI(updatedData[0]?.MNAME);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -1415,7 +1439,7 @@ const Estimation = () => {
       setTotalItemUncAmt(totalUnCutsAmount);
       setTotalItemDiaAmt(totalItemDiaAmount);
       setTotalDiamondAmt(totalDiamondAmount);
-      setGstNo(barCodeData[0]?.GSTRATE || 0);
+      // setGstNo(barCodeData[0]?.GSTRATE || 0);
       setTotalPurAmt(totalPurAmount);
       setTotalPurGstAmt(totalPurGstAmount);
       setTotalPurNwtAmt(totalPurNwtAmount);
@@ -1537,6 +1561,8 @@ const Estimation = () => {
     setTotalAmounts([]);
     estimationNo();
     setItemsData([]);
+    setGstData([]);
+    setGstNo(0);
   };
 
   const handleImageOk = (image) => {
@@ -1703,7 +1729,7 @@ const Estimation = () => {
           const num = Number(val);
           return isNaN(num) ? 0 : num;
         };
-        const gstNo = barCode?.GSTRATE;
+        // const gstNo = barCode?.GSTRATE;
         const stoneAmount = safeNumber(barCode?.ITEM_TOTAMT ?? 0);
         const totalAmt = stoneAmount + barCode?.BRANDAMT;
 
@@ -1765,7 +1791,7 @@ const Estimation = () => {
 
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
-        const gstRate = toNumber(barCode?.GSTRATE);
+        const gstRate = toNumber(gstNo);
         const gstAmount = (totalAmount * gstRate) / 100;
 
         const netAmount = totalAmount + gstAmount;
@@ -1780,7 +1806,7 @@ const Estimation = () => {
     });
 
     setTotalAmounts(perData);
-  }, [barCodeData, wastageData, mcData, stonesData]);
+  }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
 
   const EstNo = tagNo ? tagNo : estNo;
 
@@ -2642,9 +2668,9 @@ const Estimation = () => {
                             : 0.0}
                         </span>
                       </div>
-                      {Number(barCode?.GSTRATE) > 0 ? (
+                      {Number(gstNo) > 0 ? (
                         <div style={{ fontSize: "14px" }}>
-                          Gst @ {barCode?.GSTRATE || 0.0}%
+                          Gst @ {gstNo || 0.0}%
                           <br />
                           <span className={styles.amount2}>
                             ₹
@@ -3009,9 +3035,9 @@ const Estimation = () => {
                         )?.toFixed(2) || 0.0}
                       </span>
                     </div>
-                    {barCode?.GSTRATE > 0 ? (
+                    {gstNo > 0 ? (
                       <div>
-                        Gst @ {barCode?.GSTRATE || 0.0}%
+                        Gst @ {gstNo || 0.0}%
                         <br />
                         <span className={styles.amount3}>
                           ₹

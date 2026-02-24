@@ -72,6 +72,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("wastMc", data[0].WAST_MC);
         localStorage.setItem("pdfModule", data[0].PRINTQUALITY);
         localStorage.setItem("wastValue", data[0]?.WASTAGEDESC);
+        localStorage.setItem("wastPer", data[0]?.WAST_PER);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);

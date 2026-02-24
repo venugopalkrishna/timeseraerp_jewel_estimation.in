@@ -116,6 +116,7 @@ const BarCodeCheck = () => {
   const [selectTagBrandName, setSelectTagBrandName] = useState(null);
   const [tagBrandValue, setTagBrandValue] = useState();
   const [tagBrandAmt, setTagBrandAmt] = useState();
+  const [gstData, setGstData] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -133,6 +134,7 @@ const BarCodeCheck = () => {
   const wastMc = localStorage.getItem("wastMc");
   const pdfModule = localStorage.getItem("pdfModule");
   const wastValue = localStorage.getItem("wastValue");
+  const wastPer = localStorage.getItem("wastPer");
   const homeFilesomeDrawer = () => setHomeDrawerOpen(true);
   const homecloseDrawer = () => setHomeDrawerOpen(false);
 
@@ -166,6 +168,7 @@ const BarCodeCheck = () => {
       console.error("Error fetching estimation number:", error);
     }
   };
+
   const itemsAPI = async () => {
     try {
       const response = await axios.get(
@@ -180,6 +183,27 @@ const BarCodeCheck = () => {
       const data = response.data;
       if (Array.isArray(data) && data.length > 0) {
         setItemsData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
+    }
+  };
+
+  const gstAPI = async (value) => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=MAIN_PRODUCT&where=MNAME='${value}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setGstData(data);
+        setGstNo(data[0]?.VAT);
       }
     } catch (error) {
       console.error("Error fetching account number:", error);
@@ -377,10 +401,11 @@ const BarCodeCheck = () => {
         setTotalItemUncAmt(totalUnCutsAmount);
         setTotalItemDiaAmt(totalItemDiaAmount);
         setTotalDiamondAmt(totalDiamondAmount);
-        setGstNo(updatedData[0]?.GSTRATE);
+        // setGstNo(updatedData[0]?.GSTRATE);
         setTotalPurAmt(totalPurAmount);
         setTotalPurGstAmt(totalPurGstAmount);
         setTotalPurNwtAmt(totalPurNwtAmount);
+        gstAPI(updatedData[0]?.MNAME);
 
         return updatedData;
       });
@@ -520,7 +545,7 @@ const BarCodeCheck = () => {
         huid: String(item?.HUID ?? "-"),
         tagsize: String(item?.TAGSIZE ?? "-"),
         hsncode: String(item?.HSNCODE ?? "-"),
-        pvalue: Number(item?.GSTRATE),
+        pvalue: Number(gstNo),
         purchno: 0,
         pamt: Number(item?.FINERATE),
       };
@@ -907,6 +932,7 @@ const BarCodeCheck = () => {
           stonewt: 0,
         }));
         setBarCodeData(updatedData);
+        gstAPI(updatedData[0]?.MNAME);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -1145,106 +1171,6 @@ const BarCodeCheck = () => {
   };
   const num = (v) => Number.parseFloat(v) || 0;
 
-  // useEffect(() => {
-  //   const pcs = barCodeData.reduce((sum, item) => sum + (item.PIECES || 0), 0);
-  //   const gwt = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.GWT) || 0),
-  //     0,
-  //   );
-  //   const nwt = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.NWT) || 0),
-  //     0,
-  //   );
-  //   const totalAmount = totalAmounts.reduce(
-  //     (sum, item) => sum + (parseFloat(item.TOTALAMT) || 0),
-  //     0,
-  //   );
-  //   const totalGstAmount = totalAmounts.reduce(
-  //     (sum, item) => sum + (parseFloat(item.GSTTOTALAMT) || 0),
-  //     0,
-  //   );
-  //   const totalNwtAmount = totalAmounts.reduce(
-  //     (sum, item) => sum + (parseFloat(item.NETAMT) || 0),
-  //     0,
-  //   );
-  //   const totWastAmount = wastageData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.TOTALWT) || 0),
-  //     0,
-  //   );
-  //   const totDirectWast = wastageData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.DIRECTWT) || 0),
-  //     0,
-  //   );
-  //   const totMcAmount = mcData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.TOTALAMT) || 0),
-  //     0,
-  //   );
-  //   const totDirectMc = mcData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.DIRECTAMT) || 0),
-  //     0,
-  //   );
-  //   const totalWastAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
-  //     0,
-  //   );
-  //   const totalMcAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.CATTOTMC) || 0),
-  //     0,
-  //   );
-  //   const totalCtsAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.Item_Cts) || 0),
-  //     0,
-  //   );
-  //   const totalUnCutsAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.Item_Uncuts) || 0),
-  //     0,
-  //   );
-  //   const totalItemDiaAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.Item_diamonds) || 0),
-  //     0,
-  //   );
-  //   const totalDiamondAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.Diamond_Amount) || 0),
-  //     0,
-  //   );
-
-  //   const totalPurAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.COST_AMOUNT) || 0),
-  //     0,
-  //   );
-  //   const totalPurGstAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.COST_GSTAMOUNT) || 0),
-  //     0,
-  //   );
-  //   const totalPurNwtAmount = barCodeData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.COST_NETAMOUNT) || 0),
-  //     0,
-  //   );
-  //   const totalStoneAmount = stonesData.reduce(
-  //     (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
-  //     0,
-  //   );
-
-  //   setTotalStoneAmt(totalStoneAmount);
-
-  //   setTotalPcs(pcs);
-  //   setTotalGwt(gwt);
-  //   setTotalNwt(nwt);
-  //   setTotalAmt(totalAmount);
-  //   setTotalGstAmt(totalGstAmount);
-  //   setTotalNwtAmt(totalNwtAmount);
-  //   setTotalWastAmt(totWastAmount ? totWastAmount : totalWastAmount);
-  //   setTotalMcAmt(totMcAmount ? totMcAmount : totalMcAmount);
-  //   setTotalItemCtsAmt(totalCtsAmount);
-  //   setTotalItemUncAmt(totalUnCutsAmount);
-  //   setTotalItemDiaAmt(totalItemDiaAmount);
-  //   setTotalDiamondAmt(totalDiamondAmount);
-  //   setGstNo(barCodeData[0]?.GSTRATE);
-  //   setTotalPurAmt(totalPurAmount);
-  //   setTotalPurGstAmt(totalPurGstAmount);
-  //   setTotalPurNwtAmt(totalPurNwtAmount);
-  // }, [barCodeData, stonesData, totalAmounts, wastageData, mcData]);
-
   useEffect(() => {
     if (barCodeData?.length > 0) {
       const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
@@ -1332,7 +1258,6 @@ const BarCodeCheck = () => {
       setTotalItemUncAmt(totalUnCutsAmount);
       setTotalItemDiaAmt(totalItemDiaAmount);
       setTotalDiamondAmt(totalDiamondAmount);
-      setGstNo(barCodeData[0]?.GSTRATE || 0);
       setTotalPurAmt(totalPurAmount);
       setTotalPurGstAmt(totalPurGstAmount);
       setTotalPurNwtAmt(totalPurNwtAmount);
@@ -1465,6 +1390,8 @@ const BarCodeCheck = () => {
     setTotalAmounts([]);
     estimationNo();
     setItemsData([]);
+    setGstData([]);
+    setGstNo(0);
   };
 
   const handleImageOk = (image) => {
@@ -1566,6 +1493,7 @@ const BarCodeCheck = () => {
   useEffect(() => {
     estimationNo();
     itemsAPI();
+    // gstAPI();
   }, []);
 
   // useEffect(() => {
@@ -1651,7 +1579,7 @@ const BarCodeCheck = () => {
           const num = Number(val);
           return isNaN(num) ? 0 : num;
         };
-        const gstNo = barCode?.GSTRATE;
+        // const gstNo = barCodeData[0]?.GSTRATE;
         const stoneAmount = safeNumber(barCode?.ITEM_TOTAMT ?? 0);
         const totalAmt = stoneAmount + barCode?.BRANDAMT;
 
@@ -1722,7 +1650,7 @@ const BarCodeCheck = () => {
 
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
-        const gstRate = toNumber(barCode?.GSTRATE);
+        const gstRate = toNumber(gstNo);
         const gstAmount = (totalAmount * gstRate) / 100;
 
         const netAmount = totalAmount + gstAmount;
@@ -1738,7 +1666,7 @@ const BarCodeCheck = () => {
     });
 
     setTotalAmounts(perData);
-  }, [barCodeData, wastageData, mcData, stonesData]);
+  }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
 
   const EstNo = tagNo ? tagNo : estNo;
 
@@ -1766,6 +1694,7 @@ const BarCodeCheck = () => {
       totalAmounts,
       wastMc,
       wastValue,
+      wastPer,
     );
   };
 
@@ -1793,6 +1722,7 @@ const BarCodeCheck = () => {
       totalAmounts,
       wastMc,
       wastValue,
+      wastPer,
     );
   };
 
@@ -1820,6 +1750,7 @@ const BarCodeCheck = () => {
       totalAmounts,
       wastMc,
       wastValue,
+      wastPer,
     );
   };
 
@@ -1847,6 +1778,7 @@ const BarCodeCheck = () => {
       totalAmounts,
       wastMc,
       wastValue,
+      wastPer,
     );
   };
 
@@ -2673,9 +2605,9 @@ const BarCodeCheck = () => {
                             : 0.0}
                         </span>
                       </div>
-                      {Number(barCode?.GSTRATE) > 0 ? (
+                      {Number(gstNo) > 0 ? (
                         <div style={{ fontSize: "14px" }}>
-                          Gst @ {barCode?.GSTRATE || 0.0}%
+                          Gst @ {gstNo || 0.0}%
                           <br />
                           <span className={styles.amount2}>
                             ₹
@@ -3052,9 +2984,9 @@ const BarCodeCheck = () => {
                         )?.toFixed(2) || 0.0}
                       </span>
                     </div>
-                    {barCode?.GSTRATE > 0 ? (
+                    {gstNo > 0 ? (
                       <div>
-                        Gst @ {barCode?.GSTRATE || 0.0}%
+                        Gst @ {gstNo || 0.0}%
                         <br />
                         <span className={styles.amount3}>
                           ₹

@@ -23,6 +23,7 @@ export const printReceiptModule2 = (
   totalAmounts,
   wastMc,
   wastValue,
+  wastPer,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -259,7 +260,15 @@ export const printReceiptModule2 = (
       printer.addText(`    NWT WEIGHT     : ${nwt}\n`);
       if (Number(printModel) === 3) {
         printer.addText(`    METAL VALUE    : ${metalValue}\n`);
-        if (wastMc === "W" || wastMc === "ALL") {
+        if (Number(wastPer) === 2) {
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            :        ${WGrams}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             :        ${WGrams}\n`);
+          } else {
+            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+          }
+        } else if (wastMc === "W" || wastMc === "ALL") {
           if (wastValue === "V.A") {
             printer.addText(`    V.A            : ${WGrams} ${WAmt}\n`);
           } else if (wastValue === "VA") {
@@ -276,8 +285,34 @@ export const printReceiptModule2 = (
             printer.addText(`    WASTAGE        :        ${WAmt}\n`);
           }
         }
+      } else if (Number(printModel) === 4) {
+        if (item?.GWT > 8) {
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            :        ${WGrams}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             :        ${WGrams}\n`);
+          } else {
+            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+          }
+        } else {
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            :        ${WAmt}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             :        ${WAmt}\n`);
+          } else {
+            printer.addText(`    WASTAGE        :        ${WAmt}\n`);
+          }
+        }
       } else {
-        if (wastMc === "W" || wastMc === "ALL") {
+        if (Number(wastPer) === 2) {
+          if (wastValue === "V.A") {
+            printer.addText(`    V.A            :        ${WGrams}\n`);
+          } else if (wastValue === "VA") {
+            printer.addText(`    VA             :        ${WGrams}\n`);
+          } else {
+            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+          }
+        } else if (wastMc === "W" || wastMc === "ALL") {
           if (wastValue === "V.A") {
             printer.addText(`    V.A            : ${WGrams} ${WAmt}\n`);
           } else if (wastValue === "VA") {
@@ -297,10 +332,14 @@ export const printReceiptModule2 = (
         printer.addText(`    TOTAL WEIGHT   : ${totalWt}\n`);
         printer.addText(`    AMOUNT         : ${amt}\n`);
       }
-      if (wastMc === "M" || wastMc === "ALL") {
-        printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
-      } else {
+      if (Number(printModel) === 4) {
         printer.addText(`    MAKING CHARGES :        ${mcAmt}\n`);
+      } else {
+        if (wastMc === "M" || wastMc === "ALL") {
+          printer.addText(`    MAKING CHARGES : ${mcg} ${mcAmt}\n`);
+        } else {
+          printer.addText(`    MAKING CHARGES :        ${mcAmt}\n`);
+        }
       }
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
 

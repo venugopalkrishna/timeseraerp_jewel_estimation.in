@@ -24,6 +24,7 @@ export const PrintModule1 = (
   totalAmounts,
   wastMc,
   wastValue,
+  wastPer,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -256,15 +257,19 @@ export const PrintModule1 = (
          totalValue,
        )}</span></div>
         ${
-          ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
+          Number(wastPer) === 2
+            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
+                wastageValue + "%"
+              }</span></div>`
+            : [("W", "ALL")].includes(wastMc)
+              ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue}%</span><span class="data-value">${formatNum(
+                  wastAmt,
+                  3,
+                )}</span></div>`
+              : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+                  wastAmt,
+                  3,
+                )}</span></div>`
         }
       `;
     } else if (Number(printModel) === 4) {
@@ -276,15 +281,19 @@ export const PrintModule1 = (
     } else {
       htmlContent += `
         ${
-          ["W", "ALL"].includes(wastMc)
-            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue > 0 ? wastageValue + "%" : ""}</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
-            : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
-                wastAmt,
-                3,
-              )}</span></div>`
+          Number(wastPer) === 2
+            ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${
+                wastageValue + "%"
+              }</span></div>`
+            : ["W", "ALL"].includes(wastMc)
+              ? `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value1"> ${wastageValue > 0 ? wastageValue + "%" : ""}</span><span class="data-value">${formatNum(
+                  wastAmt,
+                  3,
+                )}</span></div>`
+              : `<div class="data-row"><span class="data-label">${wastValue}</span><span class="data-colon">:</span><span class="data-value">${formatNum(
+                  wastAmt,
+                  3,
+                )}</span></div>`
         }
         <div class="data-row"><span class="data-label">TOTAL WEIGHT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
           totWt,
