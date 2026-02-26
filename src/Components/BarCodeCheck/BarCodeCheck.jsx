@@ -117,6 +117,7 @@ const BarCodeCheck = () => {
   const [tagBrandValue, setTagBrandValue] = useState();
   const [tagBrandAmt, setTagBrandAmt] = useState();
   const [gstData, setGstData] = useState([]);
+  const [stoneItemsData, setStoneItemsData] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -138,6 +139,8 @@ const BarCodeCheck = () => {
   const mcCalc = localStorage.getItem("mcCalc");
   const homeFilesomeDrawer = () => setHomeDrawerOpen(true);
   const homecloseDrawer = () => setHomeDrawerOpen(false);
+  console.log(stoneItemsData, "stoneItemsData");
+  const toNumber = (val) => Number(val) || 0;
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -205,6 +208,26 @@ const BarCodeCheck = () => {
       if (Array.isArray(data) && data.length > 0) {
         setGstData(data);
         setGstNo(data[0]?.VAT);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
+    }
+  };
+
+  const stoneItemsAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=ITEM_MASTER`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setStoneItemsData(data);
       }
     } catch (error) {
       console.error("Error fetching account number:", error);
@@ -1345,7 +1368,27 @@ const BarCodeCheck = () => {
         0,
       );
 
-      const ctsData = totalCts / 5 + totalGrams;
+      // const ctsData = totalCts / 5 + totalGrams;
+      const ctsData = stonesData.reduce((sum, stone) => {
+        const cts = toNumber(stone?.CTS);
+        const grams = toNumber(stone?.GRMS);
+
+        // find matching stone config using ITEMNAME
+        const matchedItem = stoneItemsData?.find(
+          (item) => item.ITEMNAME === stone.ITEMNAME,
+        );
+
+        // check condition
+        const shouldDivide =
+          matchedItem?.EFFECTON_DIAMOND === true ||
+          matchedItem?.EFFECTON_GOLD === true;
+
+        // apply calculation
+        const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+        return sum + calculatedCts + grams;
+      }, 0);
+
       const netWt = gwt - ctsData;
 
       setTotalStoneAmt(totalStoneAmount);
@@ -1619,7 +1662,7 @@ const BarCodeCheck = () => {
   useEffect(() => {
     estimationNo();
     itemsAPI();
-    // gstAPI();
+    stoneItemsAPI();
   }, []);
 
   // useEffect(() => {
@@ -1697,8 +1740,6 @@ const BarCodeCheck = () => {
       return;
     }
 
-    const toNumber = (val) => Number(val) || 0;
-
     const perData = barCodeData.map((barCode) => {
       if (barCode?.BRANDAMT > 0) {
         const safeNumber = (val) => {
@@ -1756,7 +1797,26 @@ const BarCodeCheck = () => {
           0,
         );
 
-        const stoneWeight = totalCts / 5 + totalGrams;
+        // const stoneWeight = totalCts / 5 + totalGrams;
+        const stoneWeight = matchedStones.reduce((sum, stone) => {
+          const cts = toNumber(stone?.CTS);
+          const grams = toNumber(stone?.GRMS);
+
+          // find matching stone config using ITEMNAME
+          const matchedItem = stoneItemsData?.find(
+            (item) => item.ITEMNAME === stone.ITEMNAME,
+          );
+
+          // check condition
+          const shouldDivide =
+            matchedItem?.EFFECTON_DIAMOND === true ||
+            matchedItem?.EFFECTON_GOLD === true;
+
+          // apply calculation
+          const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+          return sum + calculatedCts + grams;
+        }, 0);
 
         // ---- Net Weight ----
         const grossWt = toNumber(barCode?.GWT);
@@ -2174,8 +2234,27 @@ const BarCodeCheck = () => {
                 // const matchedW = wastageData.find(
                 //   (w) => w.TAGNO === barCode.TAGNO,
                 // );
+                const ctsData = matchedStones.reduce((sum, stone) => {
+                  const cts = toNumber(stone?.CTS);
+                  const grams = toNumber(stone?.GRMS);
 
-                const ctsData = totalCts / 5 + totalGrams;
+                  // find matching stone config using ITEMNAME
+                  const matchedItem = stoneItemsData?.find(
+                    (item) => item.ITEMNAME === stone.ITEMNAME,
+                  );
+
+                  // check condition
+                  const shouldDivide =
+                    matchedItem?.EFFECTON_DIAMOND === true ||
+                    matchedItem?.EFFECTON_GOLD === true;
+
+                  // apply calculation
+                  const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+                  return sum + calculatedCts + grams;
+                }, 0);
+
+                // const ctsData = totalCts / 5 + totalGrams;
                 const netWt = barCode?.GWT - ctsData;
                 const netWeight = netWt ?? barCode?.NWT ?? 0;
                 const wastAmt = Number(
