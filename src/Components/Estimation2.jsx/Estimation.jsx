@@ -80,6 +80,7 @@ const Estimation = () => {
   const [copperData, setCopperData] = useState([]);
   const [storeDetails, setStoreDetails] = useState({});
   const [gstData, setGstData] = useState([]);
+  const [stoneItemsData, setStoneItemsData] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -98,6 +99,8 @@ const Estimation = () => {
   const pdfModule = localStorage.getItem("pdfModule");
   const wastValue = localStorage.getItem("wastValue");
   const mcCalc = localStorage.getItem("mcCalc");
+
+  const toNumber = (val) => Number(val) || 0;
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -209,6 +212,26 @@ const Estimation = () => {
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
+    }
+  };
+
+  const stoneItemsAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=ITEM_MASTER`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setStoneItemsData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
     }
   };
 
@@ -569,7 +592,26 @@ const Estimation = () => {
         0,
       );
       const wastAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
-      const ctsData = totalCts / 5 + totalGrams;
+      const ctsData = matchedStone.reduce((sum, stone) => {
+        const cts = toNumber(stone?.CTS);
+        const grams = toNumber(stone?.GRMS);
+
+        // find matching stone config using ITEMNAME
+        const matchedItem = stoneItemsData?.find(
+          (item) => item.ITEMNAME === stone.ITEMNAME,
+        );
+
+        // check condition
+        const shouldDivide =
+          matchedItem?.EFFECTON_DIAMOND === true ||
+          matchedItem?.EFFECTON_GOLD === true;
+
+        // apply calculation
+        const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+        return sum + calculatedCts + grams;
+      }, 0);
+
       const netWt = item?.GWT - ctsData;
       const netWeight = netWt ?? item?.NWT ?? 0;
       const totWt = Number(netWeight) + Number(wastAmt);
@@ -1499,7 +1541,25 @@ const Estimation = () => {
         0,
       );
 
-      const ctsData = totalCts / 5 + totalGrams;
+      const ctsData = stonesData.reduce((sum, stone) => {
+        const cts = toNumber(stone?.CTS);
+        const grams = toNumber(stone?.GRMS);
+
+        // find matching stone config using ITEMNAME
+        const matchedItem = stoneItemsData?.find(
+          (item) => item.ITEMNAME === stone.ITEMNAME,
+        );
+
+        // check condition
+        const shouldDivide =
+          matchedItem?.EFFECTON_DIAMOND === true ||
+          matchedItem?.EFFECTON_GOLD === true;
+
+        // apply calculation
+        const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+        return sum + calculatedCts + grams;
+      }, 0);
       const netWt = gwt - ctsData;
 
       setTotalStoneAmt(totalStoneAmount);
@@ -1740,6 +1800,7 @@ const Estimation = () => {
     itemsAPI();
     copperAPI();
     userAPI();
+    stoneItemsAPI();
   }, []);
 
   // useEffect(() => {
@@ -1797,8 +1858,6 @@ const Estimation = () => {
       return;
     }
 
-    const toNumber = (val) => Number(val) || 0;
-
     const perData = barCodeData.map((barCode) => {
       if (barCode?.BRANDAMT > 0) {
         const safeNumber = (val) => {
@@ -1846,7 +1905,26 @@ const Estimation = () => {
           0,
         );
 
-        const stoneWeight = totalCts / 5 + totalGrams;
+        // const stoneWeight = totalCts / 5 + totalGrams;
+        const stoneWeight = matchedStones.reduce((sum, stone) => {
+          const cts = toNumber(stone?.CTS);
+          const grams = toNumber(stone?.GRMS);
+
+          // find matching stone config using ITEMNAME
+          const matchedItem = stoneItemsData?.find(
+            (item) => item.ITEMNAME === stone.ITEMNAME,
+          );
+
+          // check condition
+          const shouldDivide =
+            matchedItem?.EFFECTON_DIAMOND === true ||
+            matchedItem?.EFFECTON_GOLD === true;
+
+          // apply calculation
+          const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+          return sum + calculatedCts + grams;
+        }, 0);
 
         // ---- Net Weight ----
         const grossWt = toNumber(barCode?.GWT);
@@ -2204,7 +2282,25 @@ const Estimation = () => {
                   (w) => w.TAGNO === barCode.TAGNO,
                 );
 
-                const ctsData = totalCts / 5 + totalGrams;
+                const ctsData = matchedStones.reduce((sum, stone) => {
+                  const cts = toNumber(stone?.CTS);
+                  const grams = toNumber(stone?.GRMS);
+
+                  // find matching stone config using ITEMNAME
+                  const matchedItem = stoneItemsData?.find(
+                    (item) => item.ITEMNAME === stone.ITEMNAME,
+                  );
+
+                  // check condition
+                  const shouldDivide =
+                    matchedItem?.EFFECTON_DIAMOND === true ||
+                    matchedItem?.EFFECTON_GOLD === true;
+
+                  // apply calculation
+                  const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+                  return sum + calculatedCts + grams;
+                }, 0);
                 const netWt = barCode?.GWT - ctsData;
                 const netWeight = netWt ?? barCode?.NWT ?? 0;
                 const wastAmt = Number(

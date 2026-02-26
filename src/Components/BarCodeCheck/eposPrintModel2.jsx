@@ -208,6 +208,12 @@ export const printReceiptModule2 = (
         wastageValue > 0
           ? `${wastageValue}%`.padEnd(6, " ")
           : "".padEnd(6, " ");
+      const WGramsPer =
+        wastageValue > 0
+          ? `${wastageValue}%`.padStart(20, " ")
+          : `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
+              3,
+            )}`.padStart(20, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3,
       )}`.padStart(20, " ");
@@ -262,11 +268,11 @@ export const printReceiptModule2 = (
         printer.addText(`    METAL VALUE    : ${metalValue}\n`);
         if (Number(wastPer) === 2) {
           if (wastValue === "V.A") {
-            printer.addText(`    V.A            :        ${WGrams}\n`);
+            printer.addText(`    V.A            :        ${WGramsPer}\n`);
           } else if (wastValue === "VA") {
-            printer.addText(`    VA             :        ${WGrams}\n`);
+            printer.addText(`    VA             :        ${WGramsPer}\n`);
           } else {
-            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+            printer.addText(`    WASTAGE        :        ${WGramsPer}\n`);
           }
         } else if (wastMc === "W" || wastMc === "ALL") {
           if (wastValue === "V.A") {
@@ -306,11 +312,11 @@ export const printReceiptModule2 = (
       } else {
         if (Number(wastPer) === 2) {
           if (wastValue === "V.A") {
-            printer.addText(`    V.A            :        ${WGrams}\n`);
+            printer.addText(`    V.A            :        ${WGramsPer}\n`);
           } else if (wastValue === "VA") {
-            printer.addText(`    VA             :        ${WGrams}\n`);
+            printer.addText(`    VA             :        ${WGramsPer}\n`);
           } else {
-            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+            printer.addText(`    WASTAGE        :        ${WGramsPer}\n`);
           }
         } else if (wastMc === "W" || wastMc === "ALL") {
           if (wastValue === "V.A") {
