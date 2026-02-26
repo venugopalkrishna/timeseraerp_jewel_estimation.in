@@ -1530,9 +1530,14 @@ const BarCodeCheck = () => {
 
     setWastageOpen(true);
     setWastageData((prevData) => {
-      const existingTags = prevData.map((wast) => wast.TAGNO);
+      const alreadyExists =
+        newEntry.TAGNO > 0
+          ? prevData.some((wast) => wast.TAGNO === newEntry.TAGNO)
+          : prevData.some(
+              (wast) => wast.ISSBRANCHNAME === newEntry.ISSBRANCHNAME,
+            );
 
-      if (existingTags.includes(newEntry.TAGNO)) {
+      if (alreadyExists) {
         return prevData;
       }
 
@@ -1574,9 +1579,12 @@ const BarCodeCheck = () => {
 
     setMcOpen(true);
     setMcData((prevData) => {
-      const existingTags = prevData.map((mc) => mc.TAGNO);
+      const alreadyExists =
+        newEntry.TAGNO > 0
+          ? prevData.some((mc) => mc.TAGNO === newEntry.TAGNO)
+          : prevData.some((mc) => mc.ISSBRANCHNAME === newEntry.ISSBRANCHNAME);
 
-      if (existingTags.includes(newEntry.TAGNO)) {
+      if (alreadyExists) {
         return prevData;
       }
 
