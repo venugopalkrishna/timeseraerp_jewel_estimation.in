@@ -97,6 +97,7 @@ const Estimation = () => {
   const wastMc = localStorage.getItem("wastMc");
   const pdfModule = localStorage.getItem("pdfModule");
   const wastValue = localStorage.getItem("wastValue");
+  const mcCalc = localStorage.getItem("mcCalc");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -282,6 +283,47 @@ const Estimation = () => {
         };
       });
 
+      const modifiedMcData = data.map((item, index) => {
+        let nwt = 0;
+
+        const NWT = Number(item?.NWT || 0);
+        const GWT = Number(item?.GWT || 0);
+        const WAST = Number(item?.WASTAGE || 0);
+
+        if (mcCalc === "NWT") {
+          nwt = NWT;
+        } else if (mcCalc === "GWT") {
+          nwt = GWT;
+        } else if (mcCalc === "GWT_WAST") {
+          nwt = GWT + (NWT * WAST) / 100;
+        } else {
+          nwt = NWT + (NWT * WAST) / 100;
+        }
+        const making = Number(item?.MAKINGCHARGES) || 0;
+        return {
+          TAGNO: item?.TAGNO ?? 0,
+          NWT: nwt,
+          MAKINGCHARGES: making ? making.toString() : "",
+          DIRECTAMT: item?.DIRECTMC,
+          TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+        };
+      });
+
+      const modifiedData = data.map((item, index) => {
+        const nwt = Number(item?.NWT) || 0;
+        const wastage = Number(item?.WASTAGE) || 0;
+        return {
+          TAGNO: item?.TAGNO ?? 0,
+          NWT: nwt,
+          WASTAGE: wastage ? wastage.toString() : "",
+          DIRECTWT: item?.DIRECTWASTAGE,
+          TOTALWT:
+            wastage > 0
+              ? Number((nwt * wastage) / 100)
+              : Number(item?.DIRECTWASTAGE ?? 0),
+        };
+      });
+
       setTotalAmounts((prevData) => {
         // Collect all existing TAGNOs from previous state
         const existingTags = new Set(prevData.map((item) => item.TAGNO));
@@ -297,6 +339,40 @@ const Estimation = () => {
 
         // Return updated array
         return [...prevData, ...filteredData];
+      });
+
+      setMcData((prevData) => {
+        const existingTags = prevData.map((item) => item.TAGNO);
+
+        const filteredData = modifiedMcData.filter(
+          (item) => !existingTags.includes(item.TAGNO),
+        );
+
+        if (filteredData.length === 0) {
+          // message.error("All these tag numbers already existed");
+          return prevData;
+        }
+
+        const updatedData = [...prevData, ...modifiedMcData];
+
+        return updatedData;
+      });
+
+      setWastageData((prevData) => {
+        const existingTags = prevData.map((item) => item.TAGNO);
+
+        const filteredData = modifiedData.filter(
+          (item) => !existingTags.includes(item.TAGNO),
+        );
+
+        if (filteredData.length === 0) {
+          // message.error("All these tag numbers already existed");
+          return prevData;
+        }
+
+        const updatedData = [...prevData, ...modifiedData];
+
+        return updatedData;
       });
 
       setBarCodeData((prevData) => {
@@ -1739,7 +1815,6 @@ const Estimation = () => {
 
         return {
           TAGNO: barCode?.TAGNO ?? "",
-          ISSBRANCHNAME: barCode?.ISSBRANCHNAME,
           TOTALAMT: totalAmount,
           GSTTOTALAMT: gstAmount,
           NETAMT: netAmount,
@@ -1804,8 +1879,50 @@ const Estimation = () => {
         };
       }
     });
+    const modifiedData = barCodeData.map((item, index) => {
+      const nwt = Number(item?.NWT) || 0;
+      const wastage = Number(item?.WASTAGE) || 0;
+      return {
+        TAGNO: item?.TAGNO ?? 0,
+        NWT: nwt,
+        WASTAGE: wastage ? wastage.toString() : "",
+        DIRECTWT: item?.DIRECTWASTAGE,
+        TOTALWT:
+          wastage > 0
+            ? Number((nwt * wastage) / 100)
+            : Number(item?.DIRECTWASTAGE ?? 0),
+      };
+    });
+
+    const modifiedMcData = barCodeData.map((item, index) => {
+      let nwt = 0;
+
+      const NWT = Number(item?.NWT || 0);
+      const GWT = Number(item?.GWT || 0);
+      const WAST = Number(item?.WASTAGE || 0);
+
+      if (mcCalc === "NWT") {
+        nwt = NWT;
+      } else if (mcCalc === "GWT") {
+        nwt = GWT;
+      } else if (mcCalc === "GWT_WAST") {
+        nwt = GWT + (NWT * WAST) / 100;
+      } else {
+        nwt = NWT + (NWT * WAST) / 100;
+      }
+      const making = Number(item?.MAKINGCHARGES) || 0;
+      return {
+        TAGNO: item?.TAGNO ?? 0,
+        NWT: nwt,
+        MAKINGCHARGES: making ? making.toString() : "",
+        DIRECTAMT: item?.DIRECTMC,
+        TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+      };
+    });
 
     setTotalAmounts(perData);
+    setMcData(modifiedMcData);
+    setWastageData(modifiedData);
   }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
 
   const EstNo = tagNo ? tagNo : estNo;

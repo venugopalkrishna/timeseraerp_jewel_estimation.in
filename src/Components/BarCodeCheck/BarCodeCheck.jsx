@@ -135,6 +135,7 @@ const BarCodeCheck = () => {
   const pdfModule = localStorage.getItem("pdfModule");
   const wastValue = localStorage.getItem("wastValue");
   const wastPer = localStorage.getItem("wastPer");
+  const mcCalc = localStorage.getItem("mcCalc");
   const homeFilesomeDrawer = () => setHomeDrawerOpen(true);
   const homecloseDrawer = () => setHomeDrawerOpen(false);
 
@@ -282,6 +283,49 @@ const BarCodeCheck = () => {
         };
       });
 
+      const modifiedMcData = data.map((item, index) => {
+        let nwt = 0;
+
+        const NWT = Number(item?.NWT || 0);
+        const GWT = Number(item?.GWT || 0);
+        const WAST = Number(item?.WASTAGE || 0);
+
+        if (mcCalc === "NWT") {
+          nwt = NWT;
+        } else if (mcCalc === "GWT") {
+          nwt = GWT;
+        } else if (mcCalc === "GWT_WAST") {
+          nwt = GWT + (NWT * WAST) / 100;
+        } else {
+          nwt = NWT + (NWT * WAST) / 100;
+        }
+        const making = Number(item?.MAKINGCHARGES) || 0;
+        return {
+          TAGNO: item?.TAGNO ?? 0,
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+          NWT: nwt,
+          MAKINGCHARGES: making ? making.toString() : "",
+          DIRECTAMT: item?.DIRECTMC,
+          TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+        };
+      });
+
+      const modifiedData = data.map((item, index) => {
+        const nwt = Number(item?.NWT) || 0;
+        const wastage = Number(item?.WASTAGE) || 0;
+        return {
+          TAGNO: item?.TAGNO ?? 0,
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+          NWT: nwt,
+          WASTAGE: wastage ? wastage.toString() : "",
+          DIRECTWT: item?.DIRECTWASTAGE,
+          TOTALWT:
+            wastage > 0
+              ? Number((nwt * wastage) / 100)
+              : Number(item?.DIRECTWASTAGE ?? 0),
+        };
+      });
+
       setTotalAmounts((prevData) => {
         // Collect all existing TAGNOs from previous state
         const existingTags = new Set(prevData.map((item) => item.TAGNO));
@@ -297,6 +341,40 @@ const BarCodeCheck = () => {
 
         // Return updated array
         return [...prevData, ...filteredData];
+      });
+
+      setMcData((prevData) => {
+        const existingTags = prevData.map((item) => item.TAGNO);
+
+        const filteredData = modifiedMcData.filter(
+          (item) => !existingTags.includes(item.TAGNO),
+        );
+
+        if (filteredData.length === 0) {
+          // message.error("All these tag numbers already existed");
+          return prevData;
+        }
+
+        const updatedData = [...prevData, ...modifiedMcData];
+
+        return updatedData;
+      });
+
+      setWastageData((prevData) => {
+        const existingTags = prevData.map((item) => item.TAGNO);
+
+        const filteredData = modifiedData.filter(
+          (item) => !existingTags.includes(item.TAGNO),
+        );
+
+        if (filteredData.length === 0) {
+          // message.error("All these tag numbers already existed");
+          return prevData;
+        }
+
+        const updatedData = [...prevData, ...modifiedData];
+
+        return updatedData;
       });
 
       setBarCodeData((prevData) => {
@@ -700,7 +778,7 @@ const BarCodeCheck = () => {
         const wastage = Number(item?.Wastage) || 0;
         return {
           TAGNO: item?.TagNo ?? 0,
-          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+          ISSBRANCHNAME: item?.homekey ?? "",
           NWT: nwt,
           WASTAGE: wastage ? wastage.toString() : "",
           DIRECTWT: item?.DirectWastage,
@@ -712,11 +790,36 @@ const BarCodeCheck = () => {
       });
 
       const modifiedMcData = data.map((item, index) => {
-        const nwt = Number(item?.Nwt) || 0;
+        let nwt = 0;
+
+        const NWT = Number(item?.Nwt || 0);
+        const GWT = Number(item?.Gwt || 0);
+        const WAST = Number(item?.Wastage || 0);
+
+        if (mcCalc === "NWT") {
+          nwt = NWT;
+        } else if (mcCalc === "GWT") {
+          nwt = GWT;
+        } else if (mcCalc === "GWT_WAST") {
+          nwt = GWT + (NWT * WAST) / 100;
+        } else {
+          nwt = NWT + (NWT * WAST) / 100;
+        }
+        // let nwt;
+        // if (mcCalc === "NWT") {
+        //   nwt = Number(item?.Nwt);
+        // } else if (mcCalc === "GWT") {
+        //   nwt = Number(item?.Gwt);
+        // } else if (mcCalc === "GWT_WAST") {
+        //   nwt = Number(item?.Gwt + (item?.Nwt * item?.Wastage) / 100);
+        // } else {
+        //   nwt = Number(item?.Nwt + (item?.Nwt * item?.Wastage) / 100);
+        // }
+        // const nwt = Number(item?.Nwt) || 0;
         const making = Number(item?.MakingCharges) || 0;
         return {
           TAGNO: item?.TagNo ?? 0,
-          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+          ISSBRANCHNAME: item?.homekey ?? "",
           NWT: nwt,
           MAKINGCHARGES: making ? making.toString() : "",
           DIRECTAMT: item?.DirectMc,
@@ -751,7 +854,7 @@ const BarCodeCheck = () => {
 
         return {
           TAGNO: item?.TagNo ?? "",
-          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+          ISSBRANCHNAME: item?.Homekey ?? "",
           TOTALAMT: totalAmount,
           GSTTOTALAMT: gstAmount,
           NETAMT: netAmount,
@@ -1442,7 +1545,22 @@ const BarCodeCheck = () => {
   };
 
   const handleMcOpen = (item) => {
-    const nwt = Number(item?.NWT) || 0;
+    let nwt = 0;
+
+    const NWT = Number(item?.NWT || 0);
+    const GWT = Number(item?.GWT || 0);
+    const WAST = Number(item?.WASTAGE || 0);
+
+    if (mcCalc === "NWT") {
+      nwt = NWT;
+    } else if (mcCalc === "GWT") {
+      nwt = GWT;
+    } else if (mcCalc === "GWT_WAST") {
+      nwt = GWT + (NWT * WAST) / 100;
+    } else {
+      nwt = NWT + (NWT * WAST) / 100;
+    }
+    // const nwt = Number(item?.NWT) || 0;
     const mc = Number(item?.MAKINGCHARGES) || 0;
 
     const newEntry = {
@@ -1646,8 +1764,17 @@ const BarCodeCheck = () => {
         // ---- Rate Calculation ----
         const rate = toNumber(barCode?.RATE);
 
-        const rateAmount = (netWt + wastageAmt) * rate;
-
+        // let rateAmount;
+        // if (mcCalc === "NWT") {
+        //   rateAmount = Number(netWt) * rate;
+        // } else if (mcCalc === "GWT") {
+        //   rateAmount = Number(grossWt) * rate;
+        // } else if (mcCalc === "GWT_WAST") {
+        //   rateAmount = Number(grossWt + wastageAmt) * rate;
+        // } else {
+        //   rateAmount = Number(netWt + wastageAmt) * rate;
+        // }
+        const rateAmount = Number(netWt + wastageAmt) * rate;
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
         const gstRate = toNumber(gstNo);
@@ -1665,7 +1792,52 @@ const BarCodeCheck = () => {
       }
     });
 
+    const modifiedData = barCodeData.map((item, index) => {
+      const nwt = Number(item?.NWT) || 0;
+      const wastage = Number(item?.WASTAGE) || 0;
+      return {
+        TAGNO: item?.TAGNO ?? 0,
+        ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+        NWT: nwt,
+        WASTAGE: wastage ? wastage.toString() : "",
+        DIRECTWT: item?.DIRECTWASTAGE,
+        TOTALWT:
+          wastage > 0
+            ? Number((nwt * wastage) / 100)
+            : Number(item?.DIRECTWASTAGE ?? 0),
+      };
+    });
+
+    const modifiedMcData = barCodeData.map((item, index) => {
+      let nwt = 0;
+
+      const NWT = Number(item?.NWT || 0);
+      const GWT = Number(item?.GWT || 0);
+      const WAST = Number(item?.WASTAGE || 0);
+
+      if (mcCalc === "NWT") {
+        nwt = NWT;
+      } else if (mcCalc === "GWT") {
+        nwt = GWT;
+      } else if (mcCalc === "GWT_WAST") {
+        nwt = GWT + (NWT * WAST) / 100;
+      } else {
+        nwt = NWT + (NWT * WAST) / 100;
+      }
+      const making = Number(item?.MAKINGCHARGES) || 0;
+      return {
+        TAGNO: item?.TAGNO ?? 0,
+        ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+        NWT: nwt,
+        MAKINGCHARGES: making ? making.toString() : "",
+        DIRECTAMT: item?.DIRECTMC,
+        TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+      };
+    });
+
     setTotalAmounts(perData);
+    setMcData(modifiedMcData);
+    setWastageData(modifiedData);
   }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
 
   const EstNo = tagNo ? tagNo : estNo;
