@@ -26,6 +26,7 @@ const TagCheck = () => {
   const [changeCard, setChangeCard] = useState(true);
   const [stonesOpen, setStonesOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
+  const [makingAmount, setMakingAmount] = useState(0);
 
   const imageUrls = localStorage.getItem("images").split(",");
   const imagesData = imageUrls;
@@ -34,6 +35,7 @@ const TagCheck = () => {
   const singleImage = localStorage.getItem("singleImage");
   const tenantName = localStorage.getItem("tenantName");
   const userType = localStorage.getItem("userType");
+  const mcCalc = localStorage.getItem("mcCalc");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -47,7 +49,7 @@ const TagCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -66,9 +68,25 @@ const TagCheck = () => {
         const directMc = safeNumber(item?.DIRECTMC ?? 0);
         const stoneAmount = safeNumber(item?.ITEM_TOTAMT ?? 0);
         const gstNo = data[0]?.GSTRATE;
+        let net = 0;
+        const NWT = Number(item?.NWT || 0);
+        const GWT = Number(item?.GWT || 0);
+        const WAST = Number(item?.WASTAGE || 0);
+        const making = Number(item?.MAKINGCHARGES) || 0;
+        if (mcCalc === "NWT") {
+          net = NWT;
+        } else if (mcCalc === "GWT") {
+          net = GWT;
+        } else if (mcCalc === "GWT_WAST") {
+          net = GWT + (NWT * WAST) / 100;
+        } else {
+          net = NWT + (NWT * WAST) / 100;
+        }
+
+        // const makingAmt =
 
         const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
-        const mcAmount = directMc > 0 ? directMc : cattotMc;
+        const mcAmount = directMc > 0 ? directMc : Number(net * making);
 
         const rateAmount = Number(nwt + wastageAmt).toFixed(3);
         const amount = Number(rateAmount * rate).toFixed(0);
@@ -85,6 +103,7 @@ const TagCheck = () => {
           NETAMT: netAmount,
         };
       });
+
       setTotalAmounts(modifiedTotalData);
 
       setBarCodeData(data);
@@ -102,7 +121,7 @@ const TagCheck = () => {
           headers: {
             tenantName: tenantName,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -151,6 +170,7 @@ const TagCheck = () => {
     setBarCode("");
     setBarCodeData([]);
     setTotalAmounts([]);
+    setMakingAmount(0);
   };
 
   const handleImageOk = () => {
@@ -180,6 +200,24 @@ const TagCheck = () => {
       return () => clearInterval(interval);
     }
   }, [imagesData]);
+  useEffect(() => {
+    let net = 0;
+    const NWT = Number(barCodeData[0]?.NWT || 0);
+    const GWT = Number(barCodeData[0]?.GWT || 0);
+    const WAST = Number(barCodeData[0]?.WASTAGE || 0);
+    const making = Number(barCodeData[0]?.MAKINGCHARGES) || 0;
+    if (mcCalc === "NWT") {
+      net = NWT;
+    } else if (mcCalc === "GWT") {
+      net = GWT;
+    } else if (mcCalc === "GWT_WAST") {
+      net = GWT + (NWT * WAST) / 100;
+    } else {
+      net = NWT + (NWT * WAST) / 100;
+    }
+    const amt = Number(net * making);
+    setMakingAmount(amt);
+  }, [barCodeData]);
 
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
@@ -291,33 +329,37 @@ const TagCheck = () => {
                   <br />
                   <small>Tag no</small>
                 </div>
-                {barCodeData?.length > 0 && barCodeData[0]?.VV != "-" && (
-                  <div>
-                    <Box
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: "50%",
-                        backgroundColor: "black",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        border: "2px solid #52bd91",
-                      }}
-                      onClick={handleImageOk}
-                    >
-                      <img
-                        src={barCodeData[0]?.VV}
-                        alt="img"
-                        style={{
-                          width: "100%",
-                          height: "100%",
+                {barCodeData?.length > 0 &&
+                  barCodeData[0]?.VV != "-" &&
+                  barCodeData[0]?.VV != null &&
+                  barCodeData[0]?.VV != undefined &&
+                  barCodeData[0]?.VV != "NO" && (
+                    <div>
+                      <Box
+                        sx={{
+                          width: 50,
+                          height: 50,
                           borderRadius: "50%",
+                          backgroundColor: "black",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          border: "2px solid #52bd91",
                         }}
-                      />
-                    </Box>
-                  </div>
-                )}
+                        onClick={handleImageOk}
+                      >
+                        <img
+                          src={barCodeData[0]?.VV}
+                          alt="img"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      </Box>
+                    </div>
+                  )}
                 <div>
                   Today Rate
                   <br />
@@ -453,9 +495,9 @@ const TagCheck = () => {
                     <span className={styles.separator2}>:</span>
                     <span className={styles.value2}>
                       ₹{" "}
-                      {barCodeData[0]?.CATTOTMC
-                        ? Number(barCodeData[0]?.CATTOTMC).toFixed(2)
-                        : 0.0}
+                      {makingAmount
+                        ? Number(makingAmount).toFixed(2)
+                        : Number(barCodeData[0]?.DIRECTMC).toFixed(2)}
                     </span>
                   </div>
                   <div className={styles.highlightBox2}>

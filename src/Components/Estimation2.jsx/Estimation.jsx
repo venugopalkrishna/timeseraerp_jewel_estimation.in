@@ -754,7 +754,10 @@ const Estimation = () => {
       jewelType: barCodeData[0]?.MNAME,
       billNo: 0,
       saleCode: 0,
-      e_PREFIX: String(ePrefix),
+      e_PREFIX:
+        String(ePrefix) === "undefined" || ePrefix === null || ePrefix === ""
+          ? "-"
+          : String(ePrefix),
       smCode: "-",
       descrption: "-",
       iteM_CTS: Number(totalItemCtsAmt),
@@ -2383,9 +2386,10 @@ const Estimation = () => {
                         <small>Tag no</small>
                       </div>
                       {barCode?.VV &&
-                        barCode?.VV !== "-" &&
-                        barCode?.VV !== "null" &&
-                        barCode?.VV !== "NO" && (
+                        barCode?.VV != "-" &&
+                        barCode?.VV != null &&
+                        barCode?.VV != undefined &&
+                        barCode?.VV != "NO" && (
                           <div>
                             <Box
                               sx={{

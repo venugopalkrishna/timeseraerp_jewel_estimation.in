@@ -141,7 +141,6 @@ const BarCodeCheck = () => {
   const homeFilesomeDrawer = () => setHomeDrawerOpen(true);
   const homecloseDrawer = () => setHomeDrawerOpen(false);
   const toNumber = (val) => Number(val) || 0;
-  console.log(ePrefix, "ePrefix");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -728,11 +727,14 @@ const BarCodeCheck = () => {
       totMc: Number(totalMcAmt),
       totAmount: Number(totalAmt),
       itemAmount: Number(totalStoneAmt),
-      custName: customerName,
-      jewelType: barCodeData[0]?.MNAME,
+      custName: String(customerName) || "-",
+      jewelType: String(barCodeData[0]?.MNAME),
       billNo: 0,
       saleCode: 0,
-      e_PREFIX: String(ePrefix),
+      e_PREFIX:
+        String(ePrefix) === "undefined" || ePrefix === null || ePrefix === ""
+          ? "-"
+          : String(ePrefix),
       smCode: "-",
       descrption: "-",
       iteM_CTS: Number(totalItemCtsAmt),
@@ -745,8 +747,8 @@ const BarCodeCheck = () => {
       totpaid: 0,
       totbalance: 0,
       purchamt: 0,
-      city: customerArea,
-      mobileno: customerMobile,
+      city: String(customerArea) || "-",
+      mobileno: String(customerMobile) || "-",
       purchno: 0,
       pamt: 0,
     };
@@ -2326,9 +2328,10 @@ const BarCodeCheck = () => {
                         <small>Tag no</small>
                       </div>
                       {barCode?.VV &&
-                        barCode?.VV !== "-" &&
-                        barCode?.VV !== "null" &&
-                        barCode?.VV !== "NO" && (
+                        barCode?.VV != "-" &&
+                        barCode?.VV != null &&
+                        barCode?.VV != undefined &&
+                        barCode?.VV != "NO" && (
                           <div>
                             <Box
                               sx={{
