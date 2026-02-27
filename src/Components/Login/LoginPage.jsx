@@ -74,6 +74,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("wastValue", data[0]?.WASTAGEDESC);
         localStorage.setItem("wastPer", data[0]?.WAST_PER);
         localStorage.setItem("mcCalc", data[0]?.MC_CALC_FORMATE);
+        localStorage.setItem("ePrefix", data[0]?.E_PREFIX);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);

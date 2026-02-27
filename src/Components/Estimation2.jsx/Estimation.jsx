@@ -99,6 +99,7 @@ const Estimation = () => {
   const pdfModule = localStorage.getItem("pdfModule");
   const wastValue = localStorage.getItem("wastValue");
   const mcCalc = localStorage.getItem("mcCalc");
+  const ePrefix = localStorage.getItem("ePrefix");
 
   const toNumber = (val) => Number(val) || 0;
 
@@ -128,6 +129,33 @@ const Estimation = () => {
         setEstNo(newEstimationNo);
         return newEstimationNo;
       }
+    } catch (error) {
+      console.error("Error fetching estimation number:", error);
+    }
+  };
+
+  const ePrefixEstNo = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=E_PREFIX='${ePrefix}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      // Axios already returns parsed JSON under response.data
+      const data = response.data;
+      // if (Array.isArray(data) && data.length > 0) {
+      const rawValue = data?.length;
+      // const maxEstimationNo = Number.isFinite(Number(rawValue))
+      //   ? Number(rawValue)
+      //   : 0;
+      const newEstimationNo = rawValue + 1;
+      setEstNo(newEstimationNo);
+      return newEstimationNo;
+      // }
     } catch (error) {
       console.error("Error fetching estimation number:", error);
     }
@@ -623,7 +651,11 @@ const Estimation = () => {
 
       const castMetal = Number(totWt) * Number(item?.FINERATE);
       return {
-        estimationNo: String(tagNo ? tagNo : (est ?? "-")), // always a string
+        estimationNo: tagNo
+          ? String(tagNo)
+          : !Number(ePrefix)
+            ? String(est)
+            : String(ePrefix + est), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
         mname: String(item?.MNAME ?? "-"),
         productName: String(item?.PRODUCTNAME ?? "-"),
@@ -692,9 +724,13 @@ const Estimation = () => {
 
   const createEstimationMast = async (est) => {
     const requestBody = {
-      estimationNo: String(tagNo ? tagNo : est),
+      estimationNo: tagNo
+        ? String(tagNo)
+        : !Number(ePrefix)
+          ? String(est)
+          : String(ePrefix + est),
       gold: 0,
-      platinum: 0,
+      platinum: Number(est),
       silver: 0,
       pure: 0,
       nonKDM: 0,
@@ -718,7 +754,7 @@ const Estimation = () => {
       jewelType: barCodeData[0]?.MNAME,
       billNo: 0,
       saleCode: 0,
-      e_PREFIX: "-",
+      e_PREFIX: String(ePrefix),
       smCode: "-",
       descrption: "-",
       iteM_CTS: Number(totalItemCtsAmt),
@@ -749,7 +785,11 @@ const Estimation = () => {
         },
       );
       let data = response?.data;
-      estimationNo();
+      if (!Number(ePrefix)) {
+        estimationNo();
+      } else {
+        ePrefixEstNo();
+      }
       setModifyCode();
       handleReset();
       setTagNo();
@@ -761,7 +801,11 @@ const Estimation = () => {
   const createEstimationItems = async (est) => {
     const requestBody = stonesData.map((item, index) => {
       return {
-        estimationNo: String(tagNo ? tagNo : est),
+        estimationNo: tagNo
+          ? String(tagNo)
+          : !Number(ePrefix)
+            ? String(est)
+            : String(ePrefix + est),
         tagNo: Number(item?.TAGNO) || 0,
         sno: item?.SNO,
         itemName: item?.ITEMNAME,
@@ -1186,6 +1230,7 @@ const Estimation = () => {
       console.error("Error posting data:", error);
     }
   };
+
   const estimationDeleteItems = async () => {
     try {
       const response = await axios.post(
@@ -1695,7 +1740,11 @@ const Estimation = () => {
     setMcOpen(false);
     setMcTagNo();
     setTotalAmounts([]);
-    estimationNo();
+    if (!Number(ePrefix)) {
+      estimationNo();
+    } else {
+      ePrefixEstNo();
+    }
     setItemsData([]);
     setGstData([]);
     setGstNo(0);
@@ -1796,7 +1845,11 @@ const Estimation = () => {
   }, [imagesData]);
 
   useEffect(() => {
-    estimationNo();
+    if (!Number(ePrefix)) {
+      estimationNo();
+    } else {
+      ePrefixEstNo();
+    }
     itemsAPI();
     copperAPI();
     userAPI();
@@ -3375,7 +3428,13 @@ const Estimation = () => {
                   await createEstimationMast();
                   await createEstimationItems();
                 } else {
-                  const nextInvNo = await estimationNo();
+                  let nextInvNo = 0;
+                  if (!Number(ePrefix)) {
+                    nextInvNo = await estimationNo();
+                  } else {
+                    nextInvNo = await ePrefixEstNo();
+                  }
+                  // const nextInvNo = await estimationNo();
                   await createEstimationData(nextInvNo);
                   await createEstimationMast(nextInvNo);
                   await createEstimationItems(nextInvNo);
@@ -3439,6 +3498,8 @@ const Estimation = () => {
         tagNo={tagNo}
         pdfModule={pdfModule}
         estimationNo={estimationNo}
+        ePrefixEstNo={ePrefixEstNo}
+        ePrefix={ePrefix}
       />
       <ModifyEstNo
         modifyOpen={modifyOpen}

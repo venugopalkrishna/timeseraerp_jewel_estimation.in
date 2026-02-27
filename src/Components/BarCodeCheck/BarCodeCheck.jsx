@@ -137,10 +137,11 @@ const BarCodeCheck = () => {
   const wastValue = localStorage.getItem("wastValue");
   const wastPer = localStorage.getItem("wastPer");
   const mcCalc = localStorage.getItem("mcCalc");
+  const ePrefix = localStorage.getItem("ePrefix");
   const homeFilesomeDrawer = () => setHomeDrawerOpen(true);
   const homecloseDrawer = () => setHomeDrawerOpen(false);
-  console.log(stoneItemsData, "stoneItemsData");
   const toNumber = (val) => Number(val) || 0;
+  console.log(ePrefix, "ePrefix");
 
   const toggleDrawer = () => {
     setOpen(false);
@@ -168,6 +169,33 @@ const BarCodeCheck = () => {
         setEstNo(newEstimationNo);
         return newEstimationNo;
       }
+    } catch (error) {
+      console.error("Error fetching estimation number:", error);
+    }
+  };
+
+  const ePrefixEstNo = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=ESTIMATION_MAST&where=E_PREFIX='${ePrefix}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      // Axios already returns parsed JSON under response.data
+      const data = response.data;
+      // if (Array.isArray(data) && data.length > 0) {
+      const rawValue = data?.length;
+      // const maxEstimationNo = Number.isFinite(Number(rawValue))
+      //   ? Number(rawValue)
+      //   : 0;
+      const newEstimationNo = rawValue + 1;
+      setEstNo(newEstimationNo);
+      return newEstimationNo;
+      // }
     } catch (error) {
       console.error("Error fetching estimation number:", error);
     }
@@ -601,7 +629,11 @@ const BarCodeCheck = () => {
         0,
       );
       return {
-        estimationNo: String(tagNo ? tagNo : (est ?? "-")), // always a string
+        estimationNo: tagNo
+          ? String(tagNo)
+          : !Number(ePrefix)
+            ? String(est)
+            : String(ePrefix + est), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
         mname: String(item?.MNAME ?? "-"),
         productName: String(item?.PRODUCTNAME ?? "-"),
@@ -670,9 +702,13 @@ const BarCodeCheck = () => {
 
   const createEstimationMast = async (est) => {
     const requestBody = {
-      estimationNo: String(tagNo ? tagNo : est),
+      estimationNo: tagNo
+        ? String(tagNo)
+        : !Number(ePrefix)
+          ? String(est)
+          : String(ePrefix + est),
       gold: 0,
-      platinum: 0,
+      platinum: Number(est),
       silver: 0,
       pure: 0,
       nonKDM: 0,
@@ -696,7 +732,7 @@ const BarCodeCheck = () => {
       jewelType: barCodeData[0]?.MNAME,
       billNo: 0,
       saleCode: 0,
-      e_PREFIX: "-",
+      e_PREFIX: String(ePrefix),
       smCode: "-",
       descrption: "-",
       iteM_CTS: Number(totalItemCtsAmt),
@@ -727,7 +763,11 @@ const BarCodeCheck = () => {
         },
       );
       let data = response?.data;
-      estimationNo();
+      if (!Number(ePrefix)) {
+        estimationNo();
+      } else {
+        ePrefixEstNo();
+      }
       setModifyCode();
       handleReset();
       setTagNo();
@@ -739,7 +779,11 @@ const BarCodeCheck = () => {
   const createEstimationItems = async (est) => {
     const requestBody = stonesData.map((item, index) => {
       return {
-        estimationNo: String(tagNo ? tagNo : est),
+        estimationNo: tagNo
+          ? String(tagNo)
+          : !Number(ePrefix)
+            ? String(est)
+            : String(ePrefix + est),
         tagNo: Number(item?.TAGNO) || 0,
         sno: item?.SNO,
         itemName: item?.ITEMNAME,
@@ -1534,7 +1578,11 @@ const BarCodeCheck = () => {
     setMcOpen(false);
     setMcTagNo();
     setTotalAmounts([]);
-    estimationNo();
+    if (!Number(ePrefix)) {
+      estimationNo();
+    } else {
+      ePrefixEstNo();
+    }
     setItemsData([]);
     setGstData([]);
     setGstNo(0);
@@ -1660,7 +1708,11 @@ const BarCodeCheck = () => {
   }, [imagesData]);
 
   useEffect(() => {
-    estimationNo();
+    if (!Number(ePrefix)) {
+      estimationNo();
+    } else {
+      ePrefixEstNo();
+    }
     itemsAPI();
     stoneItemsAPI();
   }, []);
@@ -1908,7 +1960,7 @@ const BarCodeCheck = () => {
     setWastageData(modifiedData);
   }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
 
-  const EstNo = tagNo ? tagNo : estNo;
+  const EstNo = tagNo ? tagNo : !Number(ePrefix) ? estNo : ePrefix + estNo;
 
   const handleEposPrint = (est) => {
     printReceipt(
@@ -2041,7 +2093,7 @@ const BarCodeCheck = () => {
             <span
               style={{ fontSize: "20px", fontWeight: "bold", color: "red" }}
             >
-              {tagNo ? tagNo : estNo}
+              {tagNo ? tagNo : !Number(ePrefix) ? estNo : ePrefix + estNo}
             </span>
           </span>
         </div>
@@ -3370,7 +3422,12 @@ const BarCodeCheck = () => {
                   await createEstimationMast();
                   await createEstimationItems();
                 } else {
-                  const nextInvNo = await estimationNo();
+                  let nextInvNo = 0;
+                  if (!Number(ePrefix)) {
+                    nextInvNo = await estimationNo();
+                  } else {
+                    nextInvNo = await ePrefixEstNo();
+                  }
                   await createEstimationData(nextInvNo);
                   await createEstimationMast(nextInvNo);
                   await createEstimationItems(nextInvNo);
@@ -3435,6 +3492,8 @@ const BarCodeCheck = () => {
         tagNo={tagNo}
         pdfModule={pdfModule}
         estimationNo={estimationNo}
+        ePrefixEstNo={ePrefixEstNo}
+        ePrefix={ePrefix}
       />
       <ModifyEstNo
         modifyOpen={modifyOpen}

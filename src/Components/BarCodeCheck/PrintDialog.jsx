@@ -16,6 +16,8 @@ const PrintTemplateDialog = ({
   tagNo,
   pdfModule,
   estimationNo,
+  ePrefixEstNo,
+  ePrefix,
 }) => {
   const handlePrintWithAPIs = (printFn) => {
     try {
@@ -75,10 +77,22 @@ const PrintTemplateDialog = ({
       <button
         onClick={async () => {
           if (pdfModule === "WIFI") {
-            const nextInvNo = await estimationNo();
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
             handleEposPrint(nextInvNo);
           } else {
-            const nextInvNo = await estimationNo();
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
             handlePrintModule1(nextInvNo);
           }
 
@@ -90,7 +104,13 @@ const PrintTemplateDialog = ({
             await createEstimationMast();
             await createEstimationItems();
           } else {
-            const nextInvNo = await estimationNo();
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
             await createEstimationData(nextInvNo);
             await createEstimationMast(nextInvNo);
             await createEstimationItems(nextInvNo);
@@ -116,10 +136,22 @@ const PrintTemplateDialog = ({
       <button
         onClick={async () => {
           if (pdfModule === "WIFI") {
-            const nextInvNo = await estimationNo();
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
             handleEposPrintModule2(nextInvNo);
           } else {
-            const nextInvNo = await estimationNo();
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
             handlePrintModule2(nextInvNo);
           }
           if (tagNo) {
@@ -130,7 +162,13 @@ const PrintTemplateDialog = ({
             await createEstimationMast();
             await createEstimationItems();
           } else {
-            const nextInvNo = await estimationNo();
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
             await createEstimationData(nextInvNo);
             await createEstimationMast(nextInvNo);
             await createEstimationItems(nextInvNo);

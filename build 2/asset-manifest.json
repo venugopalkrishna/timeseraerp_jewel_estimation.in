@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e7681560.css",
+    "main.js": "/static/js/main.1eecb6d1.js",
+    "static/js/977.8ceb86cb.chunk.js": "/static/js/977.8ceb86cb.chunk.js",
+    "static/js/455.bb31838a.chunk.js": "/static/js/455.bb31838a.chunk.js",
+    "static/js/453.d4fa8369.chunk.js": "/static/js/453.d4fa8369.chunk.js",
+    "static/media/diamond-image1.png": "/static/media/diamond-image1.f8c3eb0c1ad90c06977f.png",
+    "static/media/jewelry-logo1.png": "/static/media/jewelry-logo1.42c63a52e32270a8912d.png",
+    "static/media/glod-image1.png": "/static/media/glod-image1.442bbb652cea5b89168d.png",
+    "static/media/silver-image.png": "/static/media/silver-image.356496ad85f4b3ad852d.png",
+    "static/media/jewelry-logo.jpg": "/static/media/jewelry-logo.ff41e71e13fff22f8f8e.jpg",
+    "static/media/backgroundimage2.jpg": "/static/media/backgroundimage2.19482c70791895b0dab5.jpg",
+    "static/media/jewel-log.jpg": "/static/media/jewel-log.029a3edb7c171d527a88.jpg",
+    "static/media/main-logo.jpg": "/static/media/main-logo.ffe1fcebc719213e726a.jpg",
+    "static/media/textLogo.png": "/static/media/textLogo.5627897facb579c1d150.png",
+    "static/media/timesers-logo.png": "/static/media/timesers-logo.9080f7df152a75423331.png",
+    "index.html": "/index.html",
+    "main.e7681560.css.map": "/static/css/main.e7681560.css.map",
+    "main.1eecb6d1.js.map": "/static/js/main.1eecb6d1.js.map",
+    "977.8ceb86cb.chunk.js.map": "/static/js/977.8ceb86cb.chunk.js.map",
+    "455.bb31838a.chunk.js.map": "/static/js/455.bb31838a.chunk.js.map",
+    "453.d4fa8369.chunk.js.map": "/static/js/453.d4fa8369.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e7681560.css",
+    "static/js/main.1eecb6d1.js"
+  ]
+}
