@@ -730,7 +730,7 @@ const Estimation = () => {
           ? String(est)
           : String(ePrefix + est),
       gold: 0,
-      platinum: Number(est),
+      platinum: 0,
       silver: 0,
       pure: 0,
       nonKDM: 0,
