@@ -2087,6 +2087,7 @@ const Estimation = () => {
       copperData,
       wastValue,
       storeDetails,
+      stoneItemsData,
     );
   };
 
@@ -2116,6 +2117,7 @@ const Estimation = () => {
       copperData,
       wastValue,
       storeDetails,
+      stoneItemsData,
     );
   };
 
@@ -2145,6 +2147,7 @@ const Estimation = () => {
       wastValue,
       copperData,
       storeDetails,
+      stoneItemsData,
     );
   };
 
@@ -2174,6 +2177,7 @@ const Estimation = () => {
       wastValue,
       copperData,
       storeDetails,
+      stoneItemsData,
     );
   };
 

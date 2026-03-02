@@ -24,6 +24,7 @@ export const printReceiptModule2 = (
   wastMc,
   wastValue,
   wastPer,
+  stoneItemsData,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -191,7 +192,26 @@ export const printReceiptModule2 = (
         (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
         0,
       );
-      const ctsData = totalCts / 5 + totalGrams;
+      const stoneWeight = matchedStone.reduce((sum, stone) => {
+        const cts = Number(stone?.CTS);
+        const grams = Number(stone?.GRMS);
+
+        // find matching stone config using ITEMNAME
+        const matchedItem = stoneItemsData?.find(
+          (item) => item.ITEMNAME === stone.ITEMNAME,
+        );
+
+        // check condition
+        const shouldDivide =
+          matchedItem?.EFFECTON_DIAMOND === true ||
+          matchedItem?.EFFECTON_GOLD === true;
+
+        // apply calculation
+        const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+        return sum + calculatedCts + grams;
+      }, 0);
+      const ctsData = stoneWeight;
       const netWt = item?.GWT - ctsData;
       const netWeight = netWt ?? item?.NWT ?? 0;
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");

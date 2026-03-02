@@ -25,11 +25,13 @@ export const PrintModule2 = (
   wastMc,
   wastValue,
   wastPer,
+  stoneItemsData,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
       .toFixed(dec)
       .replace(/\.00$/, "");
+  const toNumber = (val) => Number(val) || 0;
 
   let htmlContent = `
   <html>
@@ -218,7 +220,26 @@ export const PrintModule2 = (
       (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
       0,
     );
-    const ctsData = totalCts / 5 + totalGrams;
+    const stoneWeight = matchedStones.reduce((sum, stone) => {
+      const cts = toNumber(stone?.CTS);
+      const grams = toNumber(stone?.GRMS);
+
+      // find matching stone config using ITEMNAME
+      const matchedItem = stoneItemsData?.find(
+        (item) => item.ITEMNAME === stone.ITEMNAME,
+      );
+
+      // check condition
+      const shouldDivide =
+        matchedItem?.EFFECTON_DIAMOND === true ||
+        matchedItem?.EFFECTON_GOLD === true;
+
+      // apply calculation
+      const calculatedCts = shouldDivide ? cts / 5 : 0;
+
+      return sum + calculatedCts + grams;
+    }, 0);
+    const ctsData = stoneWeight;
     const netWt = item?.GWT - ctsData;
     const netWeight = netWt ?? item?.NWT ?? 0;
 

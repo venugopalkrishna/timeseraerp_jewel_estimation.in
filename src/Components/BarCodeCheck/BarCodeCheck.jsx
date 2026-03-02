@@ -1989,6 +1989,7 @@ const BarCodeCheck = () => {
       wastMc,
       wastValue,
       wastPer,
+      stoneItemsData,
     );
   };
 
@@ -2017,6 +2018,7 @@ const BarCodeCheck = () => {
       wastMc,
       wastValue,
       wastPer,
+      stoneItemsData,
     );
   };
 
@@ -2045,6 +2047,7 @@ const BarCodeCheck = () => {
       wastMc,
       wastValue,
       wastPer,
+      stoneItemsData,
     );
   };
 
@@ -2073,6 +2076,7 @@ const BarCodeCheck = () => {
       wastMc,
       wastValue,
       wastPer,
+      stoneItemsData,
     );
   };
 
