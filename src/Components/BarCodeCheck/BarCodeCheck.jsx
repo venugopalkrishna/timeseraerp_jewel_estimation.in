@@ -627,6 +627,33 @@ const BarCodeCheck = () => {
         (sum, item) => sum + (Number(item?.AMOUNT) || 0),
         0,
       );
+      const wastAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+      const ctsData = matchedStone.reduce((sum, stone) => {
+        const cts = toNumber(stone?.CTS);
+        const grams = toNumber(stone?.GRMS);
+
+        // find matching stone config using ITEMNAME
+        const matchedItem = stoneItemsData?.find(
+          (item) => item.ITEMNAME === stone.ITEMNAME,
+        );
+
+        // check condition
+        const shouldDivide =
+          matchedItem?.EFFECTON_DIAMOND === true ||
+          matchedItem?.EFFECTON_GOLD === true;
+
+        // apply calculation
+        const calculatedCts = shouldDivide ? cts / 5 : 0;
+        const calculatedGrams = shouldDivide ? grams : 0;
+
+        return sum + calculatedCts + calculatedGrams;
+      }, 0);
+
+      const beads = Number(item?.BSWT);
+
+      const totStone = Number(beads) + Number(ctsData);
+
+      const netWt = item?.GWT - totStone;
       return {
         estimationNo: tagNo
           ? String(tagNo)
@@ -638,7 +665,7 @@ const BarCodeCheck = () => {
         productName: String(item?.PRODUCTNAME ?? "-"),
         pieces: Number(item?.PIECES ?? 0),
         gwt: Number(item?.GWT ?? 0),
-        nwt: Number(item?.NWT ?? 0),
+        nwt: Number(netWt ?? 0),
         categoryName: String(item?.CATEGORYNAME ?? "-"),
         wastage: String(matched?.WASTAGE ?? item?.WASTAGE ?? "-"),
         directWastage: String(matched?.DIRECTWT ?? item?.DIRECTWASTAGE ?? "-"),
@@ -1348,6 +1375,7 @@ const BarCodeCheck = () => {
       const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
       const gwt = barCodeData.reduce((s, i) => s + num(i.GWT), 0);
       const nwt = barCodeData.reduce((s, i) => s + num(i.NWT), 0);
+      const beads = barCodeData.reduce((s, i) => s + num(i.BSWT), 0);
 
       const totalAmount = totalAmounts.reduce((s, i) => s + num(i.TOTALAMT), 0);
       const totalGstAmount = totalAmounts.reduce(
@@ -1431,11 +1459,14 @@ const BarCodeCheck = () => {
 
         // apply calculation
         const calculatedCts = shouldDivide ? cts / 5 : 0;
+        const calculatedGrams = shouldDivide ? grams : 0;
 
-        return sum + calculatedCts + grams;
+        return sum + calculatedCts + calculatedGrams;
       }, 0);
 
-      const netWt = gwt - ctsData;
+      const totStone = beads + ctsData;
+
+      const netWt = gwt - totStone;
 
       setTotalStoneAmt(totalStoneAmount);
       setTotalPcs(pcs);
@@ -1868,13 +1899,16 @@ const BarCodeCheck = () => {
 
           // apply calculation
           const calculatedCts = shouldDivide ? cts / 5 : 0;
+          const calculatedGrams = shouldDivide ? grams : 0;
 
-          return sum + calculatedCts + grams;
+          return sum + calculatedCts + calculatedGrams;
         }, 0);
+        const beads = Number(barCode?.BSWT);
+        const totStone = beads + stoneWeight;
 
         // ---- Net Weight ----
         const grossWt = toNumber(barCode?.GWT);
-        const netWt = grossWt - stoneWeight || toNumber(barCode?.NWT);
+        const netWt = grossWt - totStone || toNumber(barCode?.NWT);
 
         // ---- Wastage / MC ----
         const wastageAmt = toNumber(
@@ -2308,12 +2342,17 @@ const BarCodeCheck = () => {
 
                   // apply calculation
                   const calculatedCts = shouldDivide ? cts / 5 : 0;
+                  const calculatedGrams = shouldDivide ? grams : 0;
 
-                  return sum + calculatedCts + grams;
+                  return sum + calculatedCts + calculatedGrams;
                 }, 0);
 
+                const beads = Number(barCode?.BSWT);
+
+                const totStone = Number(beads) + Number(ctsData);
+
                 // const ctsData = totalCts / 5 + totalGrams;
-                const netWt = barCode?.GWT - ctsData;
+                const netWt = barCode?.GWT - totStone;
                 const netWeight = netWt ?? barCode?.NWT ?? 0;
                 const wastAmt = Number(
                   matchedW?.TOTALWT ?? barCode?.CATTOTWAST ?? 0,
@@ -2488,7 +2527,7 @@ const BarCodeCheck = () => {
                           <span className={styles.label2}>Stone Wt</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            {Number(ctsData ?? barCode?.ITEM_TOTAMT)?.toFixed(
+                            {Number(totStone ?? barCode?.ITEM_TOTAMT)?.toFixed(
                               3,
                             ) + "g" ?? "0.000g"}
                           </span>

@@ -229,18 +229,22 @@ export const PrintModule2 = (
 
       // apply calculation
       const calculatedCts = shouldDivide ? cts / 5 : 0;
+      const calculatedGrams = shouldDivide ? grams : 0;
 
-      return sum + calculatedCts + grams;
+      return sum + calculatedCts + calculatedGrams;
     }, 0);
+    const beads = Number(item?.BSWT);
+
+    const totStone = Number(beads) + Number(stoneWeight);
 
     const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
     const ctsData = stoneWeight;
-    const netWt = item?.GWT - ctsData;
+    const netWt = item?.GWT - totStone;
     const netWeight = netWt ?? item?.NWT ?? 0;
 
     const nwt = Number(netWt ?? item?.NWT ?? 0);
     const gwt = Number(item?.GWT ?? 0);
-    const swt = Number(ctsData ?? item?.stonewt ?? 0);
+    const swt = Number(totStone ?? item?.stonewt ?? 0);
     const wastageValue = matchedW?.WASTAGE ?? item?.WASTAGE ?? 0;
     const wastAmt = Number(matchedW?.TOTALWT ?? item?.CATTOTWAST ?? 0);
     const mcAmt = Number(matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0);

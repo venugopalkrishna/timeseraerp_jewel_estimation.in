@@ -236,10 +236,14 @@ export const PrintModule2 = (
 
       // apply calculation
       const calculatedCts = shouldDivide ? cts / 5 : 0;
+      const calculatedGrams = shouldDivide ? grams : 0;
 
-      return sum + calculatedCts + grams;
+      return sum + calculatedCts + calculatedGrams;
     }, 0);
-    const ctsData = stoneWeight;
+    const beads = Number(item?.BSWT);
+
+    const ctsData = Number(beads) + Number(stoneWeight);
+    // const ctsData = stoneWeight;
     const netWt = item?.GWT - ctsData;
     const netWeight = netWt ?? item?.NWT ?? 0;
 
