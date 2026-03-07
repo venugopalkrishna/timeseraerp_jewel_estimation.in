@@ -641,9 +641,9 @@ const Estimation = () => {
         return sum + calculatedCts + calculatedGrams;
       }, 0);
 
-      const beads = Number(item?.BSWT);
+      const beads = Number(item?.BSWT) || 0;
 
-      const totStone = Number(beads) + Number(ctsData);
+      const totStone = Number(ctsData) + Number(beads) || 0;
 
       const netWt = item?.GWT - totStone;
       const netWeight = netWt ?? item?.NWT ?? 0;
@@ -1616,7 +1616,7 @@ const Estimation = () => {
         return sum + calculatedCts + calculatedGrams;
       }, 0);
 
-      const totStone = Number(beads) + Number(ctsData);
+      const totStone = Number(ctsData) + Number(beads);
       const netWt = gwt - totStone;
 
       setTotalStoneAmt(totalStoneAmount);
@@ -1991,8 +1991,9 @@ const Estimation = () => {
 
           return sum + calculatedCts + calculatedGrams;
         }, 0);
-        const beads = Number(barCode?.BSWT);
-        const totStone = beads + stoneWeight;
+        const beads = Number(barCode?.BSWT) || 0;
+
+        const totStone = Number(stoneWeight) + Number(beads) || 0;
         // ---- Net Weight ----
         const grossWt = toNumber(barCode?.GWT);
         const netWt = grossWt - totStone || toNumber(barCode?.NWT);
@@ -2373,9 +2374,9 @@ const Estimation = () => {
 
                   return sum + calculatedCts + calculatedGrams;
                 }, 0);
-                const beads = Number(barCode?.BSWT);
+                const beads = Number(barCode?.BSWT) || 0;
 
-                const totStone = Number(beads) + Number(ctsData);
+                const totStone = Number(ctsData) + Number(beads) || 0;
                 const netWt = barCode?.GWT - totStone;
                 const netWeight = netWt ?? barCode?.NWT ?? 0;
                 const wastAmt = Number(

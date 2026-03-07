@@ -210,9 +210,9 @@ export const printReceipt = (
 
         return sum + calculatedCts + calculatedGrams;
       }, 0);
-      const beads = Number(item?.BSWT);
+      const beads = Number(item?.BSWT) || 0;
 
-      const totStone = Number(beads) + Number(stoneWeight);
+      const totStone = Number(stoneWeight) + Number(beads) || 0;
       const ctsData = stoneWeight;
       const netWt = item?.GWT - totStone;
       const netWeight = netWt ?? item?.NWT ?? 0;

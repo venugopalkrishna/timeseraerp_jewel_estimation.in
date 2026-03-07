@@ -212,9 +212,9 @@ export const printReceiptModule2 = (
 
         return sum + calculatedCts + calculatedGrams;
       }, 0);
-      const beads = Number(item?.BSWT);
+      const beads = Number(item?.BSWT) || 0;
 
-      const ctsData = Number(beads) + Number(stoneWeight);
+      const ctsData = Number(stoneWeight) + Number(beads) || 0;
       // const ctsData = stoneWeight;
       const netWt = item?.GWT - ctsData;
       const netWeight = netWt ?? item?.NWT ?? 0;
@@ -233,14 +233,14 @@ export const printReceiptModule2 = (
           ? `${wastageValue}%`.padEnd(6, " ")
           : "".padEnd(6, " ");
       const WGramsPer =
-        wastageValue > 0
+        Number(wastageValue) > 0
           ? `${wastageValue}%`.padStart(20, " ")
           : `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
               3,
             )}`.padStart(20, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3,
-      )}`.padStart(20, " ");
+      )}`.padStart(21, " ");
       const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
         2,
       )}`.padStart(27, " ");

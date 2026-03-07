@@ -228,9 +228,9 @@ export const PrintModule1 = (
 
       return sum + calculatedCts + calculatedGrams;
     }, 0);
-    const beads = Number(item?.BSWT);
+    const beads = Number(item?.BSWT) || 0;
 
-    const ctsData = Number(beads) + Number(stoneWeight);
+    const ctsData = Number(stoneWeight) + Number(beads) || 0;
     // const ctsData = stoneWeight;
     const netWt = item?.GWT - ctsData;
     const netWeight = netWt ?? item?.NWT ?? 0;

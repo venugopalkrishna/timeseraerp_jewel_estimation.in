@@ -233,9 +233,9 @@ export const PrintModule2 = (
 
       return sum + calculatedCts + calculatedGrams;
     }, 0);
-    const beads = Number(item?.BSWT);
+    const beads = Number(item?.BSWT) || 0;
 
-    const totStone = Number(beads) + Number(stoneWeight);
+    const totStone = Number(stoneWeight) + Number(beads) || 0;
 
     const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
     const ctsData = stoneWeight;
