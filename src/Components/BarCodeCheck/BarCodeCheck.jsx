@@ -240,6 +240,7 @@ const BarCodeCheck = () => {
       console.error("Error fetching account number:", error);
     }
   };
+  console.log(barCodeData, "barcode");
 
   const stoneItemsAPI = async () => {
     try {
@@ -1951,6 +1952,7 @@ const BarCodeCheck = () => {
     const modifiedData = barCodeData.map((item, index) => {
       const nwt = Number(item?.NWT) || 0;
       const wastage = Number(item?.WASTAGE) || 0;
+      const wastValue = Number(item?.CATTOTWAST);
       return {
         TAGNO: item?.TAGNO ?? 0,
         ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
@@ -1960,7 +1962,9 @@ const BarCodeCheck = () => {
         TOTALWT:
           wastage > 0
             ? Number((nwt * wastage) / 100)
-            : Number(item?.DIRECTWASTAGE ?? 0),
+            : Number(wastValue) > 0
+              ? Number(wastValue)
+              : Number(item?.DIRECTWASTAGE ?? 0),
       };
     });
 
@@ -1970,6 +1974,7 @@ const BarCodeCheck = () => {
       const NWT = Number(item?.NWT || 0);
       const GWT = Number(item?.GWT || 0);
       const WAST = Number(item?.WASTAGE || 0);
+      const MCVALUE = Number(item?.CATTOTMC || 0);
 
       if (mcCalc === "NWT") {
         nwt = NWT;
@@ -1987,7 +1992,12 @@ const BarCodeCheck = () => {
         NWT: nwt,
         MAKINGCHARGES: making ? making.toString() : "",
         DIRECTAMT: item?.DIRECTMC,
-        TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+        TOTALAMT:
+          making > 0
+            ? Number(nwt * making)
+            : Number(MCVALUE) > 0
+              ? Number(MCVALUE)
+              : (item?.DIRECTMC ?? 0),
       };
     });
 
@@ -2647,7 +2657,7 @@ const BarCodeCheck = () => {
                               if (matched) {
                                 return `${Number(matched.TOTALWT).toFixed(3)}g`;
                               } else {
-                                return barCode?.CATTOTWAST
+                                return Number(barCode?.CATTOTWAST) > 0
                                   ? `${Number(barCode?.CATTOTWAST).toFixed(3)}g`
                                   : "0.000g";
                               }

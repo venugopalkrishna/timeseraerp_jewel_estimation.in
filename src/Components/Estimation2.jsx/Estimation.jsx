@@ -2028,6 +2028,7 @@ const Estimation = () => {
     const modifiedData = barCodeData.map((item, index) => {
       const nwt = Number(item?.NWT) || 0;
       const wastage = Number(item?.WASTAGE) || 0;
+      const wastValue = Number(item?.CATTOTWAST);
       return {
         TAGNO: item?.TAGNO ?? 0,
         NWT: nwt,
@@ -2036,7 +2037,9 @@ const Estimation = () => {
         TOTALWT:
           wastage > 0
             ? Number((nwt * wastage) / 100)
-            : Number(item?.DIRECTWASTAGE ?? 0),
+            : Number(wastValue) > 0
+              ? Number(wastValue)
+              : Number(item?.DIRECTWASTAGE ?? 0),
       };
     });
 
@@ -2046,6 +2049,7 @@ const Estimation = () => {
       const NWT = Number(item?.NWT || 0);
       const GWT = Number(item?.GWT || 0);
       const WAST = Number(item?.WASTAGE || 0);
+      const MCVALUE = Number(item?.CATTOTMC || 0);
 
       if (mcCalc === "NWT") {
         nwt = NWT;
@@ -2062,7 +2066,12 @@ const Estimation = () => {
         NWT: nwt,
         MAKINGCHARGES: making ? making.toString() : "",
         DIRECTAMT: item?.DIRECTMC,
-        TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+        TOTALAMT:
+          making > 0
+            ? Number(nwt * making)
+            : Number(MCVALUE) > 0
+              ? Number(MCVALUE)
+              : (item?.DIRECTMC ?? 0),
       };
     });
 

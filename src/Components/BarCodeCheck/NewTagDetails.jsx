@@ -1499,7 +1499,9 @@ const Tag = ({
               <div className={styles.highlightBox2}>
                 <span className={styles.label2}>Mteal Value </span>
                 {/* <span className={styles.separator2}>:</span> */}
-                <span className={styles.value2}>₹{tagNwt * tagRate || 0}</span>
+                <span className={styles.value2}>
+                  ₹{Number(tagNwt * tagRate)?.toFixed(2) || 0}
+                </span>
               </div>
               {tray !== true ? (
                 <>

@@ -152,9 +152,9 @@ export const printReceiptModule2 = (
     // ==== ITEMS ====
     barCodeData.forEach((item, index) => {
       const tag = (item?.TAGNO ?? "").toString().padEnd(10, " "); // SNO column
-      const purity = (item?.PREFIX ?? "").padEnd(4, " ");
+      const purity = (item?.PREFIX ?? "").padEnd(12, " ");
       const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
-        27,
+        19,
         " ",
       ); // right-align AMOUNT
 
