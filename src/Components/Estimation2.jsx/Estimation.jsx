@@ -2025,12 +2025,25 @@ const Estimation = () => {
         };
       }
     });
+
+    setTotalAmounts(perData);
+  }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
+
+  useEffect(() => {
+    if (!Array.isArray(barCodeData) || barCodeData.length === 0) {
+      setWastageData([]);
+      setMcData([]);
+      return;
+    }
+
+    // ---- Wastage Data ----
     const modifiedData = barCodeData.map((item, index) => {
       const nwt = Number(item?.NWT) || 0;
       const wastage = Number(item?.WASTAGE) || 0;
       const wastValue = Number(item?.CATTOTWAST);
       return {
         TAGNO: item?.TAGNO ?? 0,
+        ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
         NWT: nwt,
         WASTAGE: wastage ? wastage.toString() : "",
         DIRECTWT: item?.DIRECTWASTAGE,
@@ -2063,6 +2076,7 @@ const Estimation = () => {
       const making = Number(item?.MAKINGCHARGES) || 0;
       return {
         TAGNO: item?.TAGNO ?? 0,
+        ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
         NWT: nwt,
         MAKINGCHARGES: making ? making.toString() : "",
         DIRECTAMT: item?.DIRECTMC,
@@ -2075,14 +2089,44 @@ const Estimation = () => {
       };
     });
 
-    setTotalAmounts(perData);
-    setMcData(modifiedMcData);
-    setWastageData(modifiedData);
-  }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
+    setWastageData((prevData) => {
+      const existingTags = prevData.map((item) => item.TAGNO);
 
-  const EstNo = tagNo ? tagNo : estNo;
+      const filteredData = modifiedData.filter(
+        (item) => !existingTags.includes(item.TAGNO),
+      );
+
+      if (filteredData.length === 0) {
+        // message.error("All these tag numbers already existed");
+        return prevData;
+      }
+
+      const updatedData = [...prevData, ...modifiedData];
+
+      return updatedData;
+    });
+    setMcData((prevData) => {
+      const existingTags = prevData.map((item) => item.TAGNO);
+
+      const filteredData = modifiedMcData.filter(
+        (item) => !existingTags.includes(item.TAGNO),
+      );
+
+      if (filteredData.length === 0) {
+        // message.error("All these tag numbers already existed");
+        return prevData;
+      }
+
+      const updatedData = [...prevData, ...modifiedMcData];
+
+      return updatedData;
+    });
+  }, [barCodeData]);
+
+  // const EstNo = tagNo ? tagNo : estNo;
 
   const handleEposPrint = (est) => {
+    const EstNo = tagNo ? tagNo : est;
     printReceipt(
       localIp,
       EstNo,
@@ -2113,6 +2157,7 @@ const Estimation = () => {
   };
 
   const handleEposPrintModule2 = (est) => {
+    const EstNo = tagNo ? tagNo : est;
     printReceiptModule2(
       localIp,
       EstNo,
@@ -2143,6 +2188,7 @@ const Estimation = () => {
   };
 
   const handlePrintModule1 = (est) => {
+    const EstNo = tagNo ? tagNo : est;
     PrintModule1(
       localIp,
       EstNo,
@@ -2173,6 +2219,7 @@ const Estimation = () => {
   };
 
   const handlePrintModule2 = (est) => {
+    const EstNo = tagNo ? tagNo : est;
     PrintModule2(
       localIp,
       EstNo,

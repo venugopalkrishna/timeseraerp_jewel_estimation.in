@@ -1751,75 +1751,6 @@ const BarCodeCheck = () => {
     stoneItemsAPI();
   }, []);
 
-  // useEffect(() => {
-  //   if (!barCodeData.length) return;
-
-  //   const perData = barCodeData.map((barCode) => {
-  //     let matched;
-  //     let matchedMc;
-  //     let matchedStone;
-  //     if (barCode.TAGNO > 0) {
-  //       matched = wastageData.find((w) => w.TAGNO === barCode?.TAGNO);
-  //       matchedMc = mcData.find((mc) => mc.TAGNO === barCode?.TAGNO);
-  //       matchedStone = stonesData.filter(
-  //         (stone) => stone.TAGNO === barCode.TAGNO,
-  //       );
-  //     } else {
-  //       matched = wastageData.find(
-  //         (item) => item.ISSBRANCHNAME === barCode?.ISSBRANCHNAME,
-  //       );
-  //       matchedMc = mcData.find(
-  //         (item) => item.ISSBRANCHNAME === barCode.ISSBRANCHNAME,
-  //       );
-  //       matchedStone = stonesData.filter(
-  //         (item) => item.ISSBRANCHNAME === barCode?.ISSBRANCHNAME,
-  //       );
-  //     }
-  //     // const matched = wastageData.find((item) => item.TAGNO === barCode.TAGNO);
-  //     // const matchedMc = mcData.find((item) => item.TAGNO === barCode.TAGNO);
-  //     // const matchedStone = stonesData.filter(
-  //     //   (item) => item.TAGNO === barCode.TAGNO,
-  //     // );
-  //     const totalStoneAmount = matchedStone.reduce(
-  //       (sum, item) => sum + (Number(item?.AMOUNT) || 0),
-  //       0,
-  //     );
-  //     const totalCts = matchedStone.reduce(
-  //       (sum, item) => sum + (parseFloat(item.CTS) || 0),
-  //       0,
-  //     );
-  //     const totalGrams = matchedStone.reduce(
-  //       (sum, item) => sum + (parseFloat(item.GRMS) || 0),
-  //       0,
-  //     );
-
-  //     const ctsData = totalCts / 5 + totalGrams;
-  //     const netWt = barCode?.GWT - ctsData;
-
-  //     const wastageAmt = matched?.TOTALWT
-  //       ? Number(matched.TOTALWT)
-  //       : Number(barCode.CATTOTWAST ?? 0);
-  //     const mcAmount = matchedMc?.TOTALAMT
-  //       ? Number(matchedMc.TOTALAMT)
-  //       : Number(barCode.CATTOTMC ?? 0);
-  //     const stoneAmount = Number(totalStoneAmount ?? 0);
-  //     const rateAmount =
-  //       (Number(netWt ?? barCode.NWT ?? 0) + wastageAmt) *
-  //       Number(barCode.RATE ?? 0);
-  //     const totalAmount = rateAmount + mcAmount + stoneAmount;
-  //     const gstAmount = (totalAmount * barCode?.GSTRATE) / 100;
-  //     const netAmount = Number(totalAmount) + Number(gstAmount);
-
-  //     return {
-  //       TAGNO: barCode.TAGNO ?? "",
-  //       TOTALAMT: Number(totalAmount.toFixed(2)),
-  //       GSTTOTALAMT: Number(gstAmount.toFixed(2)),
-  //       NETAMT: Number(netAmount.toFixed(2)),
-  //     };
-  //   });
-
-  //   setTotalAmounts(perData);
-  // }, [wastageData, mcData, wastageOpen, mcOpen, stonesData, barCodeData]);
   useEffect(() => {
     if (!Array.isArray(barCodeData) || barCodeData.length === 0) {
       setTotalAmounts([]);
@@ -1949,6 +1880,17 @@ const BarCodeCheck = () => {
       }
     });
 
+    setTotalAmounts(perData);
+  }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
+
+  useEffect(() => {
+    if (!Array.isArray(barCodeData) || barCodeData.length === 0) {
+      setWastageData([]);
+      setMcData([]);
+      return;
+    }
+
+    // ---- Wastage Data ----
     const modifiedData = barCodeData.map((item, index) => {
       const nwt = Number(item?.NWT) || 0;
       const wastage = Number(item?.WASTAGE) || 0;
@@ -2001,14 +1943,44 @@ const BarCodeCheck = () => {
       };
     });
 
-    setTotalAmounts(perData);
-    setMcData(modifiedMcData);
-    setWastageData(modifiedData);
-  }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
+    setWastageData((prevData) => {
+      const existingTags = prevData.map((item) => item.TAGNO);
 
-  const EstNo = tagNo ? tagNo : !Number(ePrefix) ? estNo : ePrefix + estNo;
+      const filteredData = modifiedData.filter(
+        (item) => !existingTags.includes(item.TAGNO),
+      );
+
+      if (filteredData.length === 0) {
+        // message.error("All these tag numbers already existed");
+        return prevData;
+      }
+
+      const updatedData = [...prevData, ...modifiedData];
+
+      return updatedData;
+    });
+    setMcData((prevData) => {
+      const existingTags = prevData.map((item) => item.TAGNO);
+
+      const filteredData = modifiedMcData.filter(
+        (item) => !existingTags.includes(item.TAGNO),
+      );
+
+      if (filteredData.length === 0) {
+        // message.error("All these tag numbers already existed");
+        return prevData;
+      }
+
+      const updatedData = [...prevData, ...modifiedMcData];
+
+      return updatedData;
+    });
+  }, [barCodeData]);
+
+  // const EstNo = tagNo ? tagNo : !Number(ePrefix) ? estNo : ePrefix + estNo;
 
   const handleEposPrint = (est) => {
+    const EstNo = tagNo ? tagNo : !Number(ePrefix) ? est : ePrefix + est;
     printReceipt(
       localIp,
       EstNo,
@@ -2038,6 +2010,7 @@ const BarCodeCheck = () => {
   };
 
   const handleEposPrintModule2 = (est) => {
+    const EstNo = tagNo ? tagNo : !Number(ePrefix) ? est : ePrefix + est;
     printReceiptModule2(
       localIp,
       EstNo,
@@ -2067,6 +2040,7 @@ const BarCodeCheck = () => {
   };
 
   const handlePrintModule1 = (est) => {
+    const EstNo = tagNo ? tagNo : !Number(ePrefix) ? est : ePrefix + est;
     PrintModule1(
       localIp,
       EstNo,
@@ -2096,6 +2070,7 @@ const BarCodeCheck = () => {
   };
 
   const handlePrintModule2 = (est) => {
+    const EstNo = tagNo ? tagNo : !Number(ePrefix) ? est : ePrefix + est;
     PrintModule2(
       localIp,
       EstNo,
