@@ -1693,13 +1693,17 @@ const Tag = ({
                 ₹{Number(totalAmount)?.toFixed(2)}
               </span>
             </div>
-            <div>
-              Gst @ 3 %
-              <br />
-              <span className={styles.amount5}>
-                ₹{Number(totalGstAmount)?.toFixed(2)}
-              </span>
-            </div>
+            {Number(gstValue) > 0 ? (
+              <div>
+                Gst @ {gstValue} %
+                <br />
+                <span className={styles.amount5}>
+                  ₹{Number(totalGstAmount)?.toFixed(2)}
+                </span>
+              </div>
+            ) : (
+              ""
+            )}
             <div>
               Net Amount
               <br />
