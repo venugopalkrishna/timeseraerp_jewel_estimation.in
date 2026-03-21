@@ -118,6 +118,7 @@ const BarCodeCheck = () => {
   const [tagBrandAmt, setTagBrandAmt] = useState();
   const [gstData, setGstData] = useState([]);
   const [stoneItemsData, setStoneItemsData] = useState([]);
+  const [todayRates, setTodayRates] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -240,7 +241,6 @@ const BarCodeCheck = () => {
       console.error("Error fetching account number:", error);
     }
   };
-  console.log(barCodeData, "barcode");
 
   const stoneItemsAPI = async () => {
     try {
@@ -262,8 +262,43 @@ const BarCodeCheck = () => {
     }
   };
 
+  const todayRatesAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=DAILY_RATES&where=RDATE='${dayjs().format(
+          "MM/DD/YYYY",
+        )}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        setTodayRates(data);
+      }
+    } catch (error) {
+      console.error("Error fetching today rates:", error);
+    }
+  };
+
   const tagNoAPI = async (tagNo) => {
     try {
+      // if (!Array.isArray(todayRates) || todayRates.length === 0) {
+      //   messageApi.open({
+      //     type: "warning",
+      //     content: (
+      //       <span style={{ color: "red", fontSize: 18, fontWeight: "bold" }}>
+      //         Check Today Rates
+      //       </span>
+      //     ),
+      //   });
+      //   return;
+      // }
+
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${
           barCode ? barCode : tagNo
@@ -276,19 +311,6 @@ const BarCodeCheck = () => {
       );
 
       const data = response.data;
-
-      // if (tagNo) {
-      //   messageApi.open({
-      //     type: "success",
-      //     content: (
-      //       <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-      //         Tag{" "}
-      //         <span style={{ color: "red" }}>{response.data[0]?.TAGNO}</span>{" "}
-      //         Scan Successfully
-      //       </span>
-      //     ),
-      //   });
-      // }
       if (!Array.isArray(data) || data.length === 0) {
         messageApi.open({
           type: "warning",
@@ -546,6 +568,14 @@ const BarCodeCheck = () => {
 
   const stonesDetailsAPI = async (tagNo) => {
     try {
+      // if (!Array.isArray(todayRates) || todayRates.length === 0) {
+      //   // messageApi.open({
+      //   //   type: "",
+      //   //   content: "",
+      //   // });
+      //   return;
+      // }
+
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO=${
           barCode ? barCode : tagNo
@@ -1373,6 +1403,7 @@ const BarCodeCheck = () => {
 
   useEffect(() => {
     if (barCodeData?.length > 0) {
+      gstAPI(barCodeData[0]?.MNAME);
       const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
       const gwt = barCodeData.reduce((s, i) => s + num(i.GWT), 0);
       const nwt = barCodeData.reduce((s, i) => s + num(i.NWT), 0);
@@ -1749,6 +1780,7 @@ const BarCodeCheck = () => {
     }
     itemsAPI();
     stoneItemsAPI();
+    todayRatesAPI();
   }, []);
 
   useEffect(() => {

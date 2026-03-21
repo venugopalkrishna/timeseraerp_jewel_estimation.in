@@ -81,6 +81,7 @@ const Estimation = () => {
   const [storeDetails, setStoreDetails] = useState({});
   const [gstData, setGstData] = useState([]);
   const [stoneItemsData, setStoneItemsData] = useState([]);
+  const [todayRates, setTodayRates] = useState([]);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -263,8 +264,42 @@ const Estimation = () => {
     }
   };
 
+  const todayRatesAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=DAILY_RATES&where=RDATE='${dayjs().format(
+          "MM/DD/YYYY",
+        )}'`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        setTodayRates(data);
+      }
+    } catch (error) {
+      console.error("Error fetching today rates:", error);
+    }
+  };
+
   const tagNoAPI = async (tagNo) => {
     try {
+      if (!Array.isArray(todayRates) || todayRates.length === 0) {
+        messageApi.open({
+          type: "warning",
+          content: (
+            <span style={{ color: "red", fontSize: 18, fontWeight: "bold" }}>
+              Check Today Rates
+            </span>
+          ),
+        });
+        return;
+      }
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${
           barCode ? barCode : tagNo
@@ -544,6 +579,13 @@ const Estimation = () => {
 
   const stonesDetailsAPI = async (tagNo) => {
     try {
+      if (!Array.isArray(todayRates) || todayRates.length === 0) {
+        // messageApi.open({
+        //   type: "",
+        //   content: "",
+        // });
+        return;
+      }
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO=${
           barCode ? barCode : tagNo
@@ -1525,6 +1567,7 @@ const Estimation = () => {
 
   useEffect(() => {
     if (barCodeData?.length > 0) {
+      gstAPI(barCodeData[0]?.MNAME);
       const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
       const gwt = barCodeData.reduce((s, i) => s + num(i.GWT), 0);
       const nwt = barCodeData.reduce((s, i) => s + num(i.NWT), 0);
@@ -1866,6 +1909,7 @@ const Estimation = () => {
     copperAPI();
     userAPI();
     stoneItemsAPI();
+    todayRatesAPI();
   }, []);
 
   // useEffect(() => {
