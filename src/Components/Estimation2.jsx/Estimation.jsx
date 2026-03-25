@@ -2052,7 +2052,7 @@ const Estimation = () => {
         // ---- Rate Calculation ----
         const rate = toNumber(barCode?.RATE);
 
-        const rateAmount = (netWt + wastageAmt) * rate;
+        const rateAmount = (netWt + wastageAmt)?.toFixed(3) * rate;
 
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 

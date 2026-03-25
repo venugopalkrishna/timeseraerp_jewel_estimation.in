@@ -1894,7 +1894,7 @@ const BarCodeCheck = () => {
         // } else {
         //   rateAmount = Number(netWt + wastageAmt) * rate;
         // }
-        const rateAmount = Number(netWt + wastageAmt) * rate;
+        const rateAmount = Number(netWt + wastageAmt)?.toFixed(3) * rate;
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
         const gstRate = toNumber(gstNo);
@@ -1931,7 +1931,7 @@ const BarCodeCheck = () => {
         TAGNO: item?.TAGNO ?? 0,
         ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
         NWT: nwt,
-        WASTAGE: wastage ? wastage.toString() : "",
+        WASTAGE: wastage ? wastage : "",
         DIRECTWT: item?.DIRECTWASTAGE,
         TOTALWT:
           wastage > 0
@@ -1964,7 +1964,7 @@ const BarCodeCheck = () => {
         TAGNO: item?.TAGNO ?? 0,
         ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
         NWT: nwt,
-        MAKINGCHARGES: making ? making.toString() : "",
+        MAKINGCHARGES: making ? making : "",
         DIRECTAMT: item?.DIRECTMC,
         TOTALAMT:
           making > 0

@@ -240,7 +240,7 @@ export const printReceiptModule2 = (
             )}`.padStart(20, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3,
-      )}`.padStart(21, " ");
+      )}`.padStart(20, " ");
       const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
         2,
       )}`.padStart(27, " ");
