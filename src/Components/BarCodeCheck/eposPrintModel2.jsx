@@ -218,6 +218,7 @@ export const printReceiptModule2 = (
       // const ctsData = stoneWeight;
       const netWt = item?.GWT - ctsData;
       const netWeight = netWt ?? item?.NWT ?? 0;
+
       const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(27, " ");
       const swt = `${Number(ctsData ?? item?.stonewt ?? 0).toFixed(
         3,
@@ -232,15 +233,19 @@ export const printReceiptModule2 = (
         wastageValue > 0
           ? `${wastageValue}%`.padEnd(6, " ")
           : "".padEnd(6, " ");
+      const WGram =
+        wastageValue > 0
+          ? `${wastageValue}%`.padStart(20, " ")
+          : "".padStart(20, " ");
       const WGramsPer =
-        Number(wastageValue) > 0
+        wastageValue > 0
           ? `${wastageValue}%`.padStart(20, " ")
           : `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
               3,
             )}`.padStart(20, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3,
-      )}`.padStart(20, " ");
+      )}`.padStart(21, " ");
       const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
         2,
       )}`.padStart(27, " ");
@@ -257,7 +262,6 @@ export const printReceiptModule2 = (
         27,
         " ",
       );
-
       const rate = Number(item?.RATE ?? 0);
       const nwtValue = Number(netWt ?? item?.NWT ?? 0);
       const totalValue = rate * nwtValue;
@@ -266,8 +270,8 @@ export const printReceiptModule2 = (
         27,
         " ",
       );
-      const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(27, " ");
 
+      const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(27, " ");
       // Main row (aligned with header)
       printer.addTextFont(printer.FONT_B);
       printer.addTextAlign(printer.ALIGN_LEFT);
@@ -318,11 +322,11 @@ export const printReceiptModule2 = (
       } else if (Number(printModel) === 4) {
         if (item?.GWT > 8) {
           if (wastValue === "V.A") {
-            printer.addText(`    V.A            :        ${WGrams}\n`);
+            printer.addText(`    V.A            :        ${WGram}\n`);
           } else if (wastValue === "VA") {
-            printer.addText(`    VA             :        ${WGrams}\n`);
+            printer.addText(`    VA             :        ${WGram}\n`);
           } else {
-            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+            printer.addText(`    WASTAGE        :        ${WGram}\n`);
           }
         } else {
           if (wastValue === "V.A") {
@@ -372,7 +376,6 @@ export const printReceiptModule2 = (
         }
       }
       printer.addText(`    STONE CHARGES  : ${SAmt}\n`);
-
       matchedStone.forEach((stone, index) => {
         const itemName = (stone.ITEMNAME || "")
           .substring(0, 10)

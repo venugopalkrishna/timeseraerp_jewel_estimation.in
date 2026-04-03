@@ -234,6 +234,10 @@ export const printReceipt = (
         wastageValue > 0
           ? `${wastageValue}%`.padEnd(6, " ")
           : "".padEnd(6, " ");
+      const WGram =
+        wastageValue > 0
+          ? `${wastageValue}%`.padStart(20, " ")
+          : "".padStart(20, " ");
       const WGramsPer =
         wastageValue > 0
           ? `${wastageValue}%`.padStart(20, " ")
@@ -242,7 +246,7 @@ export const printReceipt = (
             )}`.padStart(20, " ");
       const WAmt = `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
         3,
-      )}`.padStart(20, " ");
+      )}`.padStart(21, " ");
       const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
         2,
       )}`.padStart(27, " ");
@@ -319,11 +323,11 @@ export const printReceipt = (
       } else if (Number(printModel) === 4) {
         if (item?.GWT > 8) {
           if (wastValue === "V.A") {
-            printer.addText(`    V.A            :        ${WGrams}\n`);
+            printer.addText(`    V.A            :        ${WGram}\n`);
           } else if (wastValue === "VA") {
-            printer.addText(`    VA             :        ${WGrams}\n`);
+            printer.addText(`    VA             :        ${WGram}\n`);
           } else {
-            printer.addText(`    WASTAGE        :        ${WGrams}\n`);
+            printer.addText(`    WASTAGE        :        ${WGram}\n`);
           }
         } else {
           if (wastValue === "V.A") {
@@ -463,7 +467,6 @@ export const printReceipt = (
     printer.addTextSize(2, 1);
     const totalValue = grandTotalAmount;
     printer.addText("TOTAL :" + " " + totalValue.toFixed(0) + "/-" + "\n");
-    printer.addFeedLine(1);
     printer.addTextFont(printer.FONT_A);
     printer.addTextSize(1, 1);
     // printer.addTextAlign(printer.ALIGN_CENTER);
