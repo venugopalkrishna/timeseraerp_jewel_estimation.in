@@ -3172,80 +3172,103 @@ const Estimation = () => {
             </>
           ) : (
             <>
-              {barCodeData.map((barCode, index) => (
-                <div className={styles.card}>
-                  <div className={styles.header1}>
-                    <div>
-                      <span style={{ fontWeight: "bold", fontSize: "18px" }}>
-                        #{barCode?.TAGNO ? barCode?.TAGNO : "0"}
-                      </span>
-                      <br />
-                      <small>Tag no</small>
-                    </div>
-                    <div>
-                      Pure Rate
-                      <br />
-                      <span className={styles.amount1}>
-                        ₹{" "}
-                        {barCode?.FINERATE ? barCode?.FINERATE.toFixed(2) : 0.0}
-                      </span>
-                    </div>
-                  </div>
+              {barCodeData.map((barCode, index) => {
+                const nwtValue = Number(barCode?.COST_NWT) || 0;
+                const touch = Number(barCode?.COST_TOUCH) || 0;
+                const wast = Number(barCode?.COST_WASTAGE) || 0;
+                const touchRounded = Number(touch.toFixed(0));
+                const wastRounded = Number(wast.toFixed(0));
+                const wastageValue = touchRounded + wastRounded;
+                const totalValue = (nwtValue * wastageValue) / 100;
 
-                  <div className={styles.content}>
-                    <div className={styles.productHeader}>
-                      <span className={styles.productName}>
-                        {barCode?.PRODUCTNAME ? barCode?.PRODUCTNAME : "-"}
-                      </span>
-                      <span
-                        style={{
-                          color: "red",
-                          fontWeight: "bold",
-                          fontSize: "18px",
-                        }}
-                      >
-                        <DeleteOutlined
-                          style={{
-                            color: "red",
-                            cursor: "pointer",
-                            fontSize: "20px",
-                          }}
-                          onClick={() => {
-                            handleDelete(index);
-                            handleStonesDelete(barCode?.TAGNO);
-                            handleWastageDelete(barCode?.TAGNO);
-                            handleMcDelete(barCode?.TAGNO);
-                            handleTotalsDelete(barCode?.TAGNO);
-                          }}
-                        />
-                      </span>
-                      <span className={styles.qtyBox}>
-                        {barCode?.PIECES
-                          ? `${barCode?.PIECES} ${
-                              barCode?.PIECES === 1 ? "piece" : "pieces"
-                            }`
-                          : "0 pieces"}
-                      </span>
-                    </div>
-                    <div className={styles.divider} />
-
-                    <div className={styles.details}>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Main Product</span>
-                        <span className={styles.separator2}>:</span>
-                        <span
-                          style={{
-                            flex: 1,
-                            fontSize: "16px",
-                            textAlign: "right",
-                            color: "black",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {barCode?.MNAME ? barCode?.MNAME : "-"}
+                return (
+                  <div className={styles.card}>
+                    <div className={styles.header1}>
+                      <div>
+                        <span style={{ fontWeight: "bold", fontSize: "18px" }}>
+                          #{barCode?.TAGNO ? barCode?.TAGNO : "0"}
+                        </span>
+                        <br />
+                        <small>Tag no</small>
+                      </div>
+                      <div>
+                        Pure Rate
+                        <br />
+                        <span className={styles.amount1}>
+                          ₹{" "}
+                          {barCode?.FINERATE
+                            ? barCode?.FINERATE.toFixed(2)
+                            : 0.0}
                         </span>
                       </div>
-                      {/* <div className={styles.rowTag2}>
+                    </div>
+
+                    <div className={styles.content}>
+                      <div className={styles.productHeader}>
+                        <span className={styles.productName}>
+                          {barCode?.PRODUCTNAME ? barCode?.PRODUCTNAME : "-"}
+                        </span>
+                        <span
+                          style={{
+                            color: "red",
+                            fontWeight: "bold",
+                            fontSize: "18px",
+                          }}
+                        >
+                          <DeleteOutlined
+                            style={{
+                              color: "red",
+                              cursor: "pointer",
+                              fontSize: "20px",
+                            }}
+                            onClick={() => {
+                              handleDelete(index);
+                              handleStonesDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                              handleWastageDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                              handleMcDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                              handleTotalsDelete(
+                                barCode?.TAGNO,
+                                barCode?.ISSBRANCHNAME,
+                              );
+                            }}
+                          />
+                        </span>
+                        <span className={styles.qtyBox}>
+                          {barCode?.PIECES
+                            ? `${barCode?.PIECES} ${
+                                barCode?.PIECES === 1 ? "piece" : "pieces"
+                              }`
+                            : "0 pieces"}
+                        </span>
+                      </div>
+                      <div className={styles.divider} />
+
+                      <div className={styles.details}>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Main Product</span>
+                          <span className={styles.separator2}>:</span>
+                          <span
+                            style={{
+                              flex: 1,
+                              fontSize: "16px",
+                              textAlign: "right",
+                              color: "black",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {barCode?.MNAME ? barCode?.MNAME : "-"}
+                          </span>
+                        </div>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>Product Category</span>
                         <span className={styles.separator2}>:</span>
                         <span
@@ -3277,124 +3300,122 @@ const Estimation = () => {
                           {barCode?.HSNCODE ? barCode?.HSNCODE : "-"}
                         </span>
                       </div> */}
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Purity</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.PREFIX ? barCode?.PREFIX : "-"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Gwt</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.COST_LESS
-                            ? barCode?.COST_GWT?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Stone Wt</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.COST_LESS
-                            ? barCode?.COST_LESS?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Nwt</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.COST_NWT
-                            ? barCode?.COST_NWT?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.rowTag2}>
-                        <span className={styles.label2}>Touch + Wastage</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.COST_TOUCH
-                            ? Number(barCode?.COST_TOUCH)?.toFixed(3) + "g"
-                            : "0.000g"}{" "}
-                          +{" "}
-                          {barCode?.COST_WASTAGE
-                            ? Number(barCode?.COST_WASTAGE)?.toFixed(3) + "g"
-                            : "0.000g"}
-                        </span>
-                      </div>
-                      <div className={styles.highlightBox2}>
-                        <span className={styles.label2}>Fine Gold</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          {barCode?.COST_FTOUCH
-                            ? Number(barCode?.COST_FTOUCH).toFixed(3)
-                            : 0.0}
-                        </span>
-                      </div>
-                      <div className={styles.highlightBox1}>
-                        <span className={styles.label2}>Amount</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          ₹{" "}
-                          {barCode?.COST_FTOUCH * barCode?.FINERATE
-                            ? (
-                                barCode?.COST_FTOUCH * barCode?.FINERATE
-                              ).toFixed(2)
-                            : 0.0}
-                        </span>
-                      </div>
-                      <div className={styles.highlightBox3}>
-                        <span className={styles.label2}>MC</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          ₹{" "}
-                          {barCode?.COST_MC
-                            ? Number(barCode?.COST_MC).toFixed(2)
-                            : 0.0}
-                        </span>
-                      </div>
-                      <div className={styles.highlightBox}>
-                        <span className={styles.label2}>Others</span>
-                        <span className={styles.separator2}>:</span>
-                        <span className={styles.value2}>
-                          ₹{" "}
-                          {barCode?.COST_STAMT
-                            ? barCode?.COST_STAMT.toFixed(2)
-                            : 0.0}
-                        </span>
-                        {/* </div> */}
-                      </div>
-                      {/* <div className={styles.rowTag2}>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Purity</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.PREFIX ? barCode?.PREFIX : "-"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Gwt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.COST_LESS
+                              ? barCode?.COST_GWT?.toFixed(3) + "g"
+                              : "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Stone Wt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.COST_LESS
+                              ? barCode?.COST_LESS?.toFixed(3) + "g"
+                              : "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Nwt</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.COST_NWT
+                              ? barCode?.COST_NWT?.toFixed(3) + "g"
+                              : "0.000g"}
+                          </span>
+                        </div>
+                        <div className={styles.rowTag2}>
+                          <span className={styles.label2}>Touch + Wastage</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {barCode?.COST_TOUCH
+                              ? Number(barCode?.COST_TOUCH)?.toFixed(0) + "%"
+                              : "0%"}{" "}
+                            +{" "}
+                            {barCode?.COST_WASTAGE
+                              ? Number(barCode?.COST_WASTAGE)?.toFixed(0) + "%"
+                              : "0%"}
+                          </span>
+                        </div>
+                        <div className={styles.highlightBox2}>
+                          <span className={styles.label2}>Fine Gold</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            {totalValue ? Number(totalValue).toFixed(3) : 0.0}
+                          </span>
+                        </div>
+                        <div className={styles.highlightBox1}>
+                          <span className={styles.label2}>Amount</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            ₹{" "}
+                            {barCode?.COST_FTOUCH * barCode?.FINERATE
+                              ? (
+                                  barCode?.COST_FTOUCH * barCode?.FINERATE
+                                ).toFixed(2)
+                              : 0.0}
+                          </span>
+                        </div>
+                        <div className={styles.highlightBox3}>
+                          <span className={styles.label2}>MC</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            ₹{" "}
+                            {barCode?.COST_MC
+                              ? Number(barCode?.COST_MC).toFixed(2)
+                              : 0.0}
+                          </span>
+                        </div>
+                        <div className={styles.highlightBox}>
+                          <span className={styles.label2}>Others</span>
+                          <span className={styles.separator2}>:</span>
+                          <span className={styles.value2}>
+                            ₹{" "}
+                            {barCode?.COST_STAMT
+                              ? barCode?.COST_STAMT.toFixed(2)
+                              : 0.0}
+                          </span>
+                          {/* </div> */}
+                        </div>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>Dealer</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
                           {barCode?.DEALERNAME ? barCode?.DEALERNAME : "-"}
                         </span>
                       </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>Counter</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
                           {barCode?.COUNTERNAME ? barCode?.COUNTERNAME : "-"}
                         </span>
                       </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>HUID</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
                           {barCode?.HUID ? barCode?.HUID : "-"}
                         </span>
                       </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>Tag Size</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
                           {barCode?.TAGSIZE ? barCode?.TAGSIZE : "-"}
                         </span>
                       </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>Tag Date</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
@@ -3403,66 +3424,67 @@ const Estimation = () => {
                             : "-"}
                         </span>
                       </div> */}
-                      {/* <div className={styles.rowTag2}>
+                        {/* <div className={styles.rowTag2}>
                         <span className={styles.label2}>Description</span>
                         <span className={styles.separator2}>:</span>
                         <span className={styles.value2}>
                           {barCode?.DESC1 ? barCode?.DESC1 : "-"}
                         </span>
                       </div> */}
+                      </div>
                     </div>
-                  </div>
-                  <div className={styles.header}>
-                    <div>
-                      Total Amount
-                      <br />
-                      <span className={styles.amount}>
-                        ₹
-                        {(
-                          barCode?.COST_FTOUCH * barCode?.FINERATE +
-                          barCode?.COST_MC +
-                          barCode?.COST_STAMT
-                        )?.toFixed(2) || 0.0}
-                      </span>
-                    </div>
-                    {gstNo > 0 ? (
+                    <div className={styles.header}>
                       <div>
-                        Gst @ {gstNo || 0.0}%
+                        Total Amount
                         <br />
-                        <span className={styles.amount3}>
+                        <span className={styles.amount}>
                           ₹
                           {(
+                            barCode?.COST_FTOUCH * barCode?.FINERATE +
+                            barCode?.COST_MC +
+                            barCode?.COST_STAMT
+                          )?.toFixed(2) || 0.0}
+                        </span>
+                      </div>
+                      {gstNo > 0 ? (
+                        <div>
+                          Gst @ {gstNo || 0.0}%
+                          <br />
+                          <span className={styles.amount3}>
+                            ₹
+                            {(
+                              ((barCode?.COST_FTOUCH * barCode?.FINERATE +
+                                barCode?.COST_MC +
+                                barCode?.COST_STAMT) *
+                                barCode?.GSTRATE) /
+                              100
+                            )?.toFixed(2) || 0.0}
+                          </span>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      <div>
+                        Net Amount
+                        <br />
+                        <span className={styles.amount}>
+                          ₹
+                          {(
+                            barCode?.COST_FTOUCH * barCode?.FINERATE +
+                            barCode?.COST_MC +
+                            barCode?.COST_STAMT +
                             ((barCode?.COST_FTOUCH * barCode?.FINERATE +
                               barCode?.COST_MC +
                               barCode?.COST_STAMT) *
                               barCode?.GSTRATE) /
-                            100
+                              100
                           )?.toFixed(2) || 0.0}
                         </span>
                       </div>
-                    ) : (
-                      ""
-                    )}
-                    <div>
-                      Net Amount
-                      <br />
-                      <span className={styles.amount}>
-                        ₹
-                        {(
-                          barCode?.COST_FTOUCH * barCode?.FINERATE +
-                          barCode?.COST_MC +
-                          barCode?.COST_STAMT +
-                          ((barCode?.COST_FTOUCH * barCode?.FINERATE +
-                            barCode?.COST_MC +
-                            barCode?.COST_STAMT) *
-                            barCode?.GSTRATE) /
-                            100
-                        )?.toFixed(2) || 0.0}
-                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </>
           )}
         </div>

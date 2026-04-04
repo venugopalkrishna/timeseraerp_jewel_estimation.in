@@ -27,6 +27,7 @@ const TagCheck = () => {
   const [stonesOpen, setStonesOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const [makingAmount, setMakingAmount] = useState(0);
+  const [fineGold, setFineGold] = useState(0);
 
   const imageUrls = localStorage.getItem("images").split(",");
   const imagesData = imageUrls;
@@ -171,6 +172,7 @@ const TagCheck = () => {
     setBarCodeData([]);
     setTotalAmounts([]);
     setMakingAmount(0);
+    setFineGold(0);
   };
 
   const handleImageOk = () => {
@@ -217,6 +219,14 @@ const TagCheck = () => {
     }
     const amt = Number(net * making);
     setMakingAmount(amt);
+    const nwtValue = Number(barCodeData[0]?.COST_NWT) || 0;
+    const touch = Number(barCodeData[0]?.COST_TOUCH) || 0;
+    const wast = Number(barCodeData[0]?.COST_WASTAGE) || 0;
+    const touchRounded = Number(touch.toFixed(0));
+    const wastRounded = Number(wast.toFixed(0));
+    const wastageValue = touchRounded + wastRounded;
+    const totalValue = (nwtValue * wastageValue) / 100;
+    setFineGold(totalValue);
   }, [barCodeData]);
 
   return (
@@ -947,21 +957,19 @@ const TagCheck = () => {
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
                     {barCodeData[0]?.COST_TOUCH
-                      ? Number(barCodeData[0]?.COST_TOUCH)?.toFixed(3) + "g"
-                      : "0.000g"}{" "}
+                      ? Number(barCodeData[0]?.COST_TOUCH)?.toFixed(0) + "%"
+                      : "0%"}{" "}
                     +{" "}
                     {barCodeData[0]?.COST_WASTAGE
-                      ? Number(barCodeData[0]?.COST_WASTAGE)?.toFixed(3) + "g"
-                      : "0.000g"}
+                      ? Number(barCodeData[0]?.COST_WASTAGE)?.toFixed(0) + "%"
+                      : "0%"}
                   </span>
                 </div>
                 <div className={styles.highlightBox2}>
                   <span className={styles.label2}>Fine Gold</span>
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
-                    {barCodeData[0]?.COST_FTOUCH
-                      ? Number(barCodeData[0]?.COST_FTOUCH).toFixed(3)
-                      : 0.0}
+                    {fineGold ? Number(fineGold).toFixed(3) : 0.0}
                   </span>
                 </div>
                 <div className={styles.highlightBox1}>
