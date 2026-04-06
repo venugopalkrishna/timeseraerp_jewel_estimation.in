@@ -289,17 +289,17 @@ const Estimation = () => {
 
   const tagNoAPI = async (tagNo) => {
     try {
-      // if (!Array.isArray(todayRates) || todayRates.length === 0) {
-      //   messageApi.open({
-      //     type: "warning",
-      //     content: (
-      //       <span style={{ color: "red", fontSize: 18, fontWeight: "bold" }}>
-      //         Check Today Rates
-      //       </span>
-      //     ),
-      //   });
-      //   return;
-      // }
+      if (!Array.isArray(todayRates) || todayRates.length === 0) {
+        messageApi.open({
+          type: "warning",
+          content: (
+            <span style={{ color: "red", fontSize: 18, fontWeight: "bold" }}>
+              Check Today Rates
+            </span>
+          ),
+        });
+        return;
+      }
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${
           barCode ? barCode : tagNo
@@ -579,13 +579,13 @@ const Estimation = () => {
 
   const stonesDetailsAPI = async (tagNo) => {
     try {
-      // if (!Array.isArray(todayRates) || todayRates.length === 0) {
-      //   // messageApi.open({
-      //   //   type: "",
-      //   //   content: "",
-      //   // });
-      //   return;
-      // }
+      if (!Array.isArray(todayRates) || todayRates.length === 0) {
+        // messageApi.open({
+        //   type: "",
+        //   content: "",
+        // });
+        return;
+      }
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO=${
           barCode ? barCode : tagNo

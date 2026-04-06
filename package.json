@@ -20,6 +20,7 @@
     "antd-img-crop": "^4.24.0",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
+    "esc-pos-encoder": "^3.0.0",
     "html2pdf.js": "^0.12.1",
     "html5-qrcode": "^2.3.8",
     "install": "^0.13.0",

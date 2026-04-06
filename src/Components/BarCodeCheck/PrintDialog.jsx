@@ -7,6 +7,8 @@ const PrintTemplateDialog = ({
   handleEposPrintModule2,
   handlePrintModule1,
   handlePrintModule2,
+  printBluetoothBillModel1,
+  printBluetoothBillModel2,
   createEstimationData,
   createEstimationMast,
   createEstimationItems,
@@ -85,6 +87,15 @@ const PrintTemplateDialog = ({
             }
             // const nextInvNo = await estimationNo();
             handleEposPrint(nextInvNo);
+          } else if (pdfModule === "BLUETOOTH") {
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
+            printBluetoothBillModel1(nextInvNo);
           } else {
             let nextInvNo = 0;
             if (!Number(ePrefix)) {
@@ -144,6 +155,15 @@ const PrintTemplateDialog = ({
             }
             // const nextInvNo = await estimationNo();
             handleEposPrintModule2(nextInvNo);
+          } else if (pdfModule === "BLUETOOTH") {
+            let nextInvNo = 0;
+            if (!Number(ePrefix)) {
+              nextInvNo = await estimationNo();
+            } else {
+              nextInvNo = await ePrefixEstNo();
+            }
+            // const nextInvNo = await estimationNo();
+            printBluetoothBillModel2(nextInvNo);
           } else {
             let nextInvNo = 0;
             if (!Number(ePrefix)) {

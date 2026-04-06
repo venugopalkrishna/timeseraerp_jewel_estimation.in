@@ -35,10 +35,12 @@ const SidebarDrawer = ({
   singleImage,
   userArea,
   userName,
+  connectBluetoothPrinter,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const printModel = localStorage.getItem("printModel");
+  const pdfModule = localStorage.getItem("pdfModule");
 
   const logOut = () => {
     navigate("/");
@@ -260,6 +262,32 @@ const SidebarDrawer = ({
           V 1.0
         </Typography>
       </Box>
+      {pdfModule === "BLUETOOTH" ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mt={2}
+          mb={2}
+        >
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#52bd91",
+              color: "#fff",
+              textTransform: "none",
+              fontWeight: "bold",
+              borderRadius: "8px",
+              padding: "6px 20px",
+            }}
+            onClick={connectBluetoothPrinter}
+          >
+            Connect BT Printer
+          </Button>
+        </Box>
+      ) : (
+        ""
+      )}
     </Drawer>
   );
 };

@@ -24,6 +24,7 @@ import MakingChargesDialog from "./MakingChargesDialog";
 import { PrintModule1 } from "./PrintModule1";
 import { PrintModule2 } from "./PrintModule2";
 import Tag from "./NewTagDetails";
+import EscPosEncoder from "esc-pos-encoder";
 
 const BarCodeCheck = () => {
   const tagNoRef = useRef(null);
@@ -119,6 +120,8 @@ const BarCodeCheck = () => {
   const [gstData, setGstData] = useState([]);
   const [stoneItemsData, setStoneItemsData] = useState([]);
   const [todayRates, setTodayRates] = useState([]);
+  const [btDevice, setBtDevice] = useState(null);
+  const [btCharacteristic, setBtCharacteristic] = useState(null);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -198,6 +201,33 @@ const BarCodeCheck = () => {
       // }
     } catch (error) {
       console.error("Error fetching estimation number:", error);
+    }
+  };
+
+  const connectBluetoothPrinter = async () => {
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: ["000018f0-0000-1000-8000-00805f9b34fb"],
+      });
+
+      const server = await device.gatt.connect();
+
+      const service = await server.getPrimaryService(
+        "000018f0-0000-1000-8000-00805f9b34fb",
+      );
+
+      const characteristic = await service.getCharacteristic(
+        "00002af1-0000-1000-8000-00805f9b34fb",
+      );
+
+      setBtDevice(device);
+      setBtCharacteristic(characteristic);
+
+      message.success("Bluetooth Printer Connected ✅");
+    } catch (err) {
+      console.error(err);
+      // message.error("Bluetooth Connection Failed ❌");
     }
   };
 
@@ -287,17 +317,17 @@ const BarCodeCheck = () => {
 
   const tagNoAPI = async (tagNo) => {
     try {
-      // if (!Array.isArray(todayRates) || todayRates.length === 0) {
-      //   messageApi.open({
-      //     type: "warning",
-      //     content: (
-      //       <span style={{ color: "red", fontSize: 18, fontWeight: "bold" }}>
-      //         Check Today Rates
-      //       </span>
-      //     ),
-      //   });
-      //   return;
-      // }
+      if (!Array.isArray(todayRates) || todayRates.length === 0) {
+        messageApi.open({
+          type: "warning",
+          content: (
+            <span style={{ color: "red", fontSize: 18, fontWeight: "bold" }}>
+              Check Today Rates
+            </span>
+          ),
+        });
+        return;
+      }
 
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${
@@ -568,13 +598,13 @@ const BarCodeCheck = () => {
 
   const stonesDetailsAPI = async (tagNo) => {
     try {
-      // if (!Array.isArray(todayRates) || todayRates.length === 0) {
-      //   // messageApi.open({
-      //   //   type: "",
-      //   //   content: "",
-      //   // });
-      //   return;
-      // }
+      if (!Array.isArray(todayRates) || todayRates.length === 0) {
+        // messageApi.open({
+        //   type: "",
+        //   content: "",
+        // });
+        return;
+      }
 
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_ITEMS&where=TAGNO=${
@@ -2131,6 +2161,770 @@ const BarCodeCheck = () => {
     );
   };
 
+  const printBluetoothBillModel1 = async (est) => {
+    if (!btCharacteristic) {
+      message.warning("Connect Bluetooth Printer First");
+      return;
+    }
+    const EstNo = tagNo ? tagNo : !Number(ePrefix) ? est : ePrefix + est;
+    try {
+      const encoder = new EscPosEncoder();
+      let e = encoder.initialize();
+
+      const WIDTH = 42;
+      const line = "-".repeat(WIDTH);
+
+      // ===== FORMAT FUNCTION =====
+      const formatLine = (left = "", right = "") => {
+        left = String(left);
+        right = String(right);
+        const space = WIDTH - left.length - right.length;
+        return left + " ".repeat(space > 0 ? space : 1) + right;
+      };
+
+      // ===== HEADER =====
+      e.align("center").size(2, 2).line("ESTIMATION");
+      e.size(1, 1).newline();
+
+      // ===== EST NO =====
+      e.align("left");
+      e.font("A");
+      e.line(`EST NO : ${EstNo}`);
+      e.line(line);
+
+      // ===== TABLE HEADER =====
+      e.line(formatLine("Description", "Amount"));
+      e.line(line);
+
+      barCodeData.forEach((item, index) => {
+        const tag = (item?.TAGNO ?? "").toString(); // SNO column
+        const purity = item?.PREFIX ?? "";
+        const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
+          19,
+          " ",
+        ); // right-align AMOUNT
+        const rateValue = Number(item?.RATE || 0);
+
+        let matched;
+        let matchedMc;
+        let matchedStone;
+        let matchedTotal;
+        if (item.TAGNO > 0) {
+          matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+          matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+          matchedTotal = totalAmounts.find((tot) => tot.TAGNO === item.TAGNO);
+          matchedStone = stonesData.filter(
+            (stone) => stone.TAGNO === item.TAGNO,
+          );
+        } else {
+          matched = wastageData.find(
+            (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+          );
+          matchedMc = mcData.find(
+            (item) => item.ISSBRANCHNAME === item.ISSBRANCHNAME,
+          );
+          matchedStone = stonesData.filter(
+            (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+          );
+          matchedTotal = totalAmounts.find(
+            (tot) => tot.ISSBRANCHNAME === item.ISSBRANCHNAME,
+          );
+        }
+        const mcgValue = matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0;
+        const mcg = mcgValue > 0 ? `${mcgValue}/g` : "";
+        const mcAmt = `${Number(
+          matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
+        ).toFixed(2)}`.padStart(23, " ");
+
+        const mcAmtValue = `${Number(
+          matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
+        ).toFixed(2)}`.padStart(15, " ");
+
+        const totalCts = matchedStone.reduce(
+          (sum, item) => sum + (parseFloat(item.CTS) || 0),
+          0,
+        );
+        const totalGrams = matchedStone.reduce(
+          (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+          0,
+        );
+        const totalItemAmt = matchedStone.reduce(
+          (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+          0,
+        );
+        const stoneWeight = matchedStone.reduce((sum, stone) => {
+          const cts = Number(stone?.CTS);
+          const grams = Number(stone?.GRMS);
+
+          // find matching stone config using ITEMNAME
+          const matchedItem = stoneItemsData?.find(
+            (item) => item.ITEMNAME === stone.ITEMNAME,
+          );
+
+          // check condition
+          const shouldDivide =
+            matchedItem?.EFFECTON_DIAMOND === true ||
+            matchedItem?.EFFECTON_GOLD === true;
+
+          // apply calculation
+          const calculatedCts = shouldDivide ? cts / 5 : 0;
+          const calculatedGrams = shouldDivide ? grams : 0;
+
+          return sum + calculatedCts + calculatedGrams;
+        }, 0);
+        const beads = Number(item?.BSWT) || 0;
+
+        const ctsData = Number(stoneWeight) + Number(beads) || 0;
+        // const ctsData = stoneWeight;
+        const netWt = item?.GWT - ctsData;
+        const netWeight = netWt ?? item?.NWT ?? 0;
+
+        const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(23, " ");
+        const swt = `${Number(ctsData ?? item?.stonewt ?? 0).toFixed(
+          3,
+        )}`.padStart(23, " ");
+        const nwt = `${Number(netWt ?? item?.NWT ?? 0).toFixed(3)}`.padStart(
+          23,
+          " ",
+        );
+        const wastageValue = matched?.WASTAGE ?? item?.WASTAGE ?? 0;
+        const wastAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+        const WGrams = wastageValue > 0 ? `${wastageValue}%` : "";
+        const WGram =
+          wastageValue > 0
+            ? `${wastageValue}%`.padStart(20, " ")
+            : "".padStart(20, " ");
+        const WGramValue =
+          wastageValue > 0
+            ? `${wastageValue}%`.padStart(23, " ")
+            : "".padStart(23, " ");
+        const WGramsPer =
+          wastageValue > 0
+            ? `${wastageValue}%`.padStart(22, " ")
+            : `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
+                3,
+              )}`.padStart(23, " ");
+        const WAmt = `${Number(
+          matched?.TOTALWT ?? item?.CATTOTWAST ?? 0,
+        ).toFixed(3)}`.padStart(15, " ");
+        const WAmtValue = `${Number(
+          matched?.TOTALWT ?? item?.CATTOTWAST ?? 0,
+        ).toFixed(3)}`.padStart(23, " ");
+        const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
+          2,
+        )}`.padStart(23, " ");
+        const calculateAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+        const nwtAmt = Number(netWt ?? item?.NWT ?? 0);
+        const rateAmt = Number(item?.RATE ?? 0);
+
+        const amtValue = (nwtAmt + calculateAmt) * rateAmt || 0;
+
+        const amt = amtValue.toFixed(2).padStart(23, " ");
+
+        const totalAmtValue = matchedTotal?.TOTALAMT;
+        const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(2)}`.padStart(
+          23,
+          " ",
+        );
+        const rate = Number(item?.RATE ?? 0);
+        const nwtValue = Number(netWt ?? item?.NWT ?? 0);
+        const totalValue = rate * nwtValue;
+        const totWt = Number(netWeight) + Number(wastAmt);
+        const metalValue = `${Number(totalValue ?? 0).toFixed(2)}`.padStart(
+          23,
+          " ",
+        );
+
+        const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(23, " ");
+        const wastageText = wastageValue > 0 ? `${WGrams} ${WAmt}` : WAmt;
+        const mcText = mcgValue > 0 ? `${mcg} ${mcAmtValue}` : mcAmtValue;
+
+        e.line(`${item.TAGNO || ""}`);
+        e.line(formatLine(item.PREFIX || "", `Rate : ${rate}`));
+
+        e.size(1, 1);
+        const name = item.PRODUCTNAME || "";
+        const piecesText = item.PIECES
+          ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
+          : "";
+        const nameValue = `${name} ${piecesText}`;
+        e.line(formatLine(nameValue));
+        e.line(formatLine("GROSS WEIGHT   :", gwt));
+        e.line(formatLine("STONE LESS     :", swt));
+        e.line(formatLine("NWT WEIGHT     :", nwt));
+        if (Number(printModel) === 3) {
+          e.line(formatLine("METAL VALUE    :", metalValue));
+          if (Number(wastPer) === 2) {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WGramsPer));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WGramsPer));
+            } else {
+              e.line(formatLine("WASTAGE        :", WGramsPer));
+            }
+          } else if (wastMc === "W" || wastMc === "ALL") {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", wastageText));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", wastageText));
+            } else {
+              e.line(formatLine("WASTAGE        :", wastageText));
+            }
+          } else {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WAmtValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WAmtValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WAmtValue));
+            }
+          }
+        } else if (Number(printModel) === 4) {
+          if (item?.GWT > 8) {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WGramValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WGramValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WGramValue));
+            }
+          } else {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WAmtValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WAmtValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WAmtValue));
+            }
+          }
+        } else {
+          if (Number(wastPer) === 2) {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WGramsPer));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WGramsPer));
+            } else {
+              e.line(formatLine("WASTAGE        :", WGramsPer));
+            }
+          } else if (wastMc === "W" || wastMc === "ALL") {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", wastageText));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", wastageText));
+            } else {
+              e.line(formatLine("WASTAGE        :", wastageText));
+            }
+          } else {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WAmtValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WAmtValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WAmtValue));
+            }
+          }
+          e.line(formatLine("TOTAL WEIGHT   :", totalWt));
+          e.line(formatLine("AMOUNT         :", amt));
+        }
+        if (Number(printModel) === 4) {
+          e.line(formatLine("MAKING CHARGES :", mcAmt));
+        } else {
+          if (wastMc === "M" || wastMc === "ALL") {
+            e.line(formatLine("MAKING CHARGES :", mcText));
+          } else {
+            e.line(formatLine("MAKING CHARGES :", mcAmt));
+          }
+        }
+        e.line(formatLine("STONE CHARGES  :", SAmt));
+        matchedStone.forEach((stone, index) => {
+          const itemName = (stone.ITEMNAME || "")
+            .substring(0, 10)
+            .padEnd(10, " ");
+
+          // Use CTS if available else GRMS
+          const qty =
+            stone?.CTS && stone.CTS !== 0 ? stone.CTS : (stone?.GRMS ?? 0);
+
+          const qtyStr = qty.toFixed(3).padStart(7, " "); // right-align like in image
+          const rateStr = stone?.RATE?.toFixed(0).padStart(7, " "); // right-aligned
+          const amtStr = stone?.AMOUNT?.toFixed(0).padStart(8, " "); // right-aligned
+
+          const pcsStr =
+            stone?.NOPCS && stone.NOPCS > 0 ? ` (${stone.NOPCS}P)` : "";
+
+          e.font("B");
+          e.size(1, 1);
+
+          // Format similar to your image: ITEMNAME :  QTY UNIT X RATE = AMOUNT
+          if (Number(printModel) === 2) {
+            e.line(
+              formatLine(
+                `${itemName} : ${qtyStr} ${
+                  stone?.CTS ? "CTS" : "GMS"
+                }${pcsStr}\n`,
+              ),
+            );
+          } else {
+            e.line(
+              formatLine(
+                `${itemName} : ${qtyStr} ${
+                  stone?.CTS ? "CTS" : "GMS"
+                } X ${rateStr} = ${amtStr}${pcsStr}\n`,
+              ),
+            );
+          }
+          e.font("A");
+          e.size(1, 1);
+        });
+        e.newline();
+        e.line(formatLine("TOTAL VALUE    :", totalAmt));
+        e.newline();
+      });
+      e.line(line);
+
+      // ===== GRAND TOTAL =====
+      e.size(2, 1).align("right");
+      e.line(`TOTAL : ${grandTotalAmount.toFixed(0)}/-`);
+
+      e.size(1, 1).align("left");
+      e.line(line);
+
+      // ===== CUSTOMER =====
+      e.line(`Name   : ${customerName}`);
+      e.line(`Mobile : ${customerMobile}`);
+      e.line(`City   : ${customerArea}`);
+
+      e.line(line);
+
+      // ===== FOOTER =====
+      e.line(`Date : ${dayjs().format("DD-MM-YYYY hh:mm A")}`);
+      e.line(`User : ${loginName}`);
+
+      e.newline();
+      e.newline();
+      e.newline();
+      e.newline();
+      e.newline();
+
+      // ===== SEND =====
+      const result = e.cut().encode();
+      const chunkSize = 100;
+      for (let i = 0; i < result.length; i += chunkSize) {
+        await btCharacteristic.writeValueWithoutResponse(
+          result.slice(i, i + chunkSize),
+        );
+      }
+
+      message.success("Printed Successfully 🖨️");
+    } catch (err) {
+      console.error(err);
+      message.error("Print Failed ❌");
+    }
+  };
+
+  const printBluetoothBillModel2 = async (est) => {
+    if (!btCharacteristic) {
+      message.warning("Connect Bluetooth Printer First");
+      return;
+    }
+    const EstNo = tagNo ? tagNo : !Number(ePrefix) ? est : ePrefix + est;
+    try {
+      const encoder = new EscPosEncoder();
+      let e = encoder.initialize();
+
+      const WIDTH = 42; // ✅ FULL WIDTH (80mm printer)
+      const line = "-".repeat(WIDTH);
+
+      // ===== FORMAT FUNCTION =====
+      const formatLine = (left = "", right = "") => {
+        left = String(left);
+        right = String(right);
+        const space = WIDTH - left.length - right.length;
+        return left + " ".repeat(space > 0 ? space : 1) + right;
+      };
+
+      // ===== HEADER =====
+      e.align("center").size(2, 2).line("ESTIMATION");
+      e.size(1, 1).newline();
+
+      // ===== EST NO =====
+      e.align("left");
+      e.font("A");
+      e.line(`EST NO : ${EstNo}`);
+      e.line(line);
+
+      // ===== TABLE HEADER =====
+      e.line(formatLine("Description", "Amount"));
+      e.line(line);
+
+      barCodeData.forEach((item, index) => {
+        const tag = (item?.TAGNO ?? "").toString(); // SNO column
+        const purity = item?.PREFIX ?? "";
+        const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
+          19,
+          " ",
+        ); // right-align AMOUNT
+        const rateValue = Number(item?.RATE || 0);
+
+        let matched;
+        let matchedMc;
+        let matchedStone;
+        let matchedTotal;
+        if (item.TAGNO > 0) {
+          matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
+          matchedMc = mcData.find((mc) => mc.TAGNO === item?.TAGNO);
+          matchedTotal = totalAmounts.find((tot) => tot.TAGNO === item.TAGNO);
+          matchedStone = stonesData.filter(
+            (stone) => stone.TAGNO === item.TAGNO,
+          );
+        } else {
+          matched = wastageData.find(
+            (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+          );
+          matchedMc = mcData.find(
+            (item) => item.ISSBRANCHNAME === item.ISSBRANCHNAME,
+          );
+          matchedStone = stonesData.filter(
+            (item) => item.ISSBRANCHNAME === item?.ISSBRANCHNAME,
+          );
+          matchedTotal = totalAmounts.find(
+            (tot) => tot.ISSBRANCHNAME === item.ISSBRANCHNAME,
+          );
+        }
+        const mcgValue = matchedMc?.MAKINGCHARGES ?? item?.MAKINGCHARGES ?? 0;
+        const mcg = mcgValue > 0 ? `${mcgValue}/g` : "";
+        const mcAmt = `${Number(
+          matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
+        ).toFixed(2)}`.padStart(23, " ");
+
+        const mcAmtValue = `${Number(
+          matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
+        ).toFixed(2)}`.padStart(15, " ");
+
+        const totalCts = matchedStone.reduce(
+          (sum, item) => sum + (parseFloat(item.CTS) || 0),
+          0,
+        );
+        const totalGrams = matchedStone.reduce(
+          (sum, item) => sum + (parseFloat(item.GRMS) || 0),
+          0,
+        );
+        const totalItemAmt = matchedStone.reduce(
+          (sum, item) => sum + (parseFloat(item.AMOUNT) || 0),
+          0,
+        );
+        const stoneWeight = matchedStone.reduce((sum, stone) => {
+          const cts = Number(stone?.CTS);
+          const grams = Number(stone?.GRMS);
+
+          // find matching stone config using ITEMNAME
+          const matchedItem = stoneItemsData?.find(
+            (item) => item.ITEMNAME === stone.ITEMNAME,
+          );
+
+          // check condition
+          const shouldDivide =
+            matchedItem?.EFFECTON_DIAMOND === true ||
+            matchedItem?.EFFECTON_GOLD === true;
+
+          // apply calculation
+          const calculatedCts = shouldDivide ? cts / 5 : 0;
+          const calculatedGrams = shouldDivide ? grams : 0;
+
+          return sum + calculatedCts + calculatedGrams;
+        }, 0);
+        const beads = Number(item?.BSWT) || 0;
+
+        const ctsData = Number(stoneWeight) + Number(beads) || 0;
+        // const ctsData = stoneWeight;
+        const netWt = item?.GWT - ctsData;
+        const netWeight = netWt ?? item?.NWT ?? 0;
+
+        const gwt = `${Number(item?.GWT ?? 0).toFixed(3)}`.padStart(23, " ");
+        const swt = `${Number(ctsData ?? item?.stonewt ?? 0).toFixed(
+          3,
+        )}`.padStart(23, " ");
+        const nwt = `${Number(netWt ?? item?.NWT ?? 0).toFixed(3)}`.padStart(
+          23,
+          " ",
+        );
+        const wastageValue = matched?.WASTAGE ?? item?.WASTAGE ?? 0;
+        const wastAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+        const WGrams = wastageValue > 0 ? `${wastageValue}%` : "";
+        const WGram =
+          wastageValue > 0
+            ? `${wastageValue}%`.padStart(20, " ")
+            : "".padStart(20, " ");
+        const WGramValue =
+          wastageValue > 0
+            ? `${wastageValue}%`.padStart(23, " ")
+            : "".padStart(23, " ");
+        const WGramsPer =
+          wastageValue > 0
+            ? `${wastageValue}%`.padStart(22, " ")
+            : `${Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0).toFixed(
+                3,
+              )}`.padStart(23, " ");
+        const WAmt = `${Number(
+          matched?.TOTALWT ?? item?.CATTOTWAST ?? 0,
+        ).toFixed(3)}`.padStart(15, " ");
+        const WAmtValue = `${Number(
+          matched?.TOTALWT ?? item?.CATTOTWAST ?? 0,
+        ).toFixed(3)}`.padStart(23, " ");
+        const SAmt = `${Number(totalItemAmt ?? item?.ITEM_TOTAMT ?? 0).toFixed(
+          2,
+        )}`.padStart(23, " ");
+        const calculateAmt = Number(matched?.TOTALWT ?? item?.CATTOTWAST ?? 0);
+        const nwtAmt = Number(netWt ?? item?.NWT ?? 0);
+        const rateAmt = Number(item?.RATE ?? 0);
+
+        const amtValue = (nwtAmt + calculateAmt) * rateAmt || 0;
+
+        const amt = amtValue.toFixed(2).padStart(23, " ");
+
+        const totalAmtValue = matchedTotal?.TOTALAMT;
+        const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(2)}`.padStart(
+          23,
+          " ",
+        );
+        const rate = Number(item?.RATE ?? 0);
+        const nwtValue = Number(netWt ?? item?.NWT ?? 0);
+        const totalValue = rate * nwtValue;
+        const totWt = Number(netWeight) + Number(wastAmt);
+        const metalValue = `${Number(totalValue ?? 0).toFixed(2)}`.padStart(
+          23,
+          " ",
+        );
+
+        const totalWt = `${Number(totWt ?? 0).toFixed(3)}`.padStart(23, " ");
+        const wastageText = wastageValue > 0 ? `${WGrams} ${WAmt}` : WAmt;
+        const mcText = mcgValue > 0 ? `${mcg} ${mcAmtValue}` : mcAmtValue;
+
+        e.line(`${item.TAGNO || ""}`);
+        e.line(formatLine(item.PREFIX || "", `Rate : ${rate}`));
+
+        e.size(1, 1);
+        const name = item.PRODUCTNAME || "";
+        const piecesText = item.PIECES
+          ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`
+          : "";
+        const nameValue = `${name} ${piecesText}`;
+        e.line(formatLine(nameValue));
+        e.line(formatLine("GROSS WEIGHT   :", gwt));
+        e.line(formatLine("STONE LESS     :", swt));
+        e.line(formatLine("NWT WEIGHT     :", nwt));
+        if (Number(printModel) === 3) {
+          e.line(formatLine("METAL VALUE    :", metalValue));
+          if (Number(wastPer) === 2) {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WGramsPer));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WGramsPer));
+            } else {
+              e.line(formatLine("WASTAGE        :", WGramsPer));
+            }
+          } else if (wastMc === "W" || wastMc === "ALL") {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", wastageText));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", wastageText));
+            } else {
+              e.line(formatLine("WASTAGE        :", wastageText));
+            }
+          } else {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WAmtValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WAmtValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WAmtValue));
+            }
+          }
+        } else if (Number(printModel) === 4) {
+          if (item?.GWT > 8) {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WGramValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WGramValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WGramValue));
+            }
+          } else {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WAmtValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WAmtValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WAmtValue));
+            }
+          }
+        } else {
+          if (Number(wastPer) === 2) {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WGramsPer));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WGramsPer));
+            } else {
+              e.line(formatLine("WASTAGE        :", WGramsPer));
+            }
+          } else if (wastMc === "W" || wastMc === "ALL") {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", wastageText));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", wastageText));
+            } else {
+              e.line(formatLine("WASTAGE        :", wastageText));
+            }
+          } else {
+            if (wastValue === "V.A") {
+              e.line(formatLine("V.A            :", WAmtValue));
+            } else if (wastValue === "VA") {
+              e.line(formatLine("VA             :", WAmtValue));
+            } else {
+              e.line(formatLine("WASTAGE        :", WAmtValue));
+            }
+          }
+          e.line(formatLine("TOTAL WEIGHT   :", totalWt));
+          e.line(formatLine("AMOUNT         :", amt));
+        }
+        if (Number(printModel) === 4) {
+          e.line(formatLine("MAKING CHARGES :", mcAmt));
+        } else {
+          if (wastMc === "M" || wastMc === "ALL") {
+            e.line(formatLine("MAKING CHARGES :", mcText));
+          } else {
+            e.line(formatLine("MAKING CHARGES :", mcAmt));
+          }
+        }
+        e.line(formatLine("STONE CHARGES  :", SAmt));
+        matchedStone.forEach((stone, index) => {
+          const itemName = (stone.ITEMNAME || "")
+            .substring(0, 10)
+            .padEnd(10, " ");
+
+          // Use CTS if available else GRMS
+          const qty =
+            stone?.CTS && stone.CTS !== 0 ? stone.CTS : (stone?.GRMS ?? 0);
+
+          const qtyStr = qty.toFixed(3).padStart(7, " "); // right-align like in image
+          const rateStr = stone?.RATE?.toFixed(0).padStart(7, " "); // right-aligned
+          const amtStr = stone?.AMOUNT?.toFixed(0).padStart(8, " "); // right-aligned
+
+          const pcsStr =
+            stone?.NOPCS && stone.NOPCS > 0 ? ` (${stone.NOPCS}P)` : "";
+
+          e.font("B");
+          e.size(1, 1);
+
+          // Format similar to your image: ITEMNAME :  QTY UNIT X RATE = AMOUNT
+          if (Number(printModel) === 2) {
+            e.line(
+              formatLine(
+                `${itemName} : ${qtyStr} ${
+                  stone?.CTS ? "CTS" : "GMS"
+                }${pcsStr}\n`,
+              ),
+            );
+          } else {
+            e.line(
+              formatLine(
+                `${itemName} : ${qtyStr} ${
+                  stone?.CTS ? "CTS" : "GMS"
+                } X ${rateStr} = ${amtStr}${pcsStr}\n`,
+              ),
+            );
+          }
+          e.font("A");
+          e.size(1, 1);
+        });
+        e.newline();
+        e.line(formatLine("TOTAL VALUE    :", totalAmt));
+        e.newline();
+      });
+      e.line(line);
+
+      // ===== GRAND TOTAL =====
+      e.size(2, 1).align("right");
+      e.line(`TOTAL : ${grandTotalAmount.toFixed(0)}/-`);
+      e.newline();
+      e.newline();
+
+      const formatLines = (label = "") => {
+        const LABEL_WIDTH = 14;
+
+        const left = label.padEnd(LABEL_WIDTH, " ") + ":";
+        const remaining = WIDTH - left.length;
+
+        return left + "_".repeat(remaining > 0 ? remaining : 0);
+      };
+
+      // ===== FORMAT (LABEL : VALUE) =====
+      const formatTextLine = (label = "", value = "") => {
+        const LABEL_WIDTH = 14;
+
+        const left = label.padEnd(LABEL_WIDTH, " ") + ": ";
+        return left + value;
+      };
+
+      e.font("A");
+      e.size(1, 1);
+      e.align("center");
+      e.line("***Settlement Amount***");
+      e.align("left");
+      e.line(formatLines("Cash"));
+      e.line(formatLines("Card/Online"));
+      e.line(formatLines("Upi/Qr"));
+      e.line(formatLines("OG/SR"));
+      e.line(formatLines("RB/Due"));
+      e.line(formatLines("Advance"));
+      e.line(formatLines("Scheme"));
+      e.line(formatLines("Total"));
+
+      // ===== CENTER MESSAGE =====
+      e.align("center");
+      e.line("*** VALID FOR ONE HOUR ONLY ***");
+
+      // ===== CUSTOMER DETAILS =====
+      e.align("left");
+      e.line("New Customer {   } Existing Customer {   }");
+
+      e.line(formatTextLine("Mobile No", customerMobile));
+      e.line(formatTextLine("Name", customerName));
+      e.line(formatTextLine("City", customerArea));
+
+      // ===== ADDRESS =====
+      e.line(formatTextLine("Address", ""));
+      e.line(formatTextLine("Address2", ""));
+      e.line(formatTextLine("Address3", ""));
+      e.line(formatTextLine("Address4", ""));
+
+      e.line(line);
+
+      // ===== FOOTER =====
+      e.line(`Date : ${dayjs().format("DD-MM-YYYY hh:mm A")}`);
+      e.line(`User : ${loginName}`);
+
+      e.newline();
+      e.newline();
+      e.newline();
+      e.newline();
+      e.newline();
+
+      // ===== SEND =====
+      const result = e.cut().encode();
+      const chunkSize = 100;
+      for (let i = 0; i < result.length; i += chunkSize) {
+        await btCharacteristic.writeValueWithoutResponse(
+          result.slice(i, i + chunkSize),
+        );
+      }
+
+      message.success("Printed Successfully 🖨️");
+    } catch (err) {
+      console.error(err);
+      message.error("Print Failed ❌");
+    }
+  };
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
       {contextHolder}
@@ -2141,6 +2935,7 @@ const BarCodeCheck = () => {
         singleImage={singleImage}
         userArea={userArea}
         userName={userName}
+        connectBluetoothPrinter={connectBluetoothPrinter}
       />
       <div className={styles.container}>
         <div className={styles.headerContainer}>
@@ -3515,9 +4310,9 @@ const BarCodeCheck = () => {
           <button
             className={styles.btn}
             onClick={() => {
-              if (barCodeData?.length > 0) {
-                handlePrintOk();
-              }
+              // if (barCodeData?.length > 0) {
+              handlePrintOk();
+              // }
             }}
           >
             PRINT
@@ -3557,6 +4352,8 @@ const BarCodeCheck = () => {
         handleEposPrintModule2={handleEposPrintModule2}
         handlePrintModule1={handlePrintModule1}
         handlePrintModule2={handlePrintModule2}
+        printBluetoothBillModel1={printBluetoothBillModel1}
+        printBluetoothBillModel2={printBluetoothBillModel2}
         createEstimationData={createEstimationData}
         createEstimationMast={createEstimationMast}
         createEstimationItems={createEstimationItems}
