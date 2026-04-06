@@ -4310,9 +4310,9 @@ const BarCodeCheck = () => {
           <button
             className={styles.btn}
             onClick={() => {
-              // if (barCodeData?.length > 0) {
-              handlePrintOk();
-              // }
+              if (barCodeData?.length > 0) {
+                handlePrintOk();
+              }
             }}
           >
             PRINT
