@@ -303,7 +303,7 @@ const Estimation = () => {
       const response = await axios.get(
         `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${
           barCode ? barCode : tagNo
-        }`,
+        } AND RECYCLE='NO'`,
         {
           headers: {
             tenantName: tenantName,
@@ -3180,6 +3180,7 @@ const Estimation = () => {
                 const wastRounded = Number(wast.toFixed(0));
                 const wastageValue = touchRounded + wastRounded;
                 const totalValue = (nwtValue * wastageValue) / 100;
+                const amount = totalValue * barCode?.FINERATE;
 
                 return (
                   <div className={styles.card}>
@@ -3358,12 +3359,7 @@ const Estimation = () => {
                           <span className={styles.label2}>Amount</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            ₹{" "}
-                            {barCode?.COST_FTOUCH * barCode?.FINERATE
-                              ? (
-                                  barCode?.COST_FTOUCH * barCode?.FINERATE
-                                ).toFixed(2)
-                              : 0.0}
+                            ₹ {amount ? Number(amount).toFixed(2) : 0.0}
                           </span>
                         </div>
                         <div className={styles.highlightBox3}>
@@ -3440,7 +3436,7 @@ const Estimation = () => {
                         <span className={styles.amount}>
                           ₹
                           {(
-                            barCode?.COST_FTOUCH * barCode?.FINERATE +
+                            amount +
                             barCode?.COST_MC +
                             barCode?.COST_STAMT
                           )?.toFixed(2) || 0.0}
@@ -3453,7 +3449,7 @@ const Estimation = () => {
                           <span className={styles.amount3}>
                             ₹
                             {(
-                              ((barCode?.COST_FTOUCH * barCode?.FINERATE +
+                              ((amount +
                                 barCode?.COST_MC +
                                 barCode?.COST_STAMT) *
                                 barCode?.GSTRATE) /
@@ -3470,12 +3466,10 @@ const Estimation = () => {
                         <span className={styles.amount}>
                           ₹
                           {(
-                            barCode?.COST_FTOUCH * barCode?.FINERATE +
+                            amount +
                             barCode?.COST_MC +
                             barCode?.COST_STAMT +
-                            ((barCode?.COST_FTOUCH * barCode?.FINERATE +
-                              barCode?.COST_MC +
-                              barCode?.COST_STAMT) *
+                            ((amount + barCode?.COST_MC + barCode?.COST_STAMT) *
                               barCode?.GSTRATE) /
                               100
                           )?.toFixed(2) || 0.0}

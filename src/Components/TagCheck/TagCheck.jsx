@@ -1,4 +1,4 @@
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { CREATE_jwel } from "../Config/Config";
@@ -18,6 +18,7 @@ const TagCheck = () => {
   const [barCodeData, setBarCodeData] = useState([]);
   const [stonesData, setStonesData] = useState([]);
   const [totalAmounts, setTotalAmounts] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
   // const [imagesData, setImagesData] = useState([]);
   // const [userArea, setUserArea] = useState();
   // const [userName, setUserName] = useState();
@@ -45,7 +46,7 @@ const TagCheck = () => {
   const tagNoAPI = async () => {
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${barCode}`,
+        `${CREATE_jwel}/api/Wholesal/GetDataFromGivenTableNameWithWhere?tableName=TAG_GENERATION&where=TAGNO=${barCode} AND RECYCLE='NO'`,
         {
           headers: {
             tenantName: tenantName,
@@ -54,6 +55,13 @@ const TagCheck = () => {
       );
 
       const data = response.data;
+      if (!Array.isArray(data) || data.length === 0) {
+        messageApi.open({
+          type: "warning",
+          content: "Tag Not existed",
+        });
+        return null;
+      }
 
       const modifiedTotalData = data.map((item) => {
         const safeNumber = (val) => {
@@ -231,6 +239,7 @@ const TagCheck = () => {
 
   return (
     <div style={{ background: "#F6F1E9", height: "100vh" }}>
+      {contextHolder}
       <Header setOpen={setOpen} />
       <SidebarDrawer
         open={open}
