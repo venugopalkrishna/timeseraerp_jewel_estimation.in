@@ -35,6 +35,9 @@ const Estimation = () => {
   const [totalGwt, setTotalGwt] = useState(0);
   const [totalNwt, setTotalNwt] = useState(0);
   const [totalAmt, setTotalAmt] = useState(0);
+  const [totalPurchasePcs, setTotalPurchasePcs] = useState(0);
+  const [totalPurchaseGwt, setTotalPurchaseGwt] = useState(0);
+  const [totalPurchaseNwt, setTotalPurchaseNwt] = useState(0);
   const [totalGstAmt, setTotalGstAmt] = useState(0);
   const [totalNwtAmt, setTotalNwtAmt] = useState(0);
   const [totalWastAmt, setTotalWastAmt] = useState(0);
@@ -55,6 +58,7 @@ const Estimation = () => {
   const [mcOpen, setMcOpen] = useState(false);
   const [mcTagNo, setMcTagNo] = useState();
   const [totalAmounts, setTotalAmounts] = useState([]);
+  const [totalPurchases, setTotalPurchases] = useState([]);
   const [itemsData, setItemsData] = useState([]);
   // const [imagesData, setImagesData] = useState([]);
   // const [userArea, setUserArea] = useState();
@@ -1571,6 +1575,8 @@ const Estimation = () => {
       const pcs = barCodeData.reduce((s, i) => s + num(i.PIECES), 0);
       const gwt = barCodeData.reduce((s, i) => s + num(i.GWT), 0);
       const nwt = barCodeData.reduce((s, i) => s + num(i.NWT), 0);
+      const prugwt = barCodeData.reduce((s, i) => s + num(i.COST_GWT), 0);
+      const prunwt = barCodeData.reduce((s, i) => s + num(i.COST_NWT), 0);
       const beads = barCodeData.reduce((s, i) => s + num(i.BSWT), 0);
 
       const totalAmount = totalAmounts.reduce((s, i) => s + num(i.TOTALAMT), 0);
@@ -1612,16 +1618,16 @@ const Estimation = () => {
         0,
       );
 
-      const totalPurAmount = barCodeData.reduce(
-        (s, i) => s + num(i.COST_AMOUNT),
+      const totalPurAmount = totalPurchases.reduce(
+        (s, i) => s + num(i.TOTALAMT),
         0,
       );
-      const totalPurGstAmount = barCodeData.reduce(
-        (s, i) => s + num(i.COST_GSTAMOUNT),
+      const totalPurGstAmount = totalPurchases.reduce(
+        (s, i) => s + num(i.GSTTOTALAMT),
         0,
       );
-      const totalPurNwtAmount = barCodeData.reduce(
-        (s, i) => s + num(i.COST_NETAMOUNT),
+      const totalPurNwtAmount = totalPurchases.reduce(
+        (s, i) => s + num(i.NETAMT),
         0,
       );
 
@@ -1666,6 +1672,9 @@ const Estimation = () => {
       setTotalPcs(pcs);
       setTotalGwt(gwt);
       setTotalNwt(netWt ?? nwt);
+      setTotalPurchasePcs(pcs);
+      setTotalPurchaseGwt(prugwt);
+      setTotalPurchaseNwt(prunwt);
       setTotalAmt(totalAmount);
       setTotalGstAmt(totalGstAmount);
       setTotalNwtAmt(totalNwtAmount);
@@ -1771,6 +1780,9 @@ const Estimation = () => {
     setTotalNwt(0);
     setTotalAmt(0);
     setTotalGstAmt(0);
+    setTotalPurchasePcs(0);
+    setTotalPurchaseGwt(0);
+    setTotalPurchaseNwt(0);
     setTotalNwtAmt(0);
     setTotalWastAmt(0);
     setTotalMcAmt(0);
@@ -1795,6 +1807,7 @@ const Estimation = () => {
     setMcOpen(false);
     setMcTagNo();
     setTotalAmounts([]);
+    setTotalPurchases([]);
     if (!Number(ePrefix)) {
       estimationNo();
     } else {
@@ -1964,6 +1977,7 @@ const Estimation = () => {
   useEffect(() => {
     if (!Array.isArray(barCodeData) || barCodeData.length === 0) {
       setTotalAmounts([]);
+      setTotalPurchases([]);
       return;
     }
 
@@ -2071,6 +2085,32 @@ const Estimation = () => {
     });
 
     setTotalAmounts(perData);
+    const purchaseData = barCodeData.map((barCode) => {
+      const tagNo = barCode?.TAGNO;
+      const nwtValue = Number(barCode?.COST_NWT) || 0;
+      const touch = Number(barCode?.COST_TOUCH) || 0;
+      const wast = Number(barCode?.COST_WASTAGE) || 0;
+      const mc = Number(barCode?.COST_MC) || 0;
+      const stoneAmt = Number(barCode?.COST_STAMT) || 0;
+      const touchRounded = Number(touch.toFixed(0));
+      const wastRounded = Number(wast.toFixed(0));
+      const wastageValue = touchRounded + wastRounded;
+
+      const totalValue = (nwtValue * wastageValue) / 100;
+      const amount = totalValue * barCode?.FINERATE + mc + stoneAmt || 0;
+      const gstRate = toNumber(gstNo);
+      const gstAmount = (amount * gstRate) / 100;
+      const netAmount = amount + gstAmount;
+
+      return {
+        TAGNO: tagNo ?? "",
+        ISSBRANCHNAME: barCode?.ISSBRANCHNAME,
+        TOTALAMT: Number(amount.toFixed(2)),
+        GSTTOTALAMT: Number(gstAmount.toFixed(2)),
+        NETAMT: Number(netAmount.toFixed(2)),
+      };
+    });
+    setTotalPurchases(purchaseData);
   }, [barCodeData, wastageData, mcData, stonesData, gstNo]);
 
   useEffect(() => {
@@ -3312,7 +3352,7 @@ const Estimation = () => {
                           <span className={styles.label2}>Gwt</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            {barCode?.COST_LESS
+                            {barCode?.COST_GWT
                               ? barCode?.COST_GWT?.toFixed(3) + "g"
                               : "0.000g"}
                           </span>
@@ -3498,7 +3538,9 @@ const Estimation = () => {
               <span className={styles.label}>GWT</span>
               <span className={styles.colon}>:</span>
               <span className={styles.value}>
-                {Number(totalGwt).toFixed(3)}
+                {changeCard === true
+                  ? Number(totalGwt).toFixed(3)
+                  : Number(totalPurchaseGwt).toFixed(3)}
               </span>
             </div>
 
@@ -3506,7 +3548,9 @@ const Estimation = () => {
               <span className={styles.label}>NWT</span>
               <span className={styles.colon}>:</span>
               <span className={styles.value}>
-                {Number(totalNwt).toFixed(3)}
+                {changeCard === true
+                  ? Number(totalNwt).toFixed(3)
+                  : Number(totalPurchaseNwt).toFixed(3)}
               </span>
             </div>
           </div>

@@ -938,7 +938,7 @@ const TagCheck = () => {
                   <span className={styles.label2}>Gwt</span>
                   <span className={styles.separator2}>:</span>
                   <span className={styles.value2}>
-                    {barCodeData[0]?.COST_LESS
+                    {barCodeData[0]?.COST_GWT
                       ? barCodeData[0]?.COST_GWT?.toFixed(3) + "g"
                       : "0.000g"}
                   </span>
@@ -1071,7 +1071,7 @@ const TagCheck = () => {
                 <span className={styles.amount}>
                   ₹{" "}
                   {(
-                    barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                    fineGold * barCodeData[0]?.FINERATE +
                     barCodeData[0]?.COST_MC +
                     barCodeData[0]?.COST_STAMT
                   )?.toFixed(2) || 0.0}
@@ -1083,7 +1083,7 @@ const TagCheck = () => {
                 <span className={styles.amount3}>
                   ₹{" "}
                   {(
-                    ((barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                    ((fineGold * barCodeData[0]?.FINERATE +
                       barCodeData[0]?.COST_MC +
                       barCodeData[0]?.COST_STAMT) *
                       barCodeData[0]?.GSTRATE) /
@@ -1097,10 +1097,10 @@ const TagCheck = () => {
                 <span className={styles.amount}>
                   ₹{" "}
                   {(
-                    barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                    fineGold * barCodeData[0]?.FINERATE +
                     barCodeData[0]?.COST_MC +
                     barCodeData[0]?.COST_STAMT +
-                    ((barCodeData[0]?.COST_FTOUCH * barCodeData[0]?.FINERATE +
+                    ((fineGold * barCodeData[0]?.FINERATE +
                       barCodeData[0]?.COST_MC +
                       barCodeData[0]?.COST_STAMT) *
                       barCodeData[0]?.GSTRATE) /
