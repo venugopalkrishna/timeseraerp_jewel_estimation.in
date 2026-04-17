@@ -208,33 +208,6 @@ const BarCodeCheck = () => {
     }
   };
 
-  // const connectBluetoothPrinter = async () => {
-  //   try {
-  //     const device = await navigator.bluetooth.requestDevice({
-  //       acceptAllDevices: true,
-  //       optionalServices: ["000018f0-0000-1000-8000-00805f9b34fb"],
-  //     });
-
-  //     const server = await device.gatt.connect();
-
-  //     const service = await server.getPrimaryService(
-  //       "000018f0-0000-1000-8000-00805f9b34fb",
-  //     );
-
-  //     const characteristic = await service.getCharacteristic(
-  //       "00002af1-0000-1000-8000-00805f9b34fb",
-  //     );
-
-  //     setBtDevice(device);
-  //     setBtCharacteristic(characteristic);
-
-  //     message.success("Bluetooth Printer Connected ✅");
-  //   } catch (err) {
-  //     console.error(err);
-  //     // message.error("Bluetooth Connection Failed ❌");
-  //   }
-  // };
-
   const connectBluetoothPrinter = async () => {
     try {
       const device = await navigator.bluetooth.requestDevice({
