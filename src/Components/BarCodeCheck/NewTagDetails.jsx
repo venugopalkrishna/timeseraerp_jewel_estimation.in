@@ -148,7 +148,7 @@ const Tag = ({
   const mainProductAPI = async () => {
     try {
       const response = await axios.get(
-        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=JEWELTYPE_MAST`,
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=MAIN_PRODUCT`,
         {
           headers: {
             tenantName: tenantName,
@@ -681,7 +681,7 @@ const Tag = ({
     mainProductAPI();
     itemsAPI();
     bradDetailsAPI();
-  }, [selectJewelType]);
+  }, []);
 
   useEffect(() => {
     if (selectTagBrandName && selectBrand === "PIECE") {
@@ -1013,11 +1013,11 @@ const Tag = ({
                       if (e.key === "Enter") {
                         const inputText = e.target.value?.toLowerCase() || "";
                         const filtered = mainProductData.filter((m) =>
-                          m.MName.toLowerCase().includes(inputText),
+                          m.MNAME.toLowerCase().includes(inputText),
                         );
 
                         if (filtered.length > 0) {
-                          const selected = filtered[0].MName;
+                          const selected = filtered[0].MNAME;
                           setSelectTagMainProduct(selected);
                           setSelectTagProductName(null);
                           setSelectTagPurity(null);
@@ -1032,8 +1032,8 @@ const Tag = ({
                     }}
                   >
                     {mainProductData.map((m, index) => (
-                      <Option key={index} value={m.MName}>
-                        {m.MName}
+                      <Option key={index} value={m.MNAME}>
+                        {m.MNAME}
                       </Option>
                     ))}
                   </Select>
