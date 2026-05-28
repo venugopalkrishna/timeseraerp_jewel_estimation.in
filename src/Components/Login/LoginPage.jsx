@@ -91,7 +91,6 @@ const LoginPage = ({ onLogin }) => {
           password: password,
         },
       );
-      console.log(response?.data);
 
       if (response?.data.isValid === true) {
         localStorage.setItem("isLoggedIn", response?.data.isValid); // Store login status
