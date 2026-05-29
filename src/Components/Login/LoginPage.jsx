@@ -1,6 +1,6 @@
 import { Button, Form, Input, message } from "antd";
 import axios from "axios";
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import textLogo from "../Assets/textLogo.png";
 import logo from "../Assets/tlogo.png";
@@ -84,20 +84,16 @@ const LoginPage = ({ onLogin }) => {
   const onFinish = async (values) => {
     const { username, password } = values;
     try {
-      const response = await axios.post(
-        `${CREATE_jwel}/api/Tenant/CheckValidTenant?userName=${username}&password=${password}`,
-        {
-          userName: username,
-          password: password,
-        },
+      const response = await axios.get(
+        `https://textileerp.timeserasoftware.in/api/Tenant/CheckValidTenant?userName=${username}&password=${password}`,
       );
 
-      if (response?.data.isValid === true) {
-        localStorage.setItem("isLoggedIn", response?.data.isValid); // Store login status
-        localStorage.setItem("tenantName", response?.data?.tenantName);
-        onLogin(response?.data?.tenantName);
-        userAPI(response?.data?.tenantName);
-        userConditionAPI(values, response?.data?.tenantName);
+      if (response?.data) {
+        localStorage.setItem("isLoggedIn", "true"); // Store login status
+        localStorage.setItem("tenantName", response?.data);
+        onLogin(response?.data);
+        userAPI(response?.data);
+        userConditionAPI(values, response?.data);
         navigate("/home");
       } else {
         message.error("Invalid username or password");
