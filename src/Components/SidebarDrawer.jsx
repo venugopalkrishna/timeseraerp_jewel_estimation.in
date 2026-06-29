@@ -42,6 +42,7 @@ const SidebarDrawer = ({
   const navigate = useNavigate();
   const printModel = localStorage.getItem("printModel");
   const pdfModule = localStorage.getItem("pdfModule");
+  const userType = localStorage.getItem("userType");
 
   const logOut = () => {
     navigate("/");
@@ -64,13 +65,39 @@ const SidebarDrawer = ({
 
   const userType1 = [
     { text: "Home", icon: <Home />, path: "/home" },
-    // { text: "Top Five", icon: <EmojiEvents />, path: "/top-five" },
-    // { text: "Point of Sale", icon: <PointOfSale />, path: "/point-of-sales" },
-    // { text: "Inventory", icon: <Inventory />, path: "/inventory" },
-    // { text: "Accounts", icon: <People />, path: "/accounts" },
-    // { text: "Saving Scheme", icon: <ShoppingCart />, path: "/purchase-plans" },
-    // { text: "CRM", icon: <Business />, path: "/crm" },
-    // { text: "Graphs", icon: <BarChart />, path: "/graphs" },
+    {
+      text: "Estimation",
+      icon: <QrCodeScannerSharpIcon />,
+      path: "/bar-code-check",
+    },
+    {
+      text: "Estimation-2",
+      icon: <QrCodeScannerSharpIcon />,
+      path: "/estimation",
+    },
+    {
+      text: "Tag Check",
+      icon: <SellSharpIcon />,
+      path: "/tag-check",
+    },
+  ];
+
+  const userType2 = [
+    { text: "Home", icon: <Home />, path: "/home" },
+    {
+      text: "Estimation",
+      icon: <QrCodeScannerSharpIcon />,
+      path: "/bar-code-check",
+    },
+    {
+      text: "Tag Check",
+      icon: <SellSharpIcon />,
+      path: "/tag-check",
+    },
+  ];
+
+  const userType3 = [
+    { text: "Home", icon: <Home />, path: "/home" },
     {
       text: "Estimation",
       icon: <QrCodeScannerSharpIcon />,
@@ -93,15 +120,8 @@ const SidebarDrawer = ({
     },
   ];
 
-  const userType2 = [
+  const userType4 = [
     { text: "Home", icon: <Home />, path: "/home" },
-    // { text: "Top Five", icon: <EmojiEvents />, path: "/top-five" },
-    // { text: "Point of Sale", icon: <PointOfSale />, path: "/point-of-sales" },
-    // { text: "Inventory", icon: <Inventory />, path: "/inventory" },
-    // { text: "Accounts", icon: <People />, path: "/accounts" },
-    // { text: "Saving Scheme", icon: <ShoppingCart />, path: "/purchase-plans" },
-    // { text: "CRM", icon: <Business />, path: "/crm" },
-    // { text: "Graphs", icon: <BarChart />, path: "/graphs" },
     {
       text: "Estimation",
       icon: <QrCodeScannerSharpIcon />,
@@ -119,36 +139,18 @@ const SidebarDrawer = ({
     },
   ];
 
-  // const menuItems = [
-  //   { text: "Home", icon: <Home />, path: "/home" },
-  //   // { text: "Top Five", icon: <EmojiEvents />, path: "/top-five" },
-  //   // { text: "Point of Sale", icon: <PointOfSale />, path: "/point-of-sales" },
-  //   // { text: "Inventory", icon: <Inventory />, path: "/inventory" },
-  //   // { text: "Accounts", icon: <People />, path: "/accounts" },
-  //   // { text: "Saving Scheme", icon: <ShoppingCart />, path: "/purchase-plans" },
-  //   // { text: "CRM", icon: <Business />, path: "/crm" },
-  //   // { text: "Graphs", icon: <BarChart />, path: "/graphs" },
-  //   {
-  //     text: "Estimation",
-  //     icon: <QrCodeScannerSharpIcon />,
-  //     path: "/bar-code-check",
-  //   },
-  //   {
-  //     text: "Estimation2",
-  //     icon: <QrCodeScannerSharpIcon />,
-  //     path: "/estimation",
-  //   },
-  //   {
-  //     text: "Tag Check",
-  //     icon: <SellSharpIcon />,
-  //     path: "/tag-check",
-  //   },
-  // ];
-
-  if (Number(printModel) === 5) {
-    menuItems = userType1;
+  if (Number(userType) > 1) {
+    if (Number(printModel) === 5) {
+      menuItems = userType3;
+    } else {
+      menuItems = userType4;
+    }
   } else {
-    menuItems = userType2;
+    if (Number(printModel) === 5) {
+      menuItems = userType1;
+    } else {
+      menuItems = userType2;
+    }
   }
 
   return (
