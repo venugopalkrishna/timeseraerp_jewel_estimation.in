@@ -27,6 +27,7 @@ import QrCode2OutlinedIcon from "@mui/icons-material/QrCode2Outlined";
 import QrCodeScannerSharpIcon from "@mui/icons-material/QrCodeScannerSharp";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import SellSharpIcon from "@mui/icons-material/SellSharp";
+import CurrencyExchangeOutlinedIcon from "@mui/icons-material/CurrencyExchangeOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const SidebarDrawer = ({
@@ -85,6 +86,11 @@ const SidebarDrawer = ({
       icon: <SellSharpIcon />,
       path: "/tag-check",
     },
+    {
+      text: "Daily Rates",
+      icon: <CurrencyExchangeOutlinedIcon />,
+      path: "/daily-rates",
+    },
   ];
 
   const userType2 = [
@@ -105,6 +111,11 @@ const SidebarDrawer = ({
       text: "Tag Check",
       icon: <SellSharpIcon />,
       path: "/tag-check",
+    },
+    {
+      text: "Daily Rates",
+      icon: <CurrencyExchangeOutlinedIcon />,
+      path: "/daily-rates",
     },
   ];
 

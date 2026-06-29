@@ -18,6 +18,7 @@ import Graphs from "./Components/Graphs/Graphs";
 import BarCodeCheck from "./Components/BarCodeCheck/BarCodeCheck";
 import TagCheck from "./Components/TagCheck/TagCheck";
 import Estimation from "./Components/Estimation2.jsx/Estimation";
+import DailyRates from "./Components/DailyRates/DailyRates";
 
 function App() {
   const tenantName = localStorage.getItem("tenantName");
@@ -55,6 +56,7 @@ function App() {
                   element={<InvoiceWiseStock />}
                 />
                 <Route path="/tag-check" element={<TagCheck />} />
+                <Route path="/daily-rates" element={<DailyRates />} />
               </Routes>
             ) : (
               <Navigate to="/" />
