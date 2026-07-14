@@ -253,11 +253,11 @@ export const printReceiptModule2 = (
       const rate = Number(item?.RATE ?? 0);
       const nwtValue = Number(netWt ?? item?.NWT ?? 0);
       const totalValue = rate * nwtValue;
-      const totWt = Number(netWeight) + Number(wastAmt);
+      const totWt = Number(netWeight?.toFixed(3)) + Number(wastAmt?.toFixed(3));
       const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
       const fNwt = Number(netWeight) - Number(copperWt);
 
-      const castMetal = Number(totWt) * Number(item?.FINERATE);
+      const castMetal = Number(totWt) * Number(item?.RATE);
       const metalValue = `${Number(castMetal ?? 0).toFixed(2)}`.padStart(
         27,
         " ",
@@ -299,6 +299,7 @@ export const printReceiptModule2 = (
         printer.addText(`    WASTAGE        : ${WAmt}\n`);
       }
       printer.addText(`    TOTAL WEIGHT   : ${totalWt}\n`);
+      printer.addText(`    METAL VALUE    : ${metalValue}\n`);
       printer.addText(`    MAKING CHARGES : ${mcAmt}\n`);
       // if (Number(printModel) === 3) {
       //   printer.addText(`    CAST OF METAL  : ${metalValue}\n`);

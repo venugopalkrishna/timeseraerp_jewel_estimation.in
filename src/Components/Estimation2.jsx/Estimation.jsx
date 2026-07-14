@@ -702,11 +702,7 @@ const Estimation = () => {
 
       const castMetal = Number(totWt) * Number(item?.FINERATE);
       return {
-        estimationNo: tagNo
-          ? String(tagNo)
-          : !Number(ePrefix)
-            ? String(est)
-            : String(ePrefix + est), // always a string
+        estimationNo: tagNo ? String(tagNo) : String(est), // always a string
         tagNo: Number(item?.TAGNO ?? 0),
         mname: String(item?.MNAME ?? "-"),
         productName: String(item?.PRODUCTNAME ?? "-"),
@@ -775,11 +771,7 @@ const Estimation = () => {
 
   const createEstimationMast = async (est) => {
     const requestBody = {
-      estimationNo: tagNo
-        ? String(tagNo)
-        : !Number(ePrefix)
-          ? String(est)
-          : String(ePrefix + est),
+      estimationNo: tagNo ? String(tagNo) : String(est),
       gold: 0,
       platinum: 0,
       silver: 0,
@@ -855,11 +847,7 @@ const Estimation = () => {
   const createEstimationItems = async (est) => {
     const requestBody = stonesData.map((item, index) => {
       return {
-        estimationNo: tagNo
-          ? String(tagNo)
-          : !Number(ePrefix)
-            ? String(est)
-            : String(ePrefix + est),
+        estimationNo: tagNo ? String(tagNo) : String(est),
         tagNo: Number(item?.TAGNO) || 0,
         sno: item?.SNO,
         itemName: item?.ITEMNAME,
@@ -2528,12 +2516,13 @@ const Estimation = () => {
 
                 const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
 
-                const totWt = Number(netWeight) + Number(wastAmt);
+                const totWt =
+                  Number(netWeight?.toFixed(3)) + Number(wastAmt?.toFixed(3));
 
                 const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
                 const fNwt = Number(netWeight) - Number(copperWt);
 
-                const castMetal = Number(totWt) * Number(barCode?.FINERATE);
+                const castMetal = Number(totWt) * Number(barCode?.RATE);
 
                 return (
                   <div className={styles.card}>
