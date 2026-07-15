@@ -2,6 +2,7 @@ import { DeleteOutlined, ScanOutlined } from "@ant-design/icons";
 import AutoFixHighSharpIcon from "@mui/icons-material/AutoFixHighSharp";
 import CloseIcon from "@mui/icons-material/Close";
 import ContactPhoneSharpIcon from "@mui/icons-material/ContactPhoneSharp";
+import PercentIcon from "@mui/icons-material/Percent";
 import { Box } from "@mui/material";
 import { Button, Input, message } from "antd";
 import axios from "axios";
@@ -23,6 +24,7 @@ import WastageDialog from "./WastageDialog";
 import MakingChargesDialog from "./MakingChargesDialog";
 import { PrintModule1 } from "./PrintModule1";
 import { PrintModule2 } from "./PrintModule2";
+import CalcWastageDialog from "./CalcWastageDialog";
 
 const Estimation = () => {
   const tagNoRef = useRef(null);
@@ -86,6 +88,8 @@ const Estimation = () => {
   const [gstData, setGstData] = useState([]);
   const [stoneItemsData, setStoneItemsData] = useState([]);
   const [todayRates, setTodayRates] = useState([]);
+  const [wastageCalc, setWastageCalc] = useState("NWT");
+  const [wastageStatus, setWastageStatus] = useState(false);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -400,17 +404,32 @@ const Estimation = () => {
       });
 
       const modifiedData = data.map((item, index) => {
-        const nwt = Number(item?.NWT) || 0;
+        const NWT = Number(item?.NWT) || 0;
+        const GWT = Number(item?.GWT) || 0;
         const wastage = Number(item?.WASTAGE) || 0;
+        const directWastage = Number(item?.DIRECTWASTAGE) || 0;
+
+        // Pick base weight depending on calculation mode
+        let nwt = 0;
+        if (wastageCalc === "NWT") {
+          nwt = NWT;
+        } else if (wastageCalc === "GWT") {
+          nwt = GWT;
+        }
+
+        // Determine total weight
+        const totalWt =
+          Number(wastage) > 0
+            ? Number(((nwt * wastage) / 100).toFixed(3))
+            : directWastage;
+
         return {
-          TAGNO: item?.TAGNO ?? 0,
+          TAGNO: item?.TAGNO ?? "",
+          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
           NWT: nwt,
-          WASTAGE: wastage ? wastage.toString() : "",
-          DIRECTWT: item?.DIRECTWASTAGE,
-          TOTALWT:
-            wastage > 0
-              ? Number((nwt * wastage) / 100)
-              : Number(item?.DIRECTWASTAGE ?? 0),
+          WASTAGE: wastage > 0 ? wastage.toString() : "",
+          DIRECTWT: directWastage,
+          TOTALWT: totalWt,
         };
       });
 
@@ -802,7 +821,7 @@ const Estimation = () => {
           ? "-"
           : String(ePrefix),
       smCode: "-",
-      descrption: "-",
+      descrption: String(wastageCalc) || "",
       iteM_CTS: Number(totalItemCtsAmt),
       iteM_DIAMONDS: Number(totalItemDiaAmt),
       iteM_UNCUTS: Number(totalItemUncAmt),
@@ -904,17 +923,27 @@ const Estimation = () => {
       );
 
       const data = response.data;
-      const modifiedData = data.map((item, index) => {
-        const nwt = Number(item?.Nwt) || 0;
+      const modifiedData = data.map((item) => {
+        let nwt = 0;
+        const NWT = Number(item?.Nwt || 0);
+        const GWT = Number(item?.Gwt || 0);
         const wastage = Number(item?.Wastage) || 0;
+
+        if (wastageCalc === "NWT") {
+          nwt = NWT;
+        } else if (wastageCalc === "GWT") {
+          nwt = GWT;
+        }
+
         return {
           TAGNO: item?.TagNo ?? 0,
+          ISSBRANCHNAME: item?.homekey ?? "",
           NWT: nwt,
           WASTAGE: wastage ? wastage.toString() : "",
           DIRECTWT: item?.DirectWastage,
           TOTALWT:
             wastage > 0
-              ? Number((nwt * wastage) / 100)
+              ? Number(((nwt * wastage) / 100).toFixed(3))
               : (item?.DirectWastage ?? 0),
         };
       });
@@ -986,10 +1015,10 @@ const Estimation = () => {
         });
 
         setWastageData((prevData) => {
-          const existingTags = prevData.map((item) => item.TAGNO);
+          const existingTags = new Set(prevData.map((item) => item.TAGNO));
 
           const filteredData = modifiedData.filter(
-            (item) => !existingTags.includes(item.TAGNO),
+            (item) => !existingTags.has(item.TAGNO),
           );
 
           if (filteredData.length === 0) {
@@ -997,9 +1026,7 @@ const Estimation = () => {
             return prevData;
           }
 
-          const updatedData = [...prevData, ...modifiedData];
-
-          return updatedData;
+          return [...prevData, ...filteredData]; // ✅ append only the new ones
         });
 
         setMcData((prevData) => {
@@ -1171,6 +1198,7 @@ const Estimation = () => {
         setCustomerName(data[0]?.CustName);
         setCustomerMobile(data[0]?.MOBILENO);
         setCustomerArea(data[0]?.CITY);
+        setWastageCalc(data[0]?.descrption);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -1759,6 +1787,14 @@ const Estimation = () => {
     setCustomerOpen(false);
   };
 
+  const handleWatageOk = () => {
+    setWastageStatus(true);
+  };
+
+  const handleWastCancel = () => {
+    setWastageStatus(false);
+  };
+
   const handleReset = () => {
     setBarCode("");
     setBarCodeData([]);
@@ -1825,22 +1861,53 @@ const Estimation = () => {
   };
 
   const handleWastageOpen = (item) => {
-    const nwt = Number(item?.NWT) || 0;
+    const NWT = Number(item?.NWT) || 0;
+    const GWT = Number(item?.GWT) || 0;
     const wastage = Number(item?.WASTAGE) || 0;
+    const wastValue = Number(item?.CATTOTWAST) || 0;
+    const directWastage = Number(item?.DIRECTWASTAGE) || 0;
+
+    // Pick base weight depending on calculation mode
+    let nwt = 0;
+    if (wastageCalc === "NWT") {
+      nwt = NWT;
+    } else if (wastageCalc === "GWT") {
+      nwt = GWT;
+    }
+
+    // Same priority order as the bulk calculation: wastage % > CATTOTWAST > direct wastage
+    let totalWt = 0;
+    if (wastage > 0) {
+      totalWt = Number(((nwt * wastage) / 100).toFixed(3));
+    } else if (wastValue > 0) {
+      totalWt = wastValue;
+    } else {
+      totalWt = directWastage;
+    }
 
     const newEntry = {
-      TAGNO: item?.TAGNO ?? 0,
+      TAGNO: item?.TAGNO ?? "",
+      ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
       NWT: nwt,
-      WASTAGE: wastage ? wastage.toString() : "",
-      DIRECTWT: Number(item?.DIRECTWASTAGE) ?? 0,
-      TOTALWT: Number((nwt * wastage) / 100),
+      WASTAGE: wastage > 0 ? wastage.toString() : "",
+      DIRECTWT: directWastage,
+      TOTALWT: totalWt,
     };
 
     setWastageOpen(true);
     setWastageData((prevData) => {
-      const existingTags = prevData.map((wast) => wast.TAGNO);
+      const hasTagNo =
+        newEntry.TAGNO !== "" &&
+        newEntry.TAGNO !== null &&
+        newEntry.TAGNO !== undefined;
 
-      if (existingTags.includes(newEntry.TAGNO)) {
+      const alreadyExists = hasTagNo
+        ? prevData.some((wast) => wast.TAGNO === newEntry.TAGNO)
+        : prevData.some(
+            (wast) => wast.ISSBRANCHNAME === newEntry.ISSBRANCHNAME,
+          );
+
+      if (alreadyExists) {
         return prevData;
       }
 
@@ -2109,33 +2176,49 @@ const Estimation = () => {
     }
 
     // ---- Wastage Data ----
-    const modifiedData = barCodeData.map((item, index) => {
-      const nwt = Number(item?.NWT) || 0;
+    const modifiedData = barCodeData.map((item) => {
+      const NWT = Number(item?.NWT) || 0;
+      const GWT = Number(item?.GWT) || 0;
       const wastage = Number(item?.WASTAGE) || 0;
-      const wastValue = Number(item?.CATTOTWAST);
+      const wastValue = Number(item?.CATTOTWAST) || 0;
+      const directWastage = Number(item?.DIRECTWASTAGE) || 0;
+
+      // Pick base weight depending on calculation mode
+      let nwt = 0;
+      if (wastageCalc === "NWT") {
+        nwt = NWT;
+      } else if (wastageCalc === "GWT") {
+        nwt = GWT;
+      }
+
+      // Determine total weight with clear priority order
+      let totalWt = 0;
+      if (wastage > 0) {
+        totalWt = Number(((nwt * wastage) / 100).toFixed(3));
+      } else if (wastValue > 0) {
+        totalWt = wastValue;
+      } else {
+        totalWt = directWastage;
+      }
+
       return {
-        TAGNO: item?.TAGNO ?? 0,
+        TAGNO: item?.TAGNO ?? "",
         ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
         NWT: nwt,
-        WASTAGE: wastage ? wastage.toString() : "",
-        DIRECTWT: item?.DIRECTWASTAGE,
-        TOTALWT:
-          wastage > 0
-            ? Number((nwt * wastage) / 100)
-            : Number(wastValue) > 0
-              ? Number(wastValue)
-              : Number(item?.DIRECTWASTAGE ?? 0),
+        WASTAGE: wastage > 0 ? wastage : "",
+        DIRECTWT: directWastage,
+        TOTALWT: totalWt,
       };
     });
 
-    const modifiedMcData = barCodeData.map((item, index) => {
-      let nwt = 0;
-
+    // ---- MC Data ----
+    const modifiedMcData = barCodeData.map((item) => {
       const NWT = Number(item?.NWT || 0);
       const GWT = Number(item?.GWT || 0);
       const WAST = Number(item?.WASTAGE || 0);
       const MCVALUE = Number(item?.CATTOTMC || 0);
 
+      let nwt = 0;
       if (mcCalc === "NWT") {
         nwt = NWT;
       } else if (mcCalc === "GWT") {
@@ -2145,12 +2228,14 @@ const Estimation = () => {
       } else {
         nwt = NWT + (NWT * WAST) / 100;
       }
+
       const making = Number(item?.MAKINGCHARGES) || 0;
+
       return {
         TAGNO: item?.TAGNO ?? 0,
         ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
         NWT: nwt,
-        MAKINGCHARGES: making ? making.toString() : "",
+        MAKINGCHARGES: making ? making : "",
         DIRECTAMT: item?.DIRECTMC,
         TOTALAMT:
           making > 0
@@ -2161,39 +2246,20 @@ const Estimation = () => {
       };
     });
 
+    // ---- Upsert into wastageData (insert new tags, update existing ones) ----
     setWastageData((prevData) => {
-      const existingTags = prevData.map((item) => item.TAGNO);
-
-      const filteredData = modifiedData.filter(
-        (item) => !existingTags.includes(item.TAGNO),
-      );
-
-      if (filteredData.length === 0) {
-        // message.error("All these tag numbers already existed");
-        return prevData;
-      }
-
-      const updatedData = [...prevData, ...modifiedData];
-
-      return updatedData;
+      const map = new Map(prevData.map((item) => [item.TAGNO, item]));
+      modifiedData.forEach((item) => map.set(item.TAGNO, item));
+      return Array.from(map.values());
     });
+
+    // ---- Upsert into mcData (insert new tags, update existing ones) ----
     setMcData((prevData) => {
-      const existingTags = prevData.map((item) => item.TAGNO);
-
-      const filteredData = modifiedMcData.filter(
-        (item) => !existingTags.includes(item.TAGNO),
-      );
-
-      if (filteredData.length === 0) {
-        // message.error("All these tag numbers already existed");
-        return prevData;
-      }
-
-      const updatedData = [...prevData, ...modifiedMcData];
-
-      return updatedData;
+      const map = new Map(prevData.map((item) => [item.TAGNO, item]));
+      modifiedMcData.forEach((item) => map.set(item.TAGNO, item));
+      return Array.from(map.values());
     });
-  }, [barCodeData]);
+  }, [barCodeData, wastageCalc, mcCalc]);
 
   // const EstNo = tagNo ? tagNo : estNo;
 
@@ -2412,6 +2478,14 @@ const Estimation = () => {
                 color: "#BF9264",
               }}
               onClick={handleUserOk}
+            />
+            <PercentIcon
+              style={{
+                fontSize: "30px",
+                padding: "6px 10px",
+                color: "#060605ff",
+              }}
+              onClick={handleWatageOk}
             />
           </div>
         </div>
@@ -3696,6 +3770,12 @@ const Estimation = () => {
         setCustomerName={setCustomerName}
         customerMobile={customerMobile}
         setCustomerMobile={setCustomerMobile}
+      />
+      <CalcWastageDialog
+        wastageStatus={wastageStatus}
+        handleCancel={handleWastCancel}
+        setWastageCalc={setWastageCalc}
+        wastageCalc={wastageCalc}
       />
       <WastageDialog
         wastageOpen={wastageOpen}
