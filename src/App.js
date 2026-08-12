@@ -19,6 +19,7 @@ import BarCodeCheck from "./Components/BarCodeCheck/BarCodeCheck";
 import TagCheck from "./Components/TagCheck/TagCheck";
 import Estimation from "./Components/Estimation2.jsx/Estimation";
 import DailyRates from "./Components/DailyRates/DailyRates";
+import PurchaseEstimation from "./Components/PurchaseEstimation/PurchaseEstimation";
 
 function App() {
   const tenantName = localStorage.getItem("tenantName");
@@ -57,6 +58,10 @@ function App() {
                 />
                 <Route path="/tag-check" element={<TagCheck />} />
                 <Route path="/daily-rates" element={<DailyRates />} />
+                <Route
+                  path="/purchase-estimation"
+                  element={<PurchaseEstimation />}
+                />
               </Routes>
             ) : (
               <Navigate to="/" />

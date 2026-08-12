@@ -179,10 +179,11 @@ export const PrintModule1 = (
       </style>
     </head>
     <body>
-    <h2>${storeDetails?.FIRMNAME}</h2>
-    <h3>${storeDetails?.ADD1}</h3>
-    <h3>${storeDetails?.ADD2}</h3>
-    <h3>PHNO:${storeDetails?.FMOBILE}</h3>
+    <div style="text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${storeDetails?.FIRMNAME}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">${storeDetails?.ADD1}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">${storeDetails?.ADD2}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">PHNO:${storeDetails?.FMOBILE}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">GST:${storeDetails?.TINNO}</div>
       <h1>ESTIMATION</h1>
       <div class="line"></div>
 

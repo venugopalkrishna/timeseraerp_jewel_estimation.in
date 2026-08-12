@@ -96,6 +96,7 @@ export const printReceipt = (
     printer.addText(storeDetails?.ADD1 + "\n");
     printer.addText(storeDetails?.ADD2 + "\n");
     printer.addText(storeDetails?.FMOBILE + "\n");
+    printer.addText(storeDetails?.TINNO + "\n");
     printer.addFeedLine(1);
     printer.addTextSize(2, 2); // Large font
     printer.addText("ESTIMATION \n");

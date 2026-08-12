@@ -57,44 +57,16 @@ export const printReceiptModule2 = (
   function executeAddedCode() {
     const lineWidth = 48;
     printer.addTextAlign(printer.ALIGN_CENTER);
+
     printer.addFeedLine(1);
     printer.addTextSize(2, 1);
-    // const img = new Image();
-    // img.src = base64Images;
 
-    // img.onload = function () {
-    //   // === LOGO ===
-    //   const canvas = document.createElement("canvas");
-    //   const ctx = canvas.getContext("2d");
-
-    //   const targetWidth = 200; // pixels (adjust for your logo size)
-    //   const aspectRatio = img.width / img.height;
-    //   const targetHeight = Math.round(targetWidth / aspectRatio);
-
-    //   // Set canvas size
-    //   canvas.width = targetWidth;
-    //   canvas.height = targetHeight;
-
-    //   // Draw image on canvas
-    //   ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-
-    //   // === LOGO ===
-    //   printer.addImage(
-    //     ctx,
-    //     0,
-    //     0,
-    //     targetWidth,
-    //     targetHeight,
-    //     printer.COLOR_1,
-    //     printer.MODE_MONO,
-    //     printer.HALFTONE_DITHER,
-    //     1
-    //   );
     printer.addText(storeDetails?.FIRMNAME + "\n");
     printer.addTextSize(1, 1);
     printer.addText(storeDetails?.ADD1 + "\n");
     printer.addText(storeDetails?.ADD2 + "\n");
     printer.addText(storeDetails?.FMOBILE + "\n");
+    printer.addText(storeDetails?.TINNO + "\n");
     printer.addFeedLine(1);
     printer.addTextSize(2, 2); // Large font
     printer.addText("ESTIMATION \n");

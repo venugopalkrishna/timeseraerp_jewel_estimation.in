@@ -130,6 +130,7 @@ const BarCodeCheck = () => {
   const [btCharacteristic, setBtCharacteristic] = useState(null);
   const [wastageCalc, setWastageCalc] = useState("NWT");
   const [wastageStatus, setWastageStatus] = useState(false);
+  const [storeDetails, setStoreDetails] = useState({});
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -285,6 +286,27 @@ const BarCodeCheck = () => {
       }
     } catch (error) {
       console.error("Error fetching account number:", error);
+    }
+  };
+
+  const userAPI = async (name) => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=FIRM_CONFIGURE`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        setStoreDetails(data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching estimation count:", error);
     }
   };
 
@@ -1893,6 +1915,7 @@ const BarCodeCheck = () => {
     itemsAPI();
     stoneItemsAPI();
     todayRatesAPI();
+    userAPI();
   }, []);
 
   useEffect(() => {
@@ -2176,6 +2199,7 @@ const BarCodeCheck = () => {
       wastValue,
       wastPer,
       stoneItemsData,
+      storeDetails,
     );
   };
 
@@ -2206,6 +2230,7 @@ const BarCodeCheck = () => {
       wastValue,
       wastPer,
       stoneItemsData,
+      storeDetails,
     );
   };
 
@@ -2236,6 +2261,7 @@ const BarCodeCheck = () => {
       wastValue,
       wastPer,
       stoneItemsData,
+      storeDetails,
     );
   };
 
@@ -2266,6 +2292,7 @@ const BarCodeCheck = () => {
       wastValue,
       wastPer,
       stoneItemsData,
+      storeDetails,
     );
   };
 

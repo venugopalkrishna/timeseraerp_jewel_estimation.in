@@ -26,6 +26,7 @@ export const PrintModule2 = (
   wastValue,
   wastPer,
   stoneItemsData,
+  storeDetails,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -170,6 +171,17 @@ export const PrintModule2 = (
       </style>
     </head>
     <body>
+      ${
+        Number(printModel) === 5
+          ? `
+      <div style="text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 1px;">${storeDetails?.FIRMNAME}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">${storeDetails?.ADD1}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">${storeDetails?.ADD2}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">PHNO:${storeDetails?.FMOBILE}</div>
+    <div style="text-align: center; font-size: 14px; letter-spacing: 1px;">GST:${storeDetails?.TINNO}</div>
+    `
+          : ""
+      }
       <h1>ESTIMATION</h1>
       <div class="line"></div>
       <div><b>EST NO :</b> <span style="font-size: 18px; font-weight: bold;">${EstNo}</span></div>

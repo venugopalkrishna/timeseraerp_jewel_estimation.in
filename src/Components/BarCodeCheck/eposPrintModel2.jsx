@@ -25,6 +25,7 @@ export const printReceiptModule2 = (
   wastValue,
   wastPer,
   stoneItemsData,
+  storeDetails,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -87,6 +88,16 @@ export const printReceiptModule2 = (
     //     printer.HALFTONE_DITHER,
     //     1
     //   );
+    if (Number(printModel) === 5) {
+      printer.addFeedLine(1);
+      printer.addTextSize(2, 1);
+      printer.addText(storeDetails?.FIRMNAME + "\n");
+      printer.addTextSize(1, 1);
+      printer.addText(storeDetails?.ADD1 + "\n");
+      printer.addText(storeDetails?.ADD2 + "\n");
+      printer.addText(storeDetails?.FMOBILE + "\n");
+      printer.addText(storeDetails?.TINNO + "\n");
+    }
     printer.addFeedLine(1);
     printer.addTextSize(2, 2); // Large font
     printer.addText("ESTIMATION \n");
