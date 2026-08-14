@@ -26,6 +26,7 @@ export const printReceipt = (
   wastValue,
   storeDetails,
   stoneItemsData,
+  selectedEmployee,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -401,11 +402,11 @@ export const printReceipt = (
 
     let rightText2 = "";
 
-    if (Number(gstNo) > 0) {
-      const rightLabel2 = `GST@${gstNo}% : `;
-      const rightValue2 = totalGstAmt.toFixed(2);
-      rightText2 = rightLabel2 + rightValue2;
-    }
+    // if (Number(gstNo) > 0) {
+    //   const rightLabel2 = `GST@${gstNo}% : `;
+    //   const rightValue2 = totalGstAmt.toFixed(2);
+    //   rightText2 = rightLabel2 + rightValue2;
+    // }
 
     let spaceCount2 = lineWidth - (leftText2.length + rightText2.length);
     let spaces2 = " ".repeat(spaceCount2 > 0 ? spaceCount2 : 1);
@@ -458,6 +459,7 @@ export const printReceipt = (
     printer.addFeedLine(1);
     printer.addText(`Date      : ${dayjs().format("DD-MM-YYYY hh:mm A")}\n`);
     printer.addText(`User Name : ${loginName}\n`);
+    printer.addText(`SM CODE   : ${selectedEmployee}\n`);
     printer.addFeedLine(2);
     printer.addCut(printer.CUT_FEED);
 

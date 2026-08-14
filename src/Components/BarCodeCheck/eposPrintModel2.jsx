@@ -26,6 +26,7 @@ export const printReceiptModule2 = (
   wastPer,
   stoneItemsData,
   storeDetails,
+  selectedEmployee,
 ) => {
   var printer = null;
   var ePosDev = new window.epson.ePOSDevice();
@@ -513,6 +514,7 @@ export const printReceiptModule2 = (
     printer.addTextAlign(printer.ALIGN_LEFT);
     printer.addText(`Date : ${dayjs().format("DD-MM-YYYY hh:mm A")}\n`);
     printer.addText(`User Name : ${loginName}\n`);
+    printer.addText(`SM CODE   : ${selectedEmployee}\n`);
     printer.addFeedLine(2);
     printer.addCut(printer.CUT_FEED);
 

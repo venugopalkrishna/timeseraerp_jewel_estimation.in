@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ContactPhoneSharpIcon from "@mui/icons-material/ContactPhoneSharp";
 import PercentIcon from "@mui/icons-material/Percent";
 import { Box } from "@mui/material";
-import { Button, Input, message } from "antd";
+import { Button, Input, message, Select } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { Html5Qrcode } from "html5-qrcode";
@@ -25,6 +25,8 @@ import MakingChargesDialog from "./MakingChargesDialog";
 import { PrintModule1 } from "./PrintModule1";
 import { PrintModule2 } from "./PrintModule2";
 import CalcWastageDialog from "./CalcWastageDialog";
+
+const { Option } = Select;
 
 const Estimation = () => {
   const tagNoRef = useRef(null);
@@ -90,6 +92,8 @@ const Estimation = () => {
   const [todayRates, setTodayRates] = useState([]);
   const [wastageCalc, setWastageCalc] = useState("NWT");
   const [wastageStatus, setWastageStatus] = useState(false);
+  const [employeeData, setEmployeeData] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -297,6 +301,26 @@ const Estimation = () => {
     }
   };
 
+  const employeeDetailsAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=BOYMAST`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setEmployeeData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
+    }
+  };
+
   const tagNoAPI = async (tagNo) => {
     try {
       if (!Array.isArray(todayRates) || todayRates.length === 0) {
@@ -368,7 +392,7 @@ const Estimation = () => {
         const mcStone = mcAmount + stoneAmount;
 
         const totalAmount = safeNumber(amount) + safeNumber(mcStone);
-        const gstAmount = (totalAmount * gstNo) / 100;
+        const gstAmount = 0;
         const netAmount = totalAmount + gstAmount;
 
         return {
@@ -822,7 +846,7 @@ const Estimation = () => {
         String(ePrefix) === "undefined" || ePrefix === null || ePrefix === ""
           ? "-"
           : String(ePrefix),
-      smCode: "-",
+      smCode: String(selectedEmployee) || "",
       descrption: String(wastageCalc) || "",
       iteM_CTS: Number(totalItemCtsAmt),
       iteM_DIAMONDS: Number(totalItemDiaAmt),
@@ -1201,6 +1225,7 @@ const Estimation = () => {
         setCustomerMobile(data[0]?.MOBILENO);
         setCustomerArea(data[0]?.CITY);
         setWastageCalc(data[0]?.descrption);
+        setSelectedEmployee(data[0]?.SMCode);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -1842,6 +1867,7 @@ const Estimation = () => {
     setItemsData([]);
     setGstData([]);
     setGstNo(0);
+    setSelectedEmployee(null);
   };
 
   const handleImageOk = (image) => {
@@ -1980,6 +2006,7 @@ const Estimation = () => {
     userAPI();
     stoneItemsAPI();
     todayRatesAPI();
+    employeeDetailsAPI();
   }, []);
 
   // useEffect(() => {
@@ -2049,7 +2076,7 @@ const Estimation = () => {
         const totalAmt = stoneAmount + barCode?.BRANDAMT;
 
         const totalAmount = safeNumber(totalAmt);
-        const gstAmount = (totalAmount * gstNo) / 100;
+        const gstAmount = 0;
         const netAmount = totalAmount + gstAmount;
 
         return {
@@ -2128,7 +2155,7 @@ const Estimation = () => {
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
         const gstRate = toNumber(gstNo);
-        const gstAmount = (totalAmount * gstRate) / 100;
+        const gstAmount = 0;
 
         const netAmount = totalAmount + gstAmount;
 
@@ -2293,6 +2320,7 @@ const Estimation = () => {
       wastValue,
       storeDetails,
       stoneItemsData,
+      selectedEmployee,
     );
   };
 
@@ -2324,6 +2352,7 @@ const Estimation = () => {
       wastValue,
       storeDetails,
       stoneItemsData,
+      selectedEmployee,
     );
   };
 
@@ -2355,6 +2384,7 @@ const Estimation = () => {
       copperData,
       storeDetails,
       stoneItemsData,
+      selectedEmployee,
     );
   };
 
@@ -2386,6 +2416,7 @@ const Estimation = () => {
       copperData,
       storeDetails,
       stoneItemsData,
+      selectedEmployee,
     );
   };
 
@@ -2413,7 +2444,7 @@ const Estimation = () => {
           </span>
         </div>
         <div className={styles.estimationTagContainer}>
-          <div className={styles.tagNoSection}>
+          {/* <div className={styles.tagNoSection}>
             <span className={styles.tagLabel}>Tag No</span>
             <Input
               className={styles.tagInput}
@@ -2428,6 +2459,64 @@ const Estimation = () => {
                 }
               }}
             />
+          </div> */}
+
+          <div className={styles.tagNoSection}>
+            {/* Tag No */}
+            <div className={styles.tagField}>
+              <span className={styles.tagLabel}>Tag No</span>
+
+              <Input
+                className={styles.tagInput}
+                ref={tagNoRef}
+                onKeyDown={handleTagNoKeyDown}
+                value={barCode}
+                autoFocus={true}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[a-zA-Z]/g, "");
+
+                  if (value.length <= 10) {
+                    setBarCode(value);
+                  }
+                }}
+              />
+            </div>
+
+            {/* SM Code */}
+            <div className={styles.smCodeSection}>
+              <span className={styles.smCodeLabel}>SM Code</span>
+
+              {/* <select
+                className={styles.smCodeSelect}
+                value={selectedEmployee}
+                onChange={(e) => setSelectedEmployee(e.target.value)}
+              >
+                <option value="">Select</option>
+                <option value="SM001">SM001</option>
+                <option value="SM002">SM002</option>
+                <option value="SM003">SM003</option>
+              </select> */}
+              <Select
+                className={styles.smCodeSelect}
+                allowClear
+                showSearch
+                placeholder="Select SM Code"
+                // ref={selectTagMainProductRef}
+                value={selectedEmployee || null}
+                onChange={(value) => {
+                  setSelectedEmployee(value);
+                }}
+                filterOption={(input, option) =>
+                  option?.children?.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {employeeData.map((m, index) => (
+                  <Option key={index} value={m.CODE}>
+                    {m.CODE}
+                  </Option>
+                ))}
+              </Select>
+            </div>
           </div>
 
           {/* Buttons */}
@@ -3165,7 +3254,7 @@ const Estimation = () => {
                       </div>
                       {Number(gstNo) > 0 ? (
                         <div style={{ fontSize: "14px" }}>
-                          Gst @ {gstNo || 0.0}%
+                          Gst @ {0}%
                           <br />
                           <span className={styles.amount2}>
                             ₹

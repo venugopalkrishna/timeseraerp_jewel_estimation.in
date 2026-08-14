@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ContactPhoneSharpIcon from "@mui/icons-material/ContactPhoneSharp";
 import PercentIcon from "@mui/icons-material/Percent";
 import { Box } from "@mui/material";
-import { Button, Input, message } from "antd";
+import { Button, Input, message, Select } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import { Html5Qrcode } from "html5-qrcode";
@@ -27,6 +27,8 @@ import { PrintModule2 } from "./PrintModule2";
 import Tag from "./NewTagDetails";
 import EscPosEncoder from "esc-pos-encoder";
 import CalcWastageDialog from "./CalcWastageDialog";
+
+const { Option } = Select;
 
 const BarCodeCheck = () => {
   const tagNoRef = useRef(null);
@@ -131,6 +133,8 @@ const BarCodeCheck = () => {
   const [wastageCalc, setWastageCalc] = useState("NWT");
   const [wastageStatus, setWastageStatus] = useState(false);
   const [storeDetails, setStoreDetails] = useState({});
+  const [employeeData, setEmployeeData] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const html5QrCodeRef = useRef(null);
   const scannedRef = useRef(false);
@@ -350,6 +354,26 @@ const BarCodeCheck = () => {
       }
     } catch (error) {
       console.error("Error fetching today rates:", error);
+    }
+  };
+
+  const employeeDetailsAPI = async () => {
+    try {
+      const response = await axios.get(
+        `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=BOYMAST`,
+        {
+          headers: {
+            tenantName: tenantName,
+          },
+        },
+      );
+
+      const data = response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        setEmployeeData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching account number:", error);
     }
   };
 
@@ -874,7 +898,7 @@ const BarCodeCheck = () => {
         String(ePrefix) === "undefined" || ePrefix === null || ePrefix === ""
           ? "-"
           : String(ePrefix),
-      smCode: "-",
+      smCode: String(selectedEmployee) || "",
       descrption: String(wastageCalc) || "",
       iteM_CTS: Number(totalItemCtsAmt),
       iteM_DIAMONDS: Number(totalItemDiaAmt),
@@ -1287,6 +1311,7 @@ const BarCodeCheck = () => {
         setTotalGstAmt(data[0]?.VatAmt);
         setTotalNwtAmt(data[0]?.NetAmt);
         setWastageCalc(data[0]?.descrption);
+        setSelectedEmployee(data[0]?.SMCode);
       }
     } catch (error) {
       console.error("Error fetching estimation data:", error);
@@ -1760,6 +1785,7 @@ const BarCodeCheck = () => {
     setItemsData([]);
     setGstData([]);
     setGstNo(0);
+    setSelectedEmployee(null);
   };
 
   const handleImageOk = (image) => {
@@ -1915,6 +1941,7 @@ const BarCodeCheck = () => {
     itemsAPI();
     stoneItemsAPI();
     todayRatesAPI();
+    employeeDetailsAPI();
     userAPI();
   }, []);
 
@@ -2200,6 +2227,7 @@ const BarCodeCheck = () => {
       wastPer,
       stoneItemsData,
       storeDetails,
+      selectedEmployee,
     );
   };
 
@@ -2231,6 +2259,7 @@ const BarCodeCheck = () => {
       wastPer,
       stoneItemsData,
       storeDetails,
+      selectedEmployee,
     );
   };
 
@@ -2262,6 +2291,7 @@ const BarCodeCheck = () => {
       wastPer,
       stoneItemsData,
       storeDetails,
+      selectedEmployee,
     );
   };
 
@@ -2293,6 +2323,7 @@ const BarCodeCheck = () => {
       wastPer,
       stoneItemsData,
       storeDetails,
+      selectedEmployee,
     );
   };
 
@@ -3085,7 +3116,7 @@ const BarCodeCheck = () => {
           </span>
         </div>
         <div className={styles.estimationTagContainer}>
-          <div className={styles.tagNoSection}>
+          {/* <div className={styles.tagNoSection}>
             <span className={styles.tagLabel}>Tag No</span>
             <Input
               className={styles.tagInput}
@@ -3100,6 +3131,63 @@ const BarCodeCheck = () => {
                 }
               }}
             />
+          </div> */}
+          <div className={styles.tagNoSection}>
+            {/* Tag No */}
+            <div className={styles.tagField}>
+              <span className={styles.tagLabel}>Tag No</span>
+
+              <Input
+                className={styles.tagInput}
+                ref={tagNoRef}
+                onKeyDown={handleTagNoKeyDown}
+                value={barCode}
+                autoFocus={true}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[a-zA-Z]/g, "");
+
+                  if (value.length <= 10) {
+                    setBarCode(value);
+                  }
+                }}
+              />
+            </div>
+
+            {/* SM Code */}
+            <div className={styles.smCodeSection}>
+              <span className={styles.smCodeLabel}>SM Code</span>
+
+              {/* <select
+                className={styles.smCodeSelect}
+                value={selectedEmployee}
+                onChange={(e) => setSelectedEmployee(e.target.value)}
+              >
+                <option value="">Select</option>
+                <option value="SM001">SM001</option>
+                <option value="SM002">SM002</option>
+                <option value="SM003">SM003</option>
+              </select> */}
+              <Select
+                className={styles.smCodeSelect}
+                allowClear
+                showSearch
+                placeholder="Select SM Code"
+                // ref={selectTagMainProductRef}
+                value={selectedEmployee || null}
+                onChange={(value) => {
+                  setSelectedEmployee(value);
+                }}
+                filterOption={(input, option) =>
+                  option?.children?.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {employeeData.map((m, index) => (
+                  <Option key={index} value={m.CODE}>
+                    {m.CODE}
+                  </Option>
+                ))}
+              </Select>
+            </div>
           </div>
 
           {/* Buttons */}

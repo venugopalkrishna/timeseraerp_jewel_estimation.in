@@ -27,6 +27,7 @@ export const PrintModule2 = (
   copperData,
   storeDetails,
   stoneItemsData,
+  selectedEmployee,
 ) => {
   const formatNum = (val, dec = 2) =>
     Number(val || 0)
@@ -452,17 +453,11 @@ export const PrintModule2 = (
         </div>
 
         <div class="col">
-        <div class="tot-row"><span class="tot-label">Amount</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
-          totalAmt,
-        )}</span></div>
+         <div class="tot-row"><span class="tot-label">Amount</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
+           totalAmt,
+         )}/-</span></div>
         <div class="tot-row"><span class="tot-label"></span><span class="tot-colon"></span><span class="tot-value"></span></div>
-       ${
-         gstNo > 0
-           ? `<div class="tot-row"><span class="tot-label">GST@${gstNo}%</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
-               totalGstAmt,
-             )}</span></div>`
-           : ""
-       }
+        <div></div>
         </div>
     </div>
 
@@ -515,6 +510,7 @@ export const PrintModule2 = (
     "DD-MM-YYYY hh:mm A",
   )}</span></div>
   <div class="footer-row"><span class="footer-label">User Name</span><span class="footer-colon">:</span><span class="footer-value">${loginName}</span></div>
+  <div class="footer-row"><span class="footer-label">SM CODE</span><span class="footer-colon">:</span><span class="footer-value">${selectedEmployee}</span></div>
   `;
 
   htmlContent += `

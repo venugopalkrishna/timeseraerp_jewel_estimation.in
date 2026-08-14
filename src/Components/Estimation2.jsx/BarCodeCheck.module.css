@@ -41,25 +41,64 @@
 
 .tagNoSection {
   display: flex;
-  flex-direction: column;
-  /* Stack elements vertically */
-  align-items: center;
-  gap: 5px;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 25px;
+  width: 100%;
   flex: 1;
+}
+
+.tagField {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  padding: 0 10px;
 }
 
 .tagLabel {
   font-size: 16px;
   font-weight: bold;
   white-space: nowrap;
+  margin-bottom: 5px;
 }
 
 .tagInput {
-  width: 70%;
+  width: 100%;
   height: 40px;
   font-size: 20px;
   text-align: center;
   font-weight: bold;
+  box-sizing: border-box;
+}
+
+/* SM Code */
+.smCodeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 150px;
+  flex-shrink: 0;
+  padding: 0 10px;
+}
+
+.smCodeLabel {
+  font-size: 16px;
+  font-weight: bold;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+
+.smCodeSelect {
+  width: 150px;
+  height: 40px;
+  padding: 0 8px;
+  font-size: 14px;
+  border: 1px solid #767676;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
 }
 
 .buttonSection {
