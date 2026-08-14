@@ -3402,6 +3402,12 @@ const BarCodeCheck = () => {
                 );
 
                 const totWt = Number(netWeight) + Number(wastAmt);
+                let metalValue = 0;
+                if (Number(printModel) === 5 || Number(printModel) === 6) {
+                  metalValue = Number(totWt) * Number(barCode?.RATE);
+                } else {
+                  metalValue = Number(netWeight) * Number(barCode?.RATE);
+                }
 
                 return (
                   <div className={styles.card} key={index}>
@@ -3804,11 +3810,7 @@ const BarCodeCheck = () => {
                           <span className={styles.label2}>Metal Value </span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            ₹{" "}
-                            {(
-                              (barCode?.RATE ?? 0) *
-                              (netWt ?? barCode?.NWT ?? 0)
-                            ).toFixed(2)}
+                            ₹ {Number(metalValue)?.toFixed(0)}
                           </span>
                         </div>
                         <div
