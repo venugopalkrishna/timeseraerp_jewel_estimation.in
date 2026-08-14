@@ -160,13 +160,13 @@ const SidebarDrawer = ({
   ];
 
   if (Number(userType) > 1) {
-    if (Number(printModel) === 5 || Number(printModel) === 6) {
+    if (Number(printModel) === 5) {
       menuItems = userType3;
     } else {
       menuItems = userType4;
     }
   } else {
-    if (Number(printModel) === 5 || Number(printModel) === 6) {
+    if (Number(printModel) === 5) {
       menuItems = userType1;
     } else {
       menuItems = userType2;

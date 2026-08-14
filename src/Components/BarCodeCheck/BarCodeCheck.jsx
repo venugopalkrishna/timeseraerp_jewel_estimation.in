@@ -3403,7 +3403,7 @@ const BarCodeCheck = () => {
 
                 const totWt = Number(netWeight) + Number(wastAmt);
                 let metalValue = 0;
-                if (Number(printModel) === 5 || Number(printModel) === 6) {
+                if (Number(printModel) === 5) {
                   metalValue = Number(totWt) * Number(barCode?.RATE);
                 } else {
                   metalValue = Number(netWeight) * Number(barCode?.RATE);
