@@ -270,10 +270,10 @@ export const PrintModule1 = (
     const totalAmtValue = matchedTotal?.TOTALAMT ?? 0;
     const amtValue = (nwt + wastAmt) * rate;
     const totalValue = rate * nwt;
-    const totWt = Number(netWeight?.toFixed(3)) + Number(wastAmt?.toFixed(3));
+
     const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
     const fNwt = Number(netWeight) - Number(copperWt);
-
+    const totWt = Number(fNwt?.toFixed(3)) + Number(wastAmt?.toFixed(3));
     const castMetal = Number(totWt) * Number(item?.RATE);
     const piecesText = item.PIECES
       ? ` - ${item.PIECES} ${item.PIECES > 1 ? "Pieces" : "Piece"}`

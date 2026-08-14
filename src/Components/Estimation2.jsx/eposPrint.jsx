@@ -255,10 +255,10 @@ export const printReceipt = (
       const rate = Number(item?.RATE ?? 0);
       const nwtValue = Number(netWt ?? item?.NWT ?? 0);
       const totalValue = rate * nwtValue;
-      const totWt = Number(netWeight?.toFixed(3)) + Number(wastAmt?.toFixed(3));
+
       const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
       const fNwt = Number(netWeight) - Number(copperWt);
-
+      const totWt = Number(fNwt?.toFixed(3)) + Number(wastAmt?.toFixed(3));
       const castMetal = Number(totWt) * Number(item?.RATE);
       const metalValue = `${Number(castMetal ?? 0).toFixed(2)}`.padStart(
         27,

@@ -738,13 +738,13 @@ const Estimation = () => {
 
       const netWt = item?.GWT - totStone;
       const netWeight = netWt ?? item?.NWT ?? 0;
-      const totWt = Number(netWeight) + Number(wastAmt);
+
       const matchedCopper = copperData.find((c) => c.MNAME === item?.MNAME);
 
       const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
       const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
       const fNwt = Number(netWeight) - Number(copperWt);
-
+      const totWt = Number(fNwt) + Number(wastAmt);
       const castMetal = Number(totWt) * Number(item?.FINERATE);
       return {
         estimationNo: tagNo ? String(tagNo) : String(est), // always a string
@@ -1008,7 +1008,7 @@ const Estimation = () => {
         const mcStone = mcAmount + stoneAmount;
 
         const totalAmount = safeNumber(amount) + safeNumber(mcStone);
-        const gstAmount = (totalAmount * item?.PVALUE) / 100;
+        const gstAmount = 0;
         const netAmount = safeNumber(totalAmount) + safeNumber(gstAmount);
 
         return {
@@ -2681,11 +2681,11 @@ const Estimation = () => {
 
                 const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
 
-                const totWt =
-                  Number(netWeight?.toFixed(3)) + Number(wastAmt?.toFixed(3));
-
                 const copperWt = (Number(netWeight) * Number(copperPer)) / 100;
                 const fNwt = Number(netWeight) - Number(copperWt);
+
+                const totWt =
+                  Number(fNwt?.toFixed(3)) + Number(wastAmt?.toFixed(3));
 
                 const castMetal = Number(totWt) * Number(barCode?.RATE);
 
