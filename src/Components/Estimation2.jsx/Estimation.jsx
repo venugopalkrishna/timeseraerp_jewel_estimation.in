@@ -387,7 +387,18 @@ const Estimation = () => {
         const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
         const mcAmount = directMc > 0 ? directMc : cattotMc;
 
-        const rateAmount = Number(nwt + wastageAmt).toFixed(3);
+        const matchedCopper = copperData.find(
+          (c) => c.MNAME === barCode?.MNAME,
+        );
+
+        const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
+
+        const copperWt = (Number(nwt) * Number(copperPer)) / 100;
+        const fNwt = Number(nwt) - Number(copperWt);
+
+        const totWt = Number(fNwt?.toFixed(3)) + Number(wastageAmt?.toFixed(3));
+
+        const rateAmount = Number(totWt).toFixed(3);
         const amount = Number(rateAmount * rate).toFixed(0);
         const mcStone = mcAmount + stoneAmount;
 
@@ -1003,7 +1014,18 @@ const Estimation = () => {
         const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
         const mcAmount = directMc > 0 ? directMc : cattotMc;
 
-        const rateAmount = Number(nwt + wastageAmt).toFixed(3);
+        const matchedCopper = copperData.find(
+          (c) => c.MNAME === barCode?.MNAME,
+        );
+
+        const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
+
+        const copperWt = (Number(nwt) * Number(copperPer)) / 100;
+        const fNwt = Number(nwt) - Number(copperWt);
+
+        const totWt = Number(fNwt?.toFixed(3)) + Number(wastageAmt?.toFixed(3));
+
+        const rateAmount = Number(totWt).toFixed(3);
         const amount = Number(rateAmount * rate).toFixed(0);
         const mcStone = mcAmount + stoneAmount;
 
@@ -2150,7 +2172,18 @@ const Estimation = () => {
         // ---- Rate Calculation ----
         const rate = toNumber(barCode?.RATE);
 
-        const rateAmount = (netWt + wastageAmt)?.toFixed(3) * rate;
+        const matchedCopper = copperData.find(
+          (c) => c.MNAME === barCode?.MNAME,
+        );
+
+        const copperPer = Number(matchedCopper?.COPPER_PER ?? 0);
+
+        const copperWt = (Number(netWt) * Number(copperPer)) / 100;
+        const fNwt = Number(netWt) - Number(copperWt);
+
+        const totWt = Number(fNwt?.toFixed(3)) + Number(wastageAmt?.toFixed(3));
+
+        const rateAmount = totWt?.toFixed(3) * rate;
 
         const totalAmount = rateAmount + mcAmount + totalStoneAmount;
 
