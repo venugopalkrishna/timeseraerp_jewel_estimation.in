@@ -3794,10 +3794,10 @@ const BarCodeCheck = () => {
                               }
 
                               if (matched) {
-                                return `${Number(matched.TOTALAMT).toFixed(2)}`;
+                                return `${Number(matched.TOTALAMT).toFixed(0)}`;
                               } else {
                                 return barCode?.CATTOTMC
-                                  ? `${Number(barCode?.CATTOTMC).toFixed(2)}`
+                                  ? `${Number(barCode?.CATTOTMC).toFixed(0)}`
                                   : 0.0;
                               }
                             })()}
@@ -3833,7 +3833,7 @@ const BarCodeCheck = () => {
                           </span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            ₹ {totalItemAmt ? totalItemAmt.toFixed(2) : 0.0}
+                            ₹ {totalItemAmt ? totalItemAmt.toFixed(0) : 0.0}
                           </span>
                         </div>
                         <div
@@ -3872,7 +3872,7 @@ const BarCodeCheck = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              ₹ {diaAmount ? diaAmount?.toFixed(2) : 0}
+                              ₹ {diaAmount ? diaAmount?.toFixed(0) : 0}
                             </span>
                           </span>
                         </div>
@@ -3914,7 +3914,7 @@ const BarCodeCheck = () => {
                             >
                               ₹{" "}
                               {barCode?.BRANDCALCAMT
-                                ? barCode?.BRANDCALCAMT?.toFixed(2)
+                                ? barCode?.BRANDCALCAMT?.toFixed(0)
                                 : 0}
                             </span>
                           </span>
@@ -4003,7 +4003,7 @@ const BarCodeCheck = () => {
                         <span className={styles.amount1}>
                           ₹
                           {matchedTotals
-                            ? Number(matchedTotals?.TOTALAMT).toFixed(2)
+                            ? Number(matchedTotals?.TOTALAMT).toFixed(0)
                             : 0.0}
                         </span>
                       </div>
@@ -4014,7 +4014,7 @@ const BarCodeCheck = () => {
                           <span className={styles.amount2}>
                             ₹
                             {matchedTotals
-                              ? Number(matchedTotals?.GSTTOTALAMT).toFixed(2)
+                              ? Number(matchedTotals?.GSTTOTALAMT).toFixed(0)
                               : 0.0}
                           </span>
                         </div>
@@ -4027,7 +4027,7 @@ const BarCodeCheck = () => {
                         <span className={styles.amount1}>
                           ₹
                           {matchedTotals
-                            ? Number(matchedTotals?.NETAMT).toFixed(2)
+                            ? Number(matchedTotals?.NETAMT).toFixed(0)
                             : 0.0}
                         </span>
                       </div>
@@ -4148,7 +4148,7 @@ const BarCodeCheck = () => {
                         <span className={styles.amount1}>
                           ₹{" "}
                           {barCode?.FINERATE
-                            ? barCode?.FINERATE.toFixed(2)
+                            ? barCode?.FINERATE.toFixed(0)
                             : 0.0}
                         </span>
                       </div>
@@ -4309,7 +4309,7 @@ const BarCodeCheck = () => {
                           <span className={styles.label2}>Amount</span>
                           <span className={styles.separator2}>:</span>
                           <span className={styles.value2}>
-                            ₹ {amount ? Number(amount).toFixed(2) : 0.0}
+                            ₹ {amount ? Number(amount).toFixed(0) : 0.0}
                           </span>
                         </div>
                         <div className={styles.highlightBox3}>
@@ -4318,7 +4318,7 @@ const BarCodeCheck = () => {
                           <span className={styles.value2}>
                             ₹{" "}
                             {barCode?.COST_MC
-                              ? Number(barCode?.COST_MC).toFixed(2)
+                              ? Number(barCode?.COST_MC).toFixed(0)
                               : 0.0}
                           </span>
                         </div>
@@ -4328,7 +4328,7 @@ const BarCodeCheck = () => {
                           <span className={styles.value2}>
                             ₹{" "}
                             {barCode?.COST_STAMT
-                              ? barCode?.COST_STAMT.toFixed(2)
+                              ? barCode?.COST_STAMT.toFixed(0)
                               : 0.0}
                           </span>
                           {/* </div> */}
@@ -4389,7 +4389,7 @@ const BarCodeCheck = () => {
                             amount +
                             barCode?.COST_MC +
                             barCode?.COST_STAMT
-                          )?.toFixed(2) || 0.0}
+                          )?.toFixed(0) || 0.0}
                         </span>
                       </div>
                       {gstNo > 0 ? (
@@ -4404,7 +4404,7 @@ const BarCodeCheck = () => {
                                 barCode?.COST_STAMT) *
                                 barCode?.GSTRATE) /
                               100
-                            )?.toFixed(2) || 0.0}
+                            )?.toFixed(0) || 0.0}
                           </span>
                         </div>
                       ) : (
@@ -4422,7 +4422,7 @@ const BarCodeCheck = () => {
                             ((amount + barCode?.COST_MC + barCode?.COST_STAMT) *
                               barCode?.GSTRATE) /
                               100
-                          )?.toFixed(2) || 0.0}
+                          )?.toFixed(0) || 0.0}
                         </span>
                       </div>
                     </div>

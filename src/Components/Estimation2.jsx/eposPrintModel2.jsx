@@ -126,7 +126,7 @@ export const printReceiptModule2 = (
     barCodeData.forEach((item, index) => {
       const tag = (item?.TAGNO ?? "").toString().padEnd(10, " "); // SNO column
       const purity = (item?.PREFIX ?? "").padEnd(12, " ");
-      const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(2)).padStart(
+      const amount = ("Rate :" + (item?.RATE ?? 0).toFixed(0)).padStart(
         19,
         " ",
       ); // right-align AMOUNT
@@ -144,7 +144,7 @@ export const printReceiptModule2 = (
         mcgValue > 0 ? `${mcgValue}/g`.padEnd(6, " ") : "".padEnd(6, " ");
       const mcAmt = `${Number(
         matchedMc?.TOTALAMT ?? item?.CATTOTMC ?? 0,
-      ).toFixed(2)}`.padStart(27, " ");
+      ).toFixed(0)}`.padStart(27, " ");
 
       const matched = wastageData.find((w) => w.TAGNO === item?.TAGNO);
       const matchedStone = stonesData.filter(
@@ -215,10 +215,10 @@ export const printReceiptModule2 = (
 
       const amtValue = (nwtAmt + calculateAmt) * rateAmt || 0;
 
-      const amt = amtValue.toFixed(2).padStart(27, " ");
+      const amt = amtValue.toFixed(0).padStart(27, " ");
 
       const totalAmtValue = matchedTotal?.TOTALAMT;
-      const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(2)}`.padStart(
+      const totalAmt = `${Number(totalAmtValue ?? 0).toFixed(0)}`.padStart(
         27,
         " ",
       );
@@ -231,7 +231,7 @@ export const printReceiptModule2 = (
       const fNwt = Number(netWeight) - Number(copperWt);
       const totWt = Number(fNwt?.toFixed(3)) + Number(wastAmt?.toFixed(3));
       const castMetal = Number(totWt) * Number(item?.RATE);
-      const metalValue = `${Number(castMetal ?? 0).toFixed(2)}`.padStart(
+      const metalValue = `${Number(castMetal ?? 0).toFixed(0)}`.padStart(
         27,
         " ",
       );
@@ -339,8 +339,8 @@ export const printReceiptModule2 = (
       printer.addText(`    TOTAL VALUE    : ${totalAmt}\n`);
       // Third row: MRP + OFFER
       // printer.addText(
-      //   `    MRP:${item.CPrice?.toFixed(2) || "0.00"}        OFFER:${
-      //     item?.offer?.toFixed(2) || "0.00"
+      //   `    MRP:${item.CPrice?.toFixed(0) || "0.00"}        OFFER:${
+      //     item?.offer?.toFixed(0) || "0.00"
       //   }\n`
       // );
 
@@ -355,7 +355,7 @@ export const printReceiptModule2 = (
     const leftText1 = leftLabel1 + leftValue1;
 
     const rightLabel1 = "Amount : ";
-    const rightValue1 = totalAmt.toFixed(2);
+    const rightValue1 = totalAmt.toFixed(0);
     const rightText1 = rightLabel1 + rightValue1;
 
     let spaceCount1 = lineWidth - (leftText1.length + rightText1.length);
@@ -375,7 +375,7 @@ export const printReceiptModule2 = (
 
     // if (Number(gstNo) > 0) {
     //   const rightLabel2 = `GST@${gstNo}% : `;
-    //   const rightValue2 = totalGstAmt.toFixed(2);
+    //   const rightValue2 = totalGstAmt.toFixed(0);
     //   rightText2 = rightLabel2 + rightValue2;
     // }
 

@@ -269,6 +269,7 @@ export const PrintModule1 = (
           <span style="font-size: 16px; font-weight: bold;"><b>${tag}</b> ${purity}</span>
           <span style="font-size: 16px; font-weight: bold;">Rate : ${formatNum(
             rate,
+            0,
           )}</span>
         </div>
        <div style="display:flex; justify-content:space-between; margin-top:5px; margin-bottom:10px"><span><b>${
@@ -294,6 +295,7 @@ export const PrintModule1 = (
       htmlContent += `
        <div class="data-row"><span class="data-label">METAL VALUE</span><span class="data-colon">:</span><span class="data-value">${formatNum(
          totalValue,
+         0,
        )}</span></div>
         ${
           Number(wastPer) === 2
@@ -340,6 +342,7 @@ export const PrintModule1 = (
         )}</span></div>
         <div class="data-row"><span class="data-label">AMOUNT</span><span class="data-colon">:</span><span class="data-value">${formatNum(
           amtValue,
+          0,
         )}</span></div>
       `;
     }
@@ -348,9 +351,11 @@ export const PrintModule1 = (
       htmlContent += `
        <div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
          mcAmt,
+         0,
        )}</span></div>
         <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
           totalItemAmt ?? item?.ITEM_TOTAMT,
+          0,
         )}</span></div>
       `;
     } else {
@@ -359,13 +364,16 @@ export const PrintModule1 = (
         ["M", "ALL"].includes(wastMc)
           ? `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value1"> ${mcgValue > 0 ? mcgValue + "/g" : ""}</span><span class="data-value">${formatNum(
               mcAmt,
+              0,
             )}</span></div>`
           : `<div class="data-row"><span class="data-label">MAKING CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
               mcAmt,
+              0,
             )}</span></div>`
       }
       <div class="data-row"><span class="data-label">STONE CHARGES</span><span class="data-colon">:</span><span class="data-value">${formatNum(
         totalItemAmt ?? item?.ITEM_TOTAMT,
+        0,
       )}</span></div>
     `;
     }
@@ -397,10 +405,12 @@ export const PrintModule1 = (
         <span style="display:inline-block; width:8px;">X</span>
         <span style="display:inline-block; width:40px; text-align:right;">${formatNum(
           s.RATE,
+          0,
         )}</span>
         <span style="display:inline-block; width:8px;">=</span>
         <span style="display:inline-block; width:40px; text-align:right;">${formatNum(
           s.AMOUNT,
+          0,
         )}</span>
         <span style="display:inline-block; width:40px; text-align:left; margin-left: 2px;">${pcsStr}</span>
       </div>
@@ -437,6 +447,7 @@ export const PrintModule1 = (
         <div class="col">
         <div class="tot-row"><span class="tot-label">Amount</span><span class="tot-colon">:</span><span class="tot-value">${formatNum(
           totalAmt,
+          0,
         )}/-</span></div>
         <div class="tot-row"><span class="tot-label"></span><span class="tot-colon"></span><span class="tot-value"></span></div>
         ${
