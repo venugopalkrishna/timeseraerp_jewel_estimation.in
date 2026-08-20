@@ -1288,7 +1288,7 @@ const Estimation = () => {
           DPRICE: 0,
           GRMS: item?.Grms ?? 0,
           ISDIAMOND: false,
-          ISSBRANCHNAME: null,
+          ISSBRANCHNAME: Number(item?.HomeKey) ?? 0,
           ISSDATE: null,
           ISSNO: null,
           ITEMCODE: "-",

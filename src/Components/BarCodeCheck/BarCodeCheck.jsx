@@ -1354,7 +1354,7 @@ const BarCodeCheck = () => {
           DPRICE: 0,
           GRMS: item?.Grms ?? 0,
           ISDIAMOND: false,
-          ISSBRANCHNAME: null,
+          ISSBRANCHNAME: Number(item?.HomeKey) ?? 0,
           ISSDATE: null,
           ISSNO: null,
           ITEMCODE: "-",
@@ -3457,7 +3457,7 @@ const BarCodeCheck = () => {
                         Today Rate
                         <br />
                         <span className={styles.amount}>
-                          ₹ {barCode?.RATE ? barCode?.RATE.toFixed(2) : 0.0}
+                          ₹ {barCode?.RATE ? barCode?.RATE.toFixed(0) : 0.0}
                         </span>
                       </div>
                     </div>
