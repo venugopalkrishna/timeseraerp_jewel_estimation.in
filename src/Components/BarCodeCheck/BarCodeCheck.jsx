@@ -412,259 +412,273 @@ const BarCodeCheck = () => {
       }
 
       const newTag = data[0]?.TAGNO;
+      const trayValue = data[0]?.TRAY;
 
-      const modifiedTotalData = data.map((item) => {
-        const safeNumber = (val) => {
-          const num = Number(val);
-          return isNaN(num) ? 0 : num;
-        };
+      if (trayValue === true) {
+        setHomeDrawerOpen(true);
+        setTray(true);
+        setTrayTagNo(data[0]?.TAGNO);
+        setSelectTagMainProduct(data[0]?.MNAME);
+        setSelectTagProductName(data[0]?.PRODUCTNAME);
+        setSelectTagPurity(data[0]?.PREFIX);
+        setTagHuid(data[0]?.HUID);
+        setTagDesc(data[0]?.DESC1);
+        setTagWastage(Number(data[0]?.WASTAGE));
+        setTagMaking(Number(data[0]?.MAKINGCHARGES));
+      } else {
+        const modifiedTotalData = data.map((item) => {
+          const safeNumber = (val) => {
+            const num = Number(val);
+            return isNaN(num) ? 0 : num;
+          };
 
-        const nwt = safeNumber(item?.NWT ?? 0);
-        const rate = safeNumber(item?.RATE ?? 0);
-        const cattotwast = safeNumber(item?.CATTOTWAST ?? 0);
-        const cattotMc = safeNumber(item?.CATTOTMC ?? 0);
-        const directWastage = safeNumber(item?.DIRECTWASTAGE ?? 0);
-        const directMc = safeNumber(item?.DIRECTMC ?? 0);
-        const stoneAmount = safeNumber(item?.ITEM_TOTAMT ?? 0);
-        const gstNo = data[0]?.GSTRATE;
+          const nwt = safeNumber(item?.NWT ?? 0);
+          const rate = safeNumber(item?.RATE ?? 0);
+          const cattotwast = safeNumber(item?.CATTOTWAST ?? 0);
+          const cattotMc = safeNumber(item?.CATTOTMC ?? 0);
+          const directWastage = safeNumber(item?.DIRECTWASTAGE ?? 0);
+          const directMc = safeNumber(item?.DIRECTMC ?? 0);
+          const stoneAmount = safeNumber(item?.ITEM_TOTAMT ?? 0);
+          const gstNo = data[0]?.GSTRATE;
 
-        const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
-        const mcAmount = directMc > 0 ? directMc : cattotMc;
+          const wastageAmt = directWastage > 0 ? directWastage : cattotwast;
+          const mcAmount = directMc > 0 ? directMc : cattotMc;
 
-        const rateAmount = Number(nwt + wastageAmt).toFixed(3);
-        const amount = Number(rateAmount * rate).toFixed(0);
-        const mcStone = mcAmount + stoneAmount;
+          const rateAmount = Number(nwt + wastageAmt).toFixed(3);
+          const amount = Number(rateAmount * rate).toFixed(0);
+          const mcStone = mcAmount + stoneAmount;
 
-        const totalAmount = safeNumber(amount) + safeNumber(mcStone);
-        const gstAmount = (totalAmount * gstNo) / 100;
-        const netAmount = totalAmount + gstAmount;
+          const totalAmount = safeNumber(amount) + safeNumber(mcStone);
+          const gstAmount = (totalAmount * gstNo) / 100;
+          const netAmount = totalAmount + gstAmount;
 
-        return {
-          TAGNO: item?.TAGNO ?? "",
-          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
-          TOTALAMT: totalAmount,
-          GSTTOTALAMT: gstAmount,
-          NETAMT: netAmount,
-        };
-      });
+          return {
+            TAGNO: item?.TAGNO ?? "",
+            ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+            TOTALAMT: totalAmount,
+            GSTTOTALAMT: gstAmount,
+            NETAMT: netAmount,
+          };
+        });
 
-      const modifiedMcData = data.map((item, index) => {
-        let nwt = 0;
+        const modifiedMcData = data.map((item, index) => {
+          let nwt = 0;
 
-        const NWT = Number(item?.NWT || 0);
-        const GWT = Number(item?.GWT || 0);
-        const WAST = Number(item?.WASTAGE || 0);
+          const NWT = Number(item?.NWT || 0);
+          const GWT = Number(item?.GWT || 0);
+          const WAST = Number(item?.WASTAGE || 0);
 
-        if (mcCalc === "NWT") {
-          nwt = NWT;
-        } else if (mcCalc === "GWT") {
-          nwt = GWT;
-        } else if (mcCalc === "GWT_WAST") {
-          nwt = GWT + (NWT * WAST) / 100;
-        } else {
-          nwt = NWT + (NWT * WAST) / 100;
-        }
-        const making = Number(item?.MAKINGCHARGES) || 0;
-        return {
-          TAGNO: item?.TAGNO ?? 0,
-          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
-          NWT: nwt,
-          MAKINGCHARGES: making ? making.toString() : "",
-          DIRECTAMT: item?.DIRECTMC,
-          TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
-        };
-      });
+          if (mcCalc === "NWT") {
+            nwt = NWT;
+          } else if (mcCalc === "GWT") {
+            nwt = GWT;
+          } else if (mcCalc === "GWT_WAST") {
+            nwt = GWT + (NWT * WAST) / 100;
+          } else {
+            nwt = NWT + (NWT * WAST) / 100;
+          }
+          const making = Number(item?.MAKINGCHARGES) || 0;
+          return {
+            TAGNO: item?.TAGNO ?? 0,
+            ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+            NWT: nwt,
+            MAKINGCHARGES: making ? making.toString() : "",
+            DIRECTAMT: item?.DIRECTMC,
+            TOTALAMT: making > 0 ? Number(nwt * making) : (item?.DIRECTMC ?? 0),
+          };
+        });
 
-      const modifiedData = data.map((item, index) => {
-        const NWT = Number(item?.NWT) || 0;
-        const GWT = Number(item?.GWT) || 0;
-        const wastage = Number(item?.WASTAGE) || 0;
-        const directWastage = Number(item?.DIRECTWASTAGE) || 0;
+        const modifiedData = data.map((item, index) => {
+          const NWT = Number(item?.NWT) || 0;
+          const GWT = Number(item?.GWT) || 0;
+          const wastage = Number(item?.WASTAGE) || 0;
+          const directWastage = Number(item?.DIRECTWASTAGE) || 0;
 
-        // Pick base weight depending on calculation mode
-        let nwt = 0;
-        if (wastageCalc === "NWT") {
-          nwt = NWT;
-        } else if (wastageCalc === "GWT") {
-          nwt = GWT;
-        }
+          // Pick base weight depending on calculation mode
+          let nwt = 0;
+          if (wastageCalc === "NWT") {
+            nwt = NWT;
+          } else if (wastageCalc === "GWT") {
+            nwt = GWT;
+          }
 
-        // Determine total weight
-        const totalWt =
-          Number(wastage) > 0
-            ? Number(((nwt * wastage) / 100).toFixed(3))
-            : directWastage;
-        return {
-          TAGNO: item?.TAGNO ?? "",
-          ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
-          NWT: nwt,
-          WASTAGE: wastage > 0 ? wastage.toString() : "",
-          DIRECTWT: directWastage,
-          TOTALWT: totalWt,
-        };
-      });
+          // Determine total weight
+          const totalWt =
+            Number(wastage) > 0
+              ? Number(((nwt * wastage) / 100).toFixed(3))
+              : directWastage;
+          return {
+            TAGNO: item?.TAGNO ?? "",
+            ISSBRANCHNAME: item?.ISSBRANCHNAME ?? "",
+            NWT: nwt,
+            WASTAGE: wastage > 0 ? wastage.toString() : "",
+            DIRECTWT: directWastage,
+            TOTALWT: totalWt,
+          };
+        });
 
-      setTotalAmounts((prevData) => {
-        // Collect all existing TAGNOs from previous state
-        const existingTags = new Set(prevData.map((item) => item.TAGNO));
+        setTotalAmounts((prevData) => {
+          // Collect all existing TAGNOs from previous state
+          const existingTags = new Set(prevData.map((item) => item.TAGNO));
 
-        // Only keep new ones that are not already added
-        const filteredData = modifiedTotalData.filter(
-          (item) => !existingTags.has(item.TAGNO),
-        );
+          // Only keep new ones that are not already added
+          const filteredData = modifiedTotalData.filter(
+            (item) => !existingTags.has(item.TAGNO),
+          );
 
-        if (filteredData.length === 0) {
-          return prevData; // no update, keep old state
-        }
+          if (filteredData.length === 0) {
+            return prevData; // no update, keep old state
+          }
 
-        // Return updated array
-        return [...prevData, ...filteredData];
-      });
+          // Return updated array
+          return [...prevData, ...filteredData];
+        });
 
-      setMcData((prevData) => {
-        const existingTags = prevData.map((item) => item.TAGNO);
+        setMcData((prevData) => {
+          const existingTags = prevData.map((item) => item.TAGNO);
 
-        const filteredData = modifiedMcData.filter(
-          (item) => !existingTags.includes(item.TAGNO),
-        );
+          const filteredData = modifiedMcData.filter(
+            (item) => !existingTags.includes(item.TAGNO),
+          );
 
-        if (filteredData.length === 0) {
-          // message.error("All these tag numbers already existed");
-          return prevData;
-        }
+          if (filteredData.length === 0) {
+            // message.error("All these tag numbers already existed");
+            return prevData;
+          }
 
-        const updatedData = [...prevData, ...modifiedMcData];
+          const updatedData = [...prevData, ...modifiedMcData];
 
-        return updatedData;
-      });
+          return updatedData;
+        });
 
-      setWastageData((prevData) => {
-        const existingTags = prevData.map((item) => item.TAGNO);
+        setWastageData((prevData) => {
+          const existingTags = prevData.map((item) => item.TAGNO);
 
-        const filteredData = modifiedData.filter(
-          (item) => !existingTags.includes(item.TAGNO),
-        );
+          const filteredData = modifiedData.filter(
+            (item) => !existingTags.includes(item.TAGNO),
+          );
 
-        if (filteredData.length === 0) {
-          // message.error("All these tag numbers already existed");
-          return prevData;
-        }
+          if (filteredData.length === 0) {
+            // message.error("All these tag numbers already existed");
+            return prevData;
+          }
 
-        const updatedData = [...prevData, ...modifiedData];
+          const updatedData = [...prevData, ...modifiedData];
 
-        return updatedData;
-      });
+          return updatedData;
+        });
 
-      setBarCodeData((prevData) => {
-        const existingTag = prevData.some((item) => item.TAGNO === newTag);
+        setBarCodeData((prevData) => {
+          const existingTag = prevData.some((item) => item.TAGNO === newTag);
 
-        if (existingTag) {
-          messageApi.open({
-            type: "error",
-            content: (
-              <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-                Tag <span style={{ color: "red" }}>{newTag}</span> already
-                existed
-              </span>
-            ),
-          });
-          return prevData;
-        }
-        if (tagNo && scannedRef?.current === true) {
-          messageApi.open({
-            type: "success",
-            content: (
-              <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-                Tag <span style={{ color: "red" }}>{newTag}</span> Scan
-                Successfully
-              </span>
-            ),
-          });
-        }
-        const updatedData = [...prevData, ...data];
+          if (existingTag) {
+            messageApi.open({
+              type: "error",
+              content: (
+                <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                  Tag <span style={{ color: "red" }}>{newTag}</span> already
+                  existed
+                </span>
+              ),
+            });
+            return prevData;
+          }
+          if (tagNo && scannedRef?.current === true) {
+            messageApi.open({
+              type: "success",
+              content: (
+                <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+                  Tag <span style={{ color: "red" }}>{newTag}</span> Scan
+                  Successfully
+                </span>
+              ),
+            });
+          }
+          const updatedData = [...prevData, ...data];
 
-        const pcs = updatedData.reduce(
-          (sum, item) => sum + (item.PIECES || 0),
-          0,
-        );
-        const gwt = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.GWT) || 0),
-          0,
-        );
-        const nwt = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.NWT) || 0),
-          0,
-        );
-        // const totalAmount = updatedData.reduce(
-        //   (sum, item) => sum + (parseFloat(item.SALE_AMOUNT) || 0),
-        //   0
-        // );
-        // const totalGstAmount = updatedData.reduce(
-        //   (sum, item) => sum + (parseFloat(item.SALE_GSTAMOUNT) || 0),
-        //   0
-        // );
-        // const totalNwtAmount = updatedData.reduce(
-        //   (sum, item) => sum + (parseFloat(item.SALE_NETAMT) || 0),
-        //   0
-        // );
-        const totalWastAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
-          0,
-        );
-        const totalMcAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.CATTOTMC) || 0),
-          0,
-        );
-        const totalCtsAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.Item_Cts) || 0),
-          0,
-        );
-        const totalUnCutsAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.Item_Uncuts) || 0),
-          0,
-        );
-        const totalItemDiaAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.Item_diamonds) || 0),
-          0,
-        );
-        const totalDiamondAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.Diamond_Amount) || 0),
-          0,
-        );
+          const pcs = updatedData.reduce(
+            (sum, item) => sum + (item.PIECES || 0),
+            0,
+          );
+          const gwt = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.GWT) || 0),
+            0,
+          );
+          const nwt = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.NWT) || 0),
+            0,
+          );
+          // const totalAmount = updatedData.reduce(
+          //   (sum, item) => sum + (parseFloat(item.SALE_AMOUNT) || 0),
+          //   0
+          // );
+          // const totalGstAmount = updatedData.reduce(
+          //   (sum, item) => sum + (parseFloat(item.SALE_GSTAMOUNT) || 0),
+          //   0
+          // );
+          // const totalNwtAmount = updatedData.reduce(
+          //   (sum, item) => sum + (parseFloat(item.SALE_NETAMT) || 0),
+          //   0
+          // );
+          const totalWastAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.CATTOTWAST) || 0),
+            0,
+          );
+          const totalMcAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.CATTOTMC) || 0),
+            0,
+          );
+          const totalCtsAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.Item_Cts) || 0),
+            0,
+          );
+          const totalUnCutsAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.Item_Uncuts) || 0),
+            0,
+          );
+          const totalItemDiaAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.Item_diamonds) || 0),
+            0,
+          );
+          const totalDiamondAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.Diamond_Amount) || 0),
+            0,
+          );
 
-        const totalPurAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.COST_AMOUNT) || 0),
-          0,
-        );
-        const totalPurGstAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.COST_GSTAMOUNT) || 0),
-          0,
-        );
-        const totalPurNwtAmount = updatedData.reduce(
-          (sum, item) => sum + (parseFloat(item.COST_NETAMOUNT) || 0),
-          0,
-        );
+          const totalPurAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.COST_AMOUNT) || 0),
+            0,
+          );
+          const totalPurGstAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.COST_GSTAMOUNT) || 0),
+            0,
+          );
+          const totalPurNwtAmount = updatedData.reduce(
+            (sum, item) => sum + (parseFloat(item.COST_NETAMOUNT) || 0),
+            0,
+          );
 
-        setTotalPcs(pcs);
-        setTotalGwt(gwt);
-        setTotalNwt(nwt);
-        // setTotalAmt(totalAmount);
-        // setTotalGstAmt(totalGstAmount);
-        // setTotalNwtAmt(totalNwtAmount);
-        setTotalWastAmt(totalWastAmount);
-        setTotalMcAmt(totalMcAmount);
-        setTotalItemCtsAmt(totalCtsAmount);
-        setTotalItemUncAmt(totalUnCutsAmount);
-        setTotalItemDiaAmt(totalItemDiaAmount);
-        setTotalDiamondAmt(totalDiamondAmount);
-        // setGstNo(updatedData[0]?.GSTRATE);
-        setTotalPurAmt(totalPurAmount);
-        setTotalPurGstAmt(totalPurGstAmount);
-        setTotalPurNwtAmt(totalPurNwtAmount);
-        gstAPI(updatedData[0]?.MNAME);
+          setTotalPcs(pcs);
+          setTotalGwt(gwt);
+          setTotalNwt(nwt);
+          // setTotalAmt(totalAmount);
+          // setTotalGstAmt(totalGstAmount);
+          // setTotalNwtAmt(totalNwtAmount);
+          setTotalWastAmt(totalWastAmount);
+          setTotalMcAmt(totalMcAmount);
+          setTotalItemCtsAmt(totalCtsAmount);
+          setTotalItemUncAmt(totalUnCutsAmount);
+          setTotalItemDiaAmt(totalItemDiaAmount);
+          setTotalDiamondAmt(totalDiamondAmount);
+          // setGstNo(updatedData[0]?.GSTRATE);
+          setTotalPurAmt(totalPurAmount);
+          setTotalPurGstAmt(totalPurGstAmount);
+          setTotalPurNwtAmt(totalPurNwtAmount);
+          gstAPI(updatedData[0]?.MNAME);
 
-        return updatedData;
-      });
+          return updatedData;
+        });
+      }
       setBarCode();
     } catch (error) {
       console.error("Error fetching estimation count:", error);

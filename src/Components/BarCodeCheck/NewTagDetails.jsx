@@ -1,5 +1,5 @@
 // src/Components/Tag.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, use } from "react";
 import { Button, Drawer, Input, Modal, Radio, Select } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { Box } from "@mui/material";
@@ -659,8 +659,12 @@ const Tag = ({
   };
 
   const handleAfterOpenChange = (visible) => {
-    if (visible && selectTagMainProductRef.current) {
+    if (selectTagPurity) {
       // Give a tiny delay to ensure the element is rendered
+      setTimeout(() => {
+        tagPiecesRef.current.focus();
+      }, 500);
+    } else {
       setTimeout(() => {
         selectTagMainProductRef.current.focus();
       }, 100);
@@ -682,6 +686,17 @@ const Tag = ({
     itemsAPI();
     bradDetailsAPI();
   }, []);
+
+  useEffect(() => {
+    if (selectTagMainProduct) {
+      productNameAPI(selectTagMainProduct);
+      gstAPI(selectTagMainProduct);
+      purityAPI(selectTagMainProduct);
+    }
+    if (selectTagPurity) {
+      todayRatesAPI(selectTagPurity);
+    }
+  }, [selectTagMainProduct, selectTagPurity]);
 
   useEffect(() => {
     if (selectTagBrandName && selectBrand === "PIECE") {
