@@ -895,7 +895,7 @@ export default function EstimationScreen() {
               </span>
               <Input
                 ref={touchRef}
-                placeholder="0.00"
+                placeholder="0"
                 value={itemForm.touch}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) =>

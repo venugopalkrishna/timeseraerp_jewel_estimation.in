@@ -43,6 +43,7 @@ const SidebarDrawer = ({
   const printModel = localStorage.getItem("printModel");
   const pdfModule = localStorage.getItem("pdfModule");
   const userType = localStorage.getItem("userType");
+  const purchaseInvoice = localStorage.getItem("PurchaseInvoice");
 
   const logOut = () => {
     navigate("/");
@@ -63,23 +64,55 @@ const SidebarDrawer = ({
 
   let menuItems = [];
 
+  // const userType1 = [
+  //   { text: "Home", icon: <Home />, path: "/home" },
+  //   {
+  //     text: "Estimation",
+  //     icon: <QrCodeScannerSharpIcon />,
+  //     path: "/bar-code-check",
+  //   },
+  //   {
+  //     text: "Estimation-2",
+  //     icon: <QrCodeScannerSharpIcon />,
+  //     path: "/estimation",
+  //   },
+  //   // {
+  //   //   text: "Purchase Estimation",
+  //   //   icon: <QrCodeScannerSharpIcon />,
+  //   //   path: "/purchase-estimation",
+  //   // },
+  //   {
+  //     text: "Tag Check",
+  //     icon: <SellSharpIcon />,
+  //     path: "/tag-check",
+  //   },
+  // ];
+
   const userType1 = [
     { text: "Home", icon: <Home />, path: "/home" },
+
     {
       text: "Estimation",
       icon: <QrCodeScannerSharpIcon />,
       path: "/bar-code-check",
     },
+
     {
       text: "Estimation-2",
       icon: <QrCodeScannerSharpIcon />,
       path: "/estimation",
     },
-    // {
-    //   text: "Purchase Estimation",
-    //   icon: <QrCodeScannerSharpIcon />,
-    //   path: "/purchase-estimation",
-    // },
+
+    ...(purchaseInvoice === "PE"
+      ? [
+          {
+            text: "Purchase Estimation",
+            icon: <QrCodeScannerSharpIcon />,
+            path: "/purchase-estimation",
+          },
+        ]
+      : []),
+
     {
       text: "Tag Check",
       icon: <SellSharpIcon />,
@@ -94,11 +127,15 @@ const SidebarDrawer = ({
       icon: <QrCodeScannerSharpIcon />,
       path: "/bar-code-check",
     },
-    // {
-    //   text: "Purchase Estimation",
-    //   icon: <QrCodeScannerSharpIcon />,
-    //   path: "/purchase-estimation",
-    // },
+    ...(purchaseInvoice === "PE"
+      ? [
+          {
+            text: "Purchase Estimation",
+            icon: <QrCodeScannerSharpIcon />,
+            path: "/purchase-estimation",
+          },
+        ]
+      : []),
     {
       text: "Tag Check",
       icon: <SellSharpIcon />,
@@ -118,11 +155,15 @@ const SidebarDrawer = ({
       icon: <QrCodeScannerSharpIcon />,
       path: "/estimation",
     },
-    // {
-    //   text: "Purchase Estimation",
-    //   icon: <QrCodeScannerSharpIcon />,
-    //   path: "/purchase-estimation",
-    // },
+    ...(purchaseInvoice === "PE"
+      ? [
+          {
+            text: "Purchase Estimation",
+            icon: <QrCodeScannerSharpIcon />,
+            path: "/purchase-estimation",
+          },
+        ]
+      : []),
     {
       text: "Tag Check",
       icon: <SellSharpIcon />,
@@ -142,11 +183,15 @@ const SidebarDrawer = ({
       icon: <QrCodeScannerSharpIcon />,
       path: "/bar-code-check",
     },
-    // {
-    //   text: "Purchase Estimation",
-    //   icon: <QrCodeScannerSharpIcon />,
-    //   path: "/purchase-estimation",
-    // },
+    ...(purchaseInvoice === "PE"
+      ? [
+          {
+            text: "Purchase Estimation",
+            icon: <QrCodeScannerSharpIcon />,
+            path: "/purchase-estimation",
+          },
+        ]
+      : []),
     {
       text: "Tag Check",
       icon: <SellSharpIcon />,

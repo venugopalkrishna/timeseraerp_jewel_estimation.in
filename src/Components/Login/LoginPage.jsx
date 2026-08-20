@@ -75,6 +75,7 @@ const LoginPage = ({ onLogin }) => {
         localStorage.setItem("wastPer", data[0]?.WAST_PER);
         localStorage.setItem("mcCalc", data[0]?.MC_CALC_FORMATE);
         localStorage.setItem("ePrefix", data[0]?.E_PREFIX);
+        localStorage.setItem("PurchaseInvoice", data[0]?.INVOICE_GEN_MODEL);
       }
     } catch (error) {
       console.error("Error fetching estimation count:", error);
