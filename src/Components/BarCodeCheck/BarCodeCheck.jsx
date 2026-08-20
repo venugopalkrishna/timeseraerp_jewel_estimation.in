@@ -3420,6 +3420,7 @@ const BarCodeCheck = () => {
                         <small>Tag no</small>
                       </div>
                       {barCode?.VV &&
+                        barCode?.VV != "" &&
                         barCode?.VV != "-" &&
                         barCode?.VV != null &&
                         barCode?.VV != undefined &&

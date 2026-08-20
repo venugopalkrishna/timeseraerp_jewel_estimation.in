@@ -9,6 +9,9 @@ import { useEffect, useRef, useState } from "react";
 import SidebarDrawer from "../SidebarDrawer";
 import Header from "../Header";
 import { CREATE_jwel } from "../Config/Config";
+import dayjs from "dayjs";
+
+const toISODate = (d) => dayjs(d).format("YYYY-MM-DD");
 
 const PRODUCT_ORDER = ["DIAMONDS", "GOLD", "SILVER"];
 
@@ -295,6 +298,8 @@ const DailyRates = () => {
   const [syncFlash, setSyncFlash] = useState(new Set());
   const inputRefs = useRef({});
   const [open, setOpen] = useState(false);
+  const todayISO = toISODate(new Date());
+  const [selectedDate, setSelectedDate] = useState(todayISO);
   const userArea = localStorage.getItem("city");
   const userName = localStorage.getItem("userName");
   const singleImage = localStorage.getItem("singleImage");
@@ -302,11 +307,14 @@ const DailyRates = () => {
   const fetchRates = async () => {
     setLoading(true);
     try {
-      const currentDate = new Date().toLocaleDateString("en-US", {
+      // Use selectedDate (YYYY-MM-DD) → format to MM/DD/YYYY for the API
+      const dateObj = new Date(selectedDate + "T00:00:00");
+      const currentDate = dateObj.toLocaleDateString("en-US", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
       });
+
       const masterRes = await axios.get(
         `${CREATE_jwel}/api/Master/GetDataFromGivenTableName?tableName=Prefix_Master`,
         { headers: { tenantName } },
@@ -314,45 +322,30 @@ const DailyRates = () => {
       const displayableRows = (masterRes.data ?? []).filter(
         (item) => item.DISPLAY_DRATES === true,
       );
-      const allowedKeys = new Set(
-        displayableRows.map(
-          (item) => `${item.MAINPRODUCT}__${item.Prefix ?? item.PREFIX}`,
-        ),
-      );
       const res = await axios.get(
         `${CREATE_jwel}/api/Master/GetDataFromGivenTableNameWithWhere?tableName=DAILY_RATES&where=RDATE='${currentDate}'`,
         { headers: { tenantName } },
       );
-      const today = new Date().toISOString().split("T")[0];
-      let flat = (res.data ?? []).filter(
-        (item) => item.RDATE?.split("T")[0] === today,
+
+      // Filter by selectedDate instead of always "today"
+      const selectedDateISO = selectedDate; // already "YYYY-MM-DD"
+      const savedRates = (res.data ?? []).filter(
+        (item) => item.RDATE?.split("T")[0] === selectedDateISO,
       );
-      if (flat.length === 0) {
-        flat = displayableRows.map((item) => ({
+
+      const flat = displayableRows.map((item) => {
+        const prefix = item.Prefix ?? item.PREFIX;
+        const saved = savedRates.find(
+          (r) => r.MAINPRODUCT === item.MAINPRODUCT && r.PREFIX === prefix,
+        );
+        return {
           ...item,
           MAINPRODUCT: item.MAINPRODUCT,
-          PREFIX: item.Prefix ?? item.PREFIX,
-          RATE: item.RATE ?? 0,
+          PREFIX: prefix,
+          RATE: saved?.RATE ?? item.RATE ?? 0,
           TEMP_RATE: item.SCHEME_CALC ? 1 : 0,
-        }));
-      } else {
-        flat = flat
-          .filter((item) =>
-            allowedKeys.has(`${item.MAINPRODUCT}__${item.PREFIX}`),
-          )
-          .map((item) => {
-            const master = displayableRows.find(
-              (m) =>
-                m.MAINPRODUCT === item.MAINPRODUCT &&
-                (m.Prefix ?? m.PREFIX) === item.PREFIX,
-            );
-            return {
-              ...item,
-              SCHEME_CALC: master?.SCHEME_CALC ?? false, // ← carry SCHEME_CALC from master
-              TEMP_RATE: master?.SCHEME_CALC ? 1 : 0,
-            };
-          });
-      }
+        };
+      });
       const grp = groupByProduct(flat);
       setGrouped(grp);
       setSortedProducts(sortProducts(Object.keys(grp)));
@@ -522,7 +515,12 @@ const DailyRates = () => {
       setTimeout(() => setSavedFlash(false), 2000);
 
       // ── Step 7: Re-fetch fresh data from server ──
-      fetchRates();
+      const resetDate = toISODate(new Date());
+      if (resetDate !== selectedDate) {
+        setSelectedDate(resetDate); // triggers fetchRates via the effect
+      } else {
+        fetchRates();
+      }
     } catch (err) {
       console.error("Error submitting rates:", err);
     } finally {

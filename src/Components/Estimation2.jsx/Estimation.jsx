@@ -114,8 +114,6 @@ const Estimation = () => {
   const mcCalc = localStorage.getItem("mcCalc");
   const ePrefix = localStorage.getItem("ePrefix");
 
-  console.log(storeDetails, "storeDetails");
-
   const toNumber = (val) => Number(val) || 0;
 
   const toggleDrawer = () => {
@@ -2733,6 +2731,7 @@ const Estimation = () => {
                         <small>Tag no</small>
                       </div>
                       {barCode?.VV &&
+                        barCode?.VV != "" &&
                         barCode?.VV != "-" &&
                         barCode?.VV != null &&
                         barCode?.VV != undefined &&
